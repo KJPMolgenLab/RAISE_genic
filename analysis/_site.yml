@@ -1,7 +1,7 @@
-name: "RAISE_GENIC"
+name: RAISE_GENIC
 output_dir: ../docs
 navbar:
-  title: "RAISE_GENIC"
+  title: RAISE_GENIC
   left:
   - text: Home
     href: index.html
@@ -9,6 +9,10 @@ navbar:
     href: about.html
   - text: License
     href: license.html
+  right:
+  - icon: fa-github
+    text: Source code
+    href: https://github.com/KJPMolgenLab/RAISE_genic
 output:
   workflowr::wflow_html:
     toc: yes
