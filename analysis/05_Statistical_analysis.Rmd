@@ -1,0 +1,295 @@
+---
+title: "Statistical analysis"
+author: "AGC, AY"
+date: "23 3 2021"
+output: html_document
+---
+
+# Statistical analysis 
+
+```{r setup, include=FALSE, echo=F}
+reanalyze=T
+home = getwd()
+output= paste0(home, "/output/")
+
+source(paste0(home,"/code/custom_functions.R"))
+
+library(DESeq2)
+library(knitr)
+library(tidyverse)
+library(pheatmap)
+library(WGCNA)
+library(flashClust)
+library(pheatmap)
+library(limma)
+library(xlsx)
+
+opts_chunk$set(echo = TRUE, 
+               fig.height = 7, 
+               fig.width = 9, 
+               message = TRUE,
+               warning = TRUE,
+               fig.align='center',
+               dpi=500
+)
+
+
+load(paste0(output,"/dds_matrix.RData"))
+SampleInfo = as.data.frame(colData(ddsMat))
+log_2cpm=log2(counts(ddsMat, normalize=T)+1)
+
+```
+
+
+
+# Q1 Which genes are differentially regualted upon KO of DEPDC5 
+
+## Modelling the KO in all different combinations
+
+```{r loops_for_comparison, message=F}
+
+if(reanalyze | !file.exists(paste0(home,"/output/ResTabs_KO.RData"))){
+  # calculate all combinations 
+  
+  CellLines=c("D62","D244","ReN")
+  Rapamycin=c("noRAPA", "RAPA")
+  Differentiation=c("noDIFF", "DIFF")
+  Type_sgRNA<-list(c("sgNTC","sg2.1"),c("sgNTC","sg2.2"))
+  target="KO"
+  # no random effects included 
+  for(r in Rapamycin){
+    Rapafilter = SampleInfo$RAPA %in% r
+    for(d in Differentiation){
+      Difffilter = SampleInfo$DIFF %in% d
+      for(Tp in Type_sgRNA){
+        sgRNAfilter = SampleInfo$gRNA %in% Tp
+        vs_label=paste0(Tp, sep="", collapse="_")
+        for(Cl in CellLines){
+          Celllinefilter = SampleInfo$CellLine %in% Tp
+          Set = rownames(SampleInfo)[Rapafilter*Difffilter*sgRNAfilter*Celllinefilter]
+          lab = paste("restab", Cl, vs_label, d,r, sep="_")
+          print(lab)
+          assign(lab, 
+                 comparison(ddsMat, samples = Set, 
+                            target =target,randomeffect = c()))
+          }
+      }
+    }
+  }
+  
+  comparisons= apropos("restab")
+  save(list = comparisons, file = paste0(home,"/output/ResTabs_KO.RData"))
+} else 
+  load(file = paste0(home,"/output/ResTabs_KO.RData"))
+
+
+```
+
+
+```{r predef_for_analaysis}
+samesign <- function(x) {abs(sum(sign(x)))==length(x)}
+mypval=0.05
+colors <- rev(colorRampPalette(brewer.pal(9, "Spectral"))(255))
+
+
+getlinmodoutput = function(targetline, 
+                           targetdiff, 
+                           targetrapa){
+  
+  
+  samplesincl = SampleInfo$DIFF==targetdiff & 
+    SampleInfo$RAPA==targetrapa &
+    SampleInfo$CellLine== targetline
+  
+
+  pvalrep=  get(paste0("restab_", targetline, "_sgNTC_sg2.1_", targetdiff, "_" , targetrapa))$padj<mypval &
+    get(paste0("restab_", targetline, "_sgNTC_sg2.2_", targetdiff, "_" , targetrapa))$padj<mypval
+  
+  betarep = apply(cbind(get(paste0("restab_", targetline, "_sgNTC_sg2.1_", targetdiff, "_" , targetrapa))$log2FoldChange,
+                        get(paste0("restab_", targetline, "_sgNTC_sg2.2_", targetdiff, "_" , targetrapa))$log2FoldChange), 1,
+                  samesign)
+  
+  hits=geneids[betarep & pvalrep]
+  
+  
+  SamplesSet=SampleInfo[samplesincl,]
+  
+  plotmatrix = log_2cpm[hits,rownames(SamplesSet)]
+  
+  rownames(SamplesSet)=SamplesSet$label_rep
+  
+  colnames(plotmatrix)=SamplesSet$label_rep
+  rownames(plotmatrix)=rowData(ddsMat)[hits,"hgnc"]     
+  
+  cellcol = Dark8[1:nlevels(SampleInfo$CellLine)]
+  names(cellcol) = levels(SampleInfo$CellLine)
+  cellcol = cellcol[as.character(unique(SamplesSet$CellLine))]
+  
+  gRNAcol = Dark8[c(1:nlevels(SampleInfo$gRNA))+nlevels(SampleInfo$CellLine)]
+  names(gRNAcol) = levels(SampleInfo$gRNA)
+  gRNAcol = gRNAcol[as.character(unique(SamplesSet$gRNA))]
+  
+  diffcol = brewer.pal(3,"Set1")[1:nlevels(SampleInfo$DIFF)]
+  names(diffcol) = levels(SampleInfo$DIFF)
+  diffcol = diffcol[as.character(unique(SamplesSet$DIFF))]
+  
+  rapacol = brewer.pal(3,"Set2")[1:nlevels(SampleInfo$RAPA)]
+  names(rapacol) = levels(SampleInfo$RAPA)
+  rapacol = rapacol[as.character(unique(SamplesSet$RAPA))]
+  
+  ann_colors = list(
+    DIFF = diffcol, 
+    RAPA = rapacol,
+    gRNA = gRNAcol,
+    CellLine=cellcol)
+  
+  collabels = SamplesSet[,c("CellLine","DIFF","RAPA", "gRNA")] %>%  
+    mutate_all(as.character) %>% as.data.frame()
+  
+  rownames(collabels)=SamplesSet$label_rep
+  
+  idx=order(SamplesSet$gRNA)
+  
+  
+  pheatmap(plotmatrix[,idx],
+           border_color = NA, 
+           annotation_col = collabels[idx,],
+           annotation_colors = ann_colors,
+           clustering_method = "ward.D2",
+           cluster_cols = F,
+           col = colors, 
+           scale = "row",
+           main = "Normalized log2 counts PROLIF noRAPA")
+  
+  
+  gene_univers = rownames(ddsMat)
+  
+  gostres = getGOresults(hits, gene_univers)
+  
+  toptab = gostres$result
+  
+  
+  write.xlsx2(toptab, file = paste0(output, "/GOres_",targetline,targetdiff,targetrapa,".xlsx"), sheetName = "GO_enrichment")
+  
+  idx = grepl("GO|KEGG", toptab$source)
+  titlename = paste(targetline,targetdiff,targetrapa)
+  if(!any(idx)){
+    p = ggplot() + annotate("text", x = 4, y = 25, size=4, 
+                            label = "no significant GO term") + 
+      ggtitle(titlename)+theme_void()+
+      theme(plot.title = element_text(hjust = 0.5))
+  } else {
+    p=GOplot(toptab[idx, ], 10, Title = titlename)
+  }
+  print(p)
+}
+
+
+
+geneids=rownames(restab_D244_sgNTC_sg2.1_noDIFF_noRAPA)
+
+```
+
+## KO effect in noDIFF noRAPA
+### D62
+
+```{r noDIFF_noRAPA_D62,  fig.height=20, fig.width=15}
+
+getlinmodoutput(targetline = "D62",targetdiff = "noDIFF",targetrapa = "noRAPA")
+
+```
+
+### D244
+
+```{r noDIFF_noRAPA_D244,  fig.height=20, fig.width=15}
+
+getlinmodoutput(targetline = "D244",targetdiff = "noDIFF",targetrapa = "noRAPA")
+
+```
+
+### ReN
+
+```{r noDIFF_noRAPA_ReN,  fig.height=20, fig.width=15}
+
+getlinmodoutput(targetline = "ReN",targetdiff = "noDIFF",targetrapa = "noRAPA")
+
+```
+
+
+## KO effect in DIFF noRAPA
+
+### D62
+
+```{r DIFF_noRAPA_D62,  fig.height=20, fig.width=15}
+
+getlinmodoutput(targetline = "D62",targetdiff = "DIFF",targetrapa = "noRAPA")
+
+```
+
+### D244
+
+```{r DIFF_noRAPA_D244,  fig.height=20, fig.width=15}
+
+getlinmodoutput(targetline = "D244",targetdiff = "DIFF",targetrapa = "noRAPA")
+
+```
+
+### ReN
+
+```{r DIFF_noRAPA_ReN,  fig.height=20, fig.width=15}
+
+getlinmodoutput(targetline = "ReN",targetdiff = "DIFF",targetrapa = "noRAPA")
+
+```
+
+
+## KO effect in noDIFF RAPA
+### D62
+
+```{r noDIFF_RAPA_D62,  fig.height=20, fig.width=15}
+
+getlinmodoutput(targetline = "D62",targetdiff = "noDIFF",targetrapa = "RAPA")
+
+```
+### D244
+
+```{r noDIFF_RAPA_D244,  fig.height=20, fig.width=15}
+
+getlinmodoutput(targetline = "D244",targetdiff = "noDIFF",targetrapa = "RAPA")
+
+```
+
+### ReN
+
+```{r noDIFF_RAPA_ReN,  fig.height=20, fig.width=15}
+
+getlinmodoutput(targetline = "ReN",targetdiff = "noDIFF",targetrapa = "RAPA")
+
+```
+
+
+## KO effect in DIFF RAPA
+
+### D62
+
+```{r DIFF_RAPA_D62,  fig.height=20, fig.width=15}
+
+getlinmodoutput(targetline = "D62",targetdiff = "DIFF",targetrapa = "RAPA")
+
+```
+
+### D244
+
+```{r DIFF_RAPA_D244,  fig.height=20, fig.width=15}
+
+getlinmodoutput(targetline = "D244",targetdiff = "DIFF",targetrapa = "RAPA")
+
+```
+
+### ReN
+
+```{r DIFF_RAPA_ReN,  fig.height=20, fig.width=15}
+
+getlinmodoutput(targetline = "ReN",targetdiff = "DIFF",targetrapa = "RAPA")
+
+```

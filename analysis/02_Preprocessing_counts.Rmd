@@ -1,0 +1,359 @@
+---
+title: "Preprocessing_Countdata"
+author: "AGC, AY"
+date: "15 3 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+secret="C:/Users/andreas_chiocchetti/OneDrive/personal/fuchs_credentials.R"
+
+home = getwd()
+output= paste0(home, "/output/")
+
+source(paste0(home,"/code/00_installer.R")) # installs pacakges if needed
+source(paste0(home,"/code/custom_functions.R")) #also defines colors
+
+library(knitr)
+library(RCurl) 
+library(DESeq2)
+library(RColorBrewer)
+library(glmpca)
+library(ggplot2)
+library(tidyverse)
+library(pheatmap)
+library(dendextend)
+library(gprofiler2)
+
+opts_chunk$set(echo = TRUE, 
+               fig.height = 7, 
+               fig.width = 9, 
+               message = TRUE,
+               warning = TRUE,
+               fig.align='center',
+               dpi=500
+)
+
+options(stringsAsFactors = F)
+
+
+set.seed(157434538)
+
+
+```
+
+## Preprocessing
+
+
+```{r getdata}
+
+#Load Count Matrix
+if (file.exists(secret)){
+    source(secret)
+  } else {
+    UID    = rstudioapi::askForPassword("fuchs user")
+    PWD    = rstudioapi::askForPassword("fuchs password")
+  }
+
+filetarget= paste0(home,"/data/Countmatrix.RData")
+if(!file.exists(filetarget)){
+  url="sftp://fuchs.hhlr-gu.de/scratch/fuchs/agmisc/chiocchetti/RNASeq_Data/Cepter/Output/Countmatrix.RData"
+  bin = getBinaryURL(url, userpw=paste0(UID,":",PWD))
+  writeBin(bin, filetarget)
+  load(filetarget)
+} else {
+  load(filetarget)
+}
+
+Ntot= nrow(Countdata)
+
+
+#merge non unique annotations
+if(length(unique(rownames(Countdata))) != Ntot){
+  Countdata = Countdata %>% group_by(row.names(Countdata)) %>% summarise_each(sum)
+  Ntot= nrow(Countdata)
+}
+
+
+hgnc=gconvert(query=as.numeric(rownames(Countdata)), 
+              organism = "hsapiens", 
+              numeric_ns = "ENTREZGENE_ACC",
+              target = "HGNC")
+
+Ids = hgnc %>%  dplyr::select(name, input, description) %>% group_by(input) %>% 
+  summarise(name=paste(name, sep="; ", collapse = ";"), description = dplyr::first(description))
+
+rowdescription = data.frame(entrez_gene = Ids$input, 
+                            hgnc=Ids$name, 
+                            description=Ids$description)
+
+
+if(all(row.names(Countdata) %in% rowdescription$entrez_gene)){
+  
+  rowdescription = rowdescription[match(row.names(Countdata), rowdescription$entrez_gene),]
+  rownames(rowdescription)=row.names(Countdata)
+}
+
+
+# load and parse sample information 
+SampleInfo=read.csv2(paste0(home,"/data/Sample_info_CePTER_RNASeq.csv"), 
+                     row.names = 1)
+
+SampleInfo$Row=gsub("[0-9]*","",SampleInfo$Position)
+SampleInfo$Col=as.numeric(gsub("[A-Z]*","",SampleInfo$Position))
+
+# set factors and relevel
+SampleInfo$CellLine = as.factor(SampleInfo$CellLine)
+
+SampleInfo$gRNA = paste0("sg",SampleInfo$gRNA)
+SampleInfo$gRNA = factor(SampleInfo$gRNA, levels=c("sgNTC", "sg2.1", "sg2.2"), 
+                         labels=c("sgNTC", "sg2.1", "sg2.2"))
+SampleInfo$gRNA = relevel(SampleInfo$gRNA,ref="sgNTC" )
+
+SampleInfo$KO = factor(SampleInfo$KO, levels=c(T,F), labels=c("KO", "WT"))
+SampleInfo$KO = relevel(SampleInfo$KO,ref="WT" )
+
+SampleInfo$DIFF = factor(SampleInfo$DIFF, levels=c(TRUE,FALSE), 
+                         labels=c("DIFF", "noDIFF"))
+SampleInfo$DIFF = relevel(SampleInfo$DIFF,ref="noDIFF")
+
+SampleInfo$RAPA = factor(SampleInfo$RAPA, levels=c(T,F), 
+                         labels=c("RAPA", "noRAPA"))
+
+SampleInfo$RAPA = relevel(SampleInfo$RAPA,ref="noRAPA")
+
+SampleInfo$label = with(SampleInfo, paste(CellLine,gRNA,DIFF,RAPA, sep="_"))
+SampleInfo$fastQID = rownames(SampleInfo)
+SampleInfo = SampleInfo %>% dplyr::group_by(label) %>% mutate(replicate=seq(n())) %>% as.data.frame()
+SampleInfo$label_rep=with(SampleInfo, paste(label,replicate,sep="_"))
+rownames(SampleInfo)=SampleInfo$fastQID
+
+# align datasets
+checkfiles = all(rownames(SampleInfo) %in% colnames(Countdata))
+IDs=intersect(rownames(SampleInfo), colnames(Countdata))
+Countdata = Countdata[,IDs]
+SampleInfo = SampleInfo[IDs, ]
+
+SampleInfo$reads_per_sample = colSums(Countdata)
+
+display_tab(head(Countdata))
+display_tab(SampleInfo)
+
+```
+Total number of samples overlapping between Counts and SampleInfo: `r nrow(SampleInfo)`
+
+
+```{r plot_counts}
+
+boxplot_counts = function(plotsubset, maintitle, colorcode) {
+  par(mar=c(3,3,5,7))
+  a =boxplot(log2(plotsubset+1), main = maintitle, 
+             col = Dark8[as.factor(SampleInfo[,colorcode])], names=NA,
+             ylab = "log2 transformed", xlab="samples")
+  legend("bottomleft", legend = levels(SampleInfo[,colorcode]),
+         bty = "n", bg="white",
+         pch = 16, col = Dark8[1:length(unique(SampleInfo[,colorcode]))])
+}
+
+
+barplot_counts = function(DF, maintitle, colorcode) {
+  barplot(log2(DF[,"reads_per_sample"]), main = maintitle, 
+          col = Dark8[as.factor(DF[,colorcode])], names="",
+          ylab = "log2 transformed",xlab="samples")
+  legend("bottomleft", legend = levels(DF[,colorcode]), pch = 16, 
+         bty = "n", bg="white",
+         col = Dark8[1:length(unique(DF[,colorcode]))])
+}
+
+
+boxplot_counts(Countdata, "raw counts", "CellLine")
+boxplot_counts(Countdata, "raw counts", "gRNA")
+barplot_counts(SampleInfo, "total reads", "CellLine")
+barplot_counts(SampleInfo, "total reads", "gRNA")
+
+plot(density(log2(rowMeans(Countdata))), main="distribution of gene expression", 
+     xlab="mean log2(counts +1)")
+
+# remove genes wich were not detected in at least 50% of the samples 
+keeperidx = rowSums(Countdata>1)>nrow(SampleInfo)/2
+
+Countdata_cl = Countdata[keeperidx, ]
+
+rowdescription = rowdescription[row.names(Countdata_cl),]
+
+fullmodel = as.formula("~CellLine+gRNA+DIFF+RAPA")
+
+
+ddsMat <- DESeqDataSetFromMatrix(countData = Countdata_cl,
+                                 colData = SampleInfo,
+                                 rowData = rowdescription,
+                                 design = fullmodel)
+
+
+ddsMat = estimateSizeFactors(ddsMat)
+ddsMat = estimateDispersions(ddsMat)
+
+reads  = as.data.frame(counts(ddsMat, normalized=T))
+
+SDs = apply(reads, 1, sd)
+keepvar = SDs>0
+
+ddsMat <- ddsMat[keepvar,]
+
+Nfilt = length(ddsMat)
+reads  = as.data.frame(counts(ddsMat, normalized=T))
+
+SampleInfo$reads_per_sample_cl= colSums(reads)
+
+
+```
+
+### before cleaning
+* Average reads per samples: `r format(mean(SampleInfo$reads_per_sample), big.mark=" ", scientific=F)`
+* Standard deviation reads per samples: `r format(sd(SampleInfo$reads_per_sample), big.mark=" ", scientific=F)`
+* Total genes mapped: `r format(Ntot, big.mark=" ")`
+
+### after cleaning
+
+* Average reads per samples: `r format(mean(colSums(reads)), big.mark=" ", scientific=F)`
+* Standard deviation reads per samples: `r format(sd(colSums(reads)), big.mark=" ", scientific=F)`
+* Genes removed due to low reads: `r format(Ntot-Nfilt, big.mark = " ")` 
+* Total genes included after filtering: `r format(Nfilt, big.mark=" ")`
+
+
+## Clustering 
+
+hierarchical clustering based on the top 2000 genes by variance 
+```{r hcluster, fig.height=10, fig.width=15}
+log2_cpm = log2(reads+1)
+
+varsset=apply(log2_cpm, 1, var)
+
+cpm.sel.trans = t(log2_cpm[order(varsset,decreasing = T)[1:2000],])
+
+rownames(cpm.sel.trans)=SampleInfo$label_rep
+
+distance = dist(cpm.sel.trans)
+hc = hclust(distance, method="ward.D2")
+cutN=24
+clusters = cutree(hc, k=cutN)
+Colors=sample(jetcolors(cutN))[clusters]
+
+myLetters <- LETTERS[1:26]
+
+numRow=match(SampleInfo$Row, myLetters)
+numRow=numRow+(SampleInfo$Plate-1)*8
+addRow=LETTERS[numRow]
+
+Plotdata=data.frame(Rows=addRow, numRow = numRow, Cols = SampleInfo$Col, 
+                    Group=clusters, Colors=Colors)
+
+par(mar=c(15,3,5,3))
+plot(as.dendrogram(hc), main=paste("Similairtiy by gene expression, guessed",cutN,"clusters"), cex=0.7)
+colored_dots(colors = Colors, dend = as.dendrogram(hc), rowLabels = "cluster")
+
+```
+
+
+Similarity based on hcluster plot 
+```{r platesetup_cluster, fig.height=8, fig.width=15}
+
+par(mar=c(2,5,8,3))
+plot(0,0, type="n", ylab="", xlab="", 
+     ylim=rev(range(Plotdata$numRow))+c(1,-1), 
+     xlim=range(Plotdata$Cols)+c(-1,1), xaxt="n",yaxt="n" ,
+     main="plate similarity plot")
+points(y=Plotdata$numRow, x=Plotdata$Cols, pch=16, cex=4, col=Plotdata$Colors)
+text(y=Plotdata$numRow, x=Plotdata$Cols, labels = Plotdata$Group)
+text(y=Plotdata$numRow, x=Plotdata$Cols, labels = Plotdata$Group)
+axis(2, at=1:9, labels = c(paste0("P1_", LETTERS[1:8]), "P2_A"), las=1)
+axis(3, at=1:12, labels = c(paste0("Col_", 1:12)), las=3)
+abline(h=8.5)
+
+```
+
+
+
+```{r clusterandqual, fig.height=15, fig.width=15}
+sampleDistMatrix <- as.matrix(distance)
+
+#colors for plotting heatmap
+colors <- colorRampPalette(brewer.pal(9, "Spectral"))(255)
+
+cellcol = Dark8[1:nlevels(SampleInfo$CellLine)]
+names(cellcol) = levels(SampleInfo$CellLine)
+
+gRNAcol = Dark8[c(1:nlevels(SampleInfo$gRNA))+nlevels(SampleInfo$CellLine)]
+names(gRNAcol) = levels(SampleInfo$gRNA)
+
+diffcol = brewer.pal(3,"Set1")[1:nlevels(SampleInfo$DIFF)]
+names(diffcol) = levels(SampleInfo$DIFF)
+
+rapacol = brewer.pal(3,"Set2")[1:nlevels(SampleInfo$RAPA)]
+names(rapacol) = levels(SampleInfo$RAPA)
+
+ann_colors = list(
+  DIFF = diffcol, 
+  RAPA = rapacol,
+  gRNA = gRNAcol,
+  CellLine=cellcol)
+
+
+labels = SampleInfo[,c("CellLine","gRNA","DIFF", "RAPA")] %>%  
+  mutate_all(as.character) %>% as.data.frame()
+
+rownames(labels)=SampleInfo$label_rep
+
+pheatmap(sampleDistMatrix,
+         clustering_distance_rows = distance,
+         clustering_distance_cols = distance,
+         clustering_method = "ward.D2",
+         scale ="row",
+         border_color = NA, 
+         annotation_row = labels,
+         annotation_col = labels,
+         annotation_colors = ann_colors,
+         col = colors, 
+         main = "Distances  normalized log2 counts")
+
+save(ddsMat, file=paste0(output,"/dds_matrix.RData"))
+
+```
+
+
+## PCA and MDS
+
+```{r PCA_MDS}
+
+# PCA
+gpca <- glmpca(t(cpm.sel.trans), L = 2)
+gpca.dat <- gpca$factors
+gpca.dat$CellLine <- SampleInfo$CellLine
+gpca.dat$gRNA <- SampleInfo$gRNA
+gpca.dat$KO<- SampleInfo$KO
+gpca.dat$DIFF <- SampleInfo$DIFF
+gpca.dat$RAPA<- SampleInfo$RAPA
+
+rownames(gpca.dat) = SampleInfo$labels
+mds = as.data.frame(SampleInfo) %>% cbind(cmdscale(distance))
+
+save(mds, gpca.dat, file=paste0(home, "/analysis/MDSplots/mdsplots.RData"))
+
+# 
+# ggplot(gpca.dat, aes(x = dim1, y = dim2, color = CellLine, shape = DIFF)) +
+#             geom_point(size = 2)  + ggtitle("PCA with log2 counts")
+# 
+# ggplot(mds, aes(x = `1`, y = `2`, color = CellLine, shape = DIFF)) +
+#             geom_point(size = 2)  + ggtitle("MDS with log2 counts")
+
+rsconnect::setAccountInfo(name='molgenlab',
+			  token='86875F8B6550C3A26488035E69B1F18D',
+			  secret=shinySECRET)
+
+rsconnect::deployApp(paste0(home, "/analysis/MDSplots"))
+
+```
+
+<iframe src="https://molgenlab.shinyapps.io/mdsplots/" height=900px width=900px />
+
+
