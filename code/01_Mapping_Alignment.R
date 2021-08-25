@@ -14,6 +14,7 @@ fastqcfiles = folder
 refhgfolder = "/scratch/fuchs/agmisc/chiocchetti/ReferenceGenomes/"
 reffile = "hg38.fa.gz"
 output=paste0(folder, "/Countmatrix/")
+print(output)
 
 dir.create(output)
 
