@@ -5,10 +5,16 @@ date: "15 3 2021"
 output: html_document
 ---
 
+
+```{r}
+home = getwd()
+```
+
+
 ```{r setup, include=FALSE, echo=FALSE}
 secret="C:/Users/andreas_chiocchetti/OneDrive/personal/fuchs_credentials.R"
 
-home = getwd()
+
 output= paste0(home, "/output/")
 
 source(paste0(home,"/code/00_installer.R")) # installs pacakges if needed
@@ -24,6 +30,7 @@ library(tidyverse)
 library(pheatmap)
 library(dendextend)
 library(gprofiler2)
+library(readxl)
 
 opts_chunk$set(echo = TRUE, 
                fig.height = 7, 
@@ -42,10 +49,10 @@ set.seed(157434538)
 
 ```
 
-## Preprocessing
+## Preprocessing BATCH A 
 
 
-```{r getdata}
+```{r getdata BATCH_A}
 
 #Load Count Matrix
 if (file.exists(secret)){
@@ -55,9 +62,9 @@ if (file.exists(secret)){
     PWD    = rstudioapi::askForPassword("fuchs password")
   }
 
-filetarget= paste0(home,"/data/Countmatrix.RData")
+filetarget= paste0(home,"/data/CountmatrixA.RData")
 if(!file.exists(filetarget)){
-  url="sftp://fuchs.hhlr-gu.de/scratch/fuchs/agmisc/chiocchetti/RNASeq_Data/Cepter/Output/Countmatrix.RData"
+  url="sftp://fuchs.hhlr-gu.de//scratch/fuchs/agmisc/chiocchetti/RNASeq_Data/RAISEGenic/Rawfiles/BatchA/Countmatrix/Countmatrix.RData"
   bin = getBinaryURL(url, userpw=paste0(UID,":",PWD))
   writeBin(bin, filetarget)
   load(filetarget)
@@ -96,37 +103,16 @@ if(all(row.names(Countdata) %in% rowdescription$entrez_gene)){
 
 
 # load and parse sample information 
-SampleInfo=read.csv2(paste0(home,"/data/Sample_info_CePTER_RNASeq.csv"), 
-                     row.names = 1)
-
-SampleInfo$Row=gsub("[0-9]*","",SampleInfo$Position)
-SampleInfo$Col=as.numeric(gsub("[A-Z]*","",SampleInfo$Position))
+SampleInfo=read_xlsx(paste0(home,"/data/Drugdata/20210630_2021-090-LEX/P2021-090-LEX_Probenübersicht.xlsx"))
+SampleInfo=as.data.frame(SampleInfo)
 
 # set factors and relevel
 SampleInfo$CellLine = as.factor(SampleInfo$CellLine)
 
-SampleInfo$gRNA = paste0("sg",SampleInfo$gRNA)
-SampleInfo$gRNA = factor(SampleInfo$gRNA, levels=c("sgNTC", "sg2.1", "sg2.2"), 
-                         labels=c("sgNTC", "sg2.1", "sg2.2"))
-SampleInfo$gRNA = relevel(SampleInfo$gRNA,ref="sgNTC" )
+SampleInfo$Drug = factor(SampleInfo$Drug, levels=c("CBZ","LCA","LTA","VPA"), 
+                         labels=c("Carbamazebine", "Lacosamide", "Levetiracetam", "Valporate"))
 
-SampleInfo$KO = factor(SampleInfo$KO, levels=c(T,F), labels=c("KO", "WT"))
-SampleInfo$KO = relevel(SampleInfo$KO,ref="WT" )
-
-SampleInfo$DIFF = factor(SampleInfo$DIFF, levels=c(TRUE,FALSE), 
-                         labels=c("DIFF", "noDIFF"))
-SampleInfo$DIFF = relevel(SampleInfo$DIFF,ref="noDIFF")
-
-SampleInfo$RAPA = factor(SampleInfo$RAPA, levels=c(T,F), 
-                         labels=c("RAPA", "noRAPA"))
-
-SampleInfo$RAPA = relevel(SampleInfo$RAPA,ref="noRAPA")
-
-SampleInfo$label = with(SampleInfo, paste(CellLine,gRNA,DIFF,RAPA, sep="_"))
-SampleInfo$fastQID = rownames(SampleInfo)
-SampleInfo = SampleInfo %>% dplyr::group_by(label) %>% mutate(replicate=seq(n())) %>% as.data.frame()
-SampleInfo$label_rep=with(SampleInfo, paste(label,replicate,sep="_"))
-rownames(SampleInfo)=SampleInfo$fastQID
+rownames(SampleInfo) = paste0(SampleInfo$ID,"a")
 
 # align datasets
 checkfiles = all(rownames(SampleInfo) %in% colnames(Countdata))
@@ -139,9 +125,95 @@ SampleInfo$reads_per_sample = colSums(Countdata)
 display_tab(head(Countdata))
 display_tab(SampleInfo)
 
+Countdata.A = Countdata
+SampleInfo.A = SampleInfo
+SampleInfo.A$Batch = "A"
+
 ```
 Total number of samples overlapping between Counts and SampleInfo: `r nrow(SampleInfo)`
 
+
+## Preprocessing BATCH B 
+
+```{r getdata BATCH_B}
+
+#Load Count Matrix
+if (file.exists(secret)){
+    source(secret)
+  } else {
+    UID    = rstudioapi::askForPassword("fuchs user")
+    PWD    = rstudioapi::askForPassword("fuchs password")
+  }
+
+filetarget= paste0(home,"/data/CountmatrixB.RData")
+if(!file.exists(filetarget)){
+  url="sftp://fuchs.hhlr-gu.de//scratch/fuchs/agmisc/chiocchetti/RNASeq_Data/RAISEGenic/Rawfiles/BatchB/Countmatrix/Countmatrix.RData"
+  bin = getBinaryURL(url, userpw=paste0(UID,":",PWD))
+  writeBin(bin, filetarget)
+  load(filetarget)
+} else {
+  load(filetarget)
+}
+
+Ntot= nrow(Countdata)
+
+
+#merge non unique annotations
+if(length(unique(rownames(Countdata))) != Ntot){
+  Countdata = Countdata %>% group_by(row.names(Countdata)) %>% summarise_each(sum)
+  Ntot= nrow(Countdata)
+}
+
+
+hgnc=gconvert(query=as.numeric(rownames(Countdata)), 
+              organism = "hsapiens", 
+              numeric_ns = "ENTREZGENE_ACC",
+              target = "HGNC")
+
+Ids = hgnc %>%  dplyr::select(name, input, description) %>% group_by(input) %>% 
+  summarise(name=paste(name, sep="; ", collapse = ";"), description = dplyr::first(description))
+
+rowdescription = data.frame(entrez_gene = Ids$input, 
+                            hgnc=Ids$name, 
+                            description=Ids$description)
+
+
+if(all(row.names(Countdata) %in% rowdescription$entrez_gene)){
+  
+  rowdescription = rowdescription[match(row.names(Countdata), rowdescription$entrez_gene),]
+  rownames(rowdescription)=row.names(Countdata)
+}
+
+
+# load and parse sample information 
+SampleInfo=read_xlsx(paste0(home,"/data/Drugdata/20210630_2021-090-LEX/P2021-090-LEX_Probenübersicht.xlsx"))
+SampleInfo=as.data.frame(SampleInfo)
+
+# set factors and relevel
+SampleInfo$CellLine = as.factor(SampleInfo$CellLine)
+
+SampleInfo$Drug = factor(SampleInfo$Drug, levels=c("CBZ","LCA","LTA","VPA"), 
+                         labels=c("Carbamazebine", "Lacosamide", "Levetiracetam", "Valporate"))
+
+rownames(SampleInfo) = paste0(SampleInfo$ID,"b")
+
+# align datasets
+checkfiles = all(rownames(SampleInfo) %in% colnames(Countdata))
+IDs=intersect(rownames(SampleInfo), colnames(Countdata))
+Countdata = Countdata[,IDs]
+SampleInfo = SampleInfo[IDs, ]
+
+SampleInfo$reads_per_sample = colSums(Countdata)
+
+display_tab(head(Countdata))
+display_tab(SampleInfo)
+
+SampleInfo.B = SampleInfo
+SampleInfo.ABBatch = "B"
+
+```
+
+## Merged Datasets
 
 ```{r plot_counts}
 
