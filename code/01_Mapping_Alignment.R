@@ -8,7 +8,7 @@
 args <- commandArgs(trailingOnly = TRUE)
 folder = args[1]
 
-mode = "reanalyze"  # test only creates subset, "reanalyze" will calculate all BAM  files  again
+mode = "normal"  # test only creates subset, "reanalyze" will calculate all BAM  files  again
 
 fastqcfiles = folder
 refhgfolder = "/scratch/fuchs/agmisc/chiocchetti/ReferenceGenomes/"
@@ -22,19 +22,21 @@ dir.create(output)
 require("parallel")
 require("Rsubread")
 
-ncores = detectCores()
+ncores = min(detectCores(), 20)
+
 
 
 ##Build Reference genome index
 
 setwd(refhgfolder)
+
 if(! file.exists("hg38.reads")){
     buildindex(basename=paste0(refhgfolder,"hg38"),reference=reffile)
 }
 
 setwd(output)
 ##Read in the fastq files
-fastq.files<-list.files(path=fastqcfiles, pattern=".fq$",full.names=TRUE)
+fastq.files<-list.files(path=fastqcfiles, pattern=".fq.gz$",full.names=TRUE)
 
 if (mode=="test")
     fastq.files=fastq.files[1:5]
