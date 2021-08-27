@@ -1,13 +1,17 @@
 ---
 title: "Check Markers"
-author: "AGC, AY"
-date: "17 3 2021"
+author: "AGC, MJ"
+date: "27 08 2021"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r}
 
 home = getwd()
+```
+
+```{r setup, include=FALSE}
+
 output= paste0(home, "/output/")
 
 source(paste0(home,"/code/custom_functions.R"))
@@ -34,50 +38,17 @@ opts_chunk$set(echo = TRUE,
 
 load(paste0(output,"/dds_matrix.RData"))
 
+SampleInfo = as.data.frame(colData(ddsMat))
+genedata=rowData(ddsMat)
+
+SampleInfo = SampleInfo %>% dplyr::arrange(Drug, Conz, CellLine, Batch)
 
 ```
 
 
 ```{r plotGOIS, fig.height=15, fig.width=10}
 
-SampleInfo = as.data.frame(colData(ddsMat))
-genedata=rowData(ddsMat)
-
-SampleInfo = SampleInfo %>% dplyr::arrange(CellLine, desc(gRNA), desc(DIFF), desc(RAPA))
-
-# image(SampleInfo %>% select( CellLine, gRNA, DIFF, RAPA) %>% mutate_all(as.numeric) %>% as.matrix)
-
-GOIsEntrez=c(DEPDC5="9681",
-             C_MYC="4609",
-             P53="7157",
-             PIK3CA="5290",
-             REDD1="54541",
-             BNIP3="664",
-             HRAS="3265",
-             KRAS="3845",
-             NRAS="4893",
-             AKT="207",
-             TSC1="7248",
-             TSC2="7249",
-             MTOR="2475",
-             RPS6="6194",
-             RPTOR="57521",
-             RAG_A="10670",
-             RAG_B="10325",
-             RAG_C="64121",
-             RAG_D="58528",
-             DEPTOR="64798",
-             RHEB="6009",
-             MAPK="5594",
-             NPRL2="10641",
-             NPRL3="8131",
-             CASTOR1="652968",
-             CASTOR2="729438",
-             CASTOR3="352954",
-             SESTRIN_1="27244",
-             SESTRIN_2="83667",
-             SESTRIN_3="143686",
-             NCAM1="4684",
+GOIsEntrez=c(NCAM1="4684",
              EGF="1950",
              EGFR="1956",
              FGFR1="2260",
@@ -142,7 +113,7 @@ GOIsEntrez=c(DEPDC5="9681",
              SNCA="6622")
 
 
-CellID = c("ReN")
+CellID = levels(SampleInfo$CellLine)
 exprobj=ddsMat
 
 
@@ -160,43 +131,42 @@ geneheatmap=function(GOIsEntrez,exprobj,CellID){
   #colors for plotting heatmap
   colors <- rev(colorRampPalette(brewer.pal(9, "Spectral"))(255))
   
+  cellcol = Dark8[1:nlevels(SampleInfo$CellLine)]
+  names(cellcol) = levels(SampleInfo$CellLine)
   
-  gRNAcol = Dark8[c(1:nlevels(SampleInfo$gRNA))+nlevels(SampleInfo$CellLine)]
-  names(gRNAcol) = levels(SampleInfo$gRNA)
+  drugcol = Dark8[c(1:nlevels(SampleInfo$Drug)+nlevels(SampleInfo$CellLine))]
+  names(drugcol) = levels(SampleInfo$Drug)
   
-  diffcol = brewer.pal(3,"Set1")[1:nlevels(SampleInfo$DIFF)]
-  names(diffcol) = levels(SampleInfo$DIFF)
   
-  rapacol = brewer.pal(3,"Set2")[1:nlevels(SampleInfo$RAPA)]
-  names(rapacol) = levels(SampleInfo$RAPA)
+  batchcol = Dark8[c(1:nlevels(SampleInfo$Batch)+nlevels(SampleInfo$CellLine)+nlevels(SampleInfo$Drug))]
+  names(batchcol) = levels(SampleInfo$Batch)
+  
+  conzcol = c("orange", "darkred")
   
   ann_colors = list(
-    DIFF = diffcol, 
-    RAPA = rapacol,
-    gRNA = gRNAcol)
+    CellLine = cellcol, 
+    Drug = drugcol,
+    Batch = batchcol,
+    Conz=conzcol)
   
   
-  
-  labels = SampleInfo[match(colnames(dataset), SampleInfo$label_rep),
-                      c("gRNA","DIFF", "RAPA")] %>%  
-    mutate_all(as.character) %>% as.data.frame()
+  labels = SampleInfo[,c("Drug","Conz","CellLine","Batch")] %>%  
+    mutate_if(is.factor, as.character) %>% as.data.frame()
   
   
-  rownames(labels)=colnames(dataset)
+  rownames(labels)= colnames(dataset)
   
   pheatmap(dataset, 
            cluster_rows = F,
            cluster_cols = F,
            col = colors,
-           scale = "row", 
+           scale = "none", 
            annotation_col = labels,
            annotation_colors = ann_colors, 
            main=CellID)
 }
 
-geneheatmap(GOIsEntrez,ddsMat,CellID="D62")
-geneheatmap(GOIsEntrez,ddsMat,CellID="D244")
-geneheatmap(GOIsEntrez,ddsMat,CellID="ReN")
+geneheatmap(GOIsEntrez,ddsMat,CellID=CellID)
 
 ```
 

@@ -8,3 +8,7 @@ wflow_use_github(organization = "KJPMolgenLab",
                  repository = "RAISE_genic")
 
 source("code/00_Installer.R")
+
+
+system("git commit -a -m \"updated Peprocessing\"")
+system("git push -u origin master")

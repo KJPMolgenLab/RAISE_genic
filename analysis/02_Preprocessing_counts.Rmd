@@ -1,7 +1,7 @@
 ---
 title: "Preprocessing_Countdata"
-author: "AGC, AY"
-date: "15 3 2021"
+author: "AGC"
+date: "27 8 2021"
 output: html_document
 ---
 
@@ -164,7 +164,6 @@ if(length(unique(rownames(Countdata))) != Ntot){
   Ntot= nrow(Countdata)
 }
 
-
 hgnc=gconvert(query=as.numeric(rownames(Countdata)), 
               organism = "hsapiens", 
               numeric_ns = "ENTREZGENE_ACC",
@@ -208,10 +207,32 @@ SampleInfo$reads_per_sample = colSums(Countdata)
 display_tab(head(Countdata))
 display_tab(SampleInfo)
 
+Countdata.B = Countdata
 SampleInfo.B = SampleInfo
-SampleInfo.ABBatch = "B"
+SampleInfo.B$Batch = "B"
 
 ```
+
+```{r mergebatches}
+
+Countdata = merge(Countdata.A, Countdata.B, by=0, all=TRUE)
+
+SampleInfo = rbind(SampleInfo.A, SampleInfo.B)
+Countdata = Countdata %>% column_to_rownames("Row.names")
+
+SampleInfo$label = as.factor(SampleInfo$label)
+SampleInfo$reads_per_sample = colSums(Countdata)
+SampleInfo$Batch = as.factor(SampleInfo$Batch)
+SampleInfo$CellLine = as.factor(SampleInfo$CellLine)
+SampleInfo$Drug = as.factor(SampleInfo$Drug)
+SampleInfo$label_rep = paste0(SampleInfo$label, "_", SampleInfo$Batch)
+
+SampleInfo = SampleInfo[order(SampleInfo$Drug,SampleInfo$Conz,  SampleInfo$CellLine, SampleInfo$Batch),]
+Countdata = Countdata[,rownames(SampleInfo)]
+
+```
+
+
 
 ## Merged Datasets
 
@@ -222,8 +243,7 @@ boxplot_counts = function(plotsubset, maintitle, colorcode) {
   a =boxplot(log2(plotsubset+1), main = maintitle, 
              col = Dark8[as.factor(SampleInfo[,colorcode])], names=NA,
              ylab = "log2 transformed", xlab="samples")
-  legend("bottomleft", legend = levels(SampleInfo[,colorcode]),
-         bty = "n", bg="white",
+  legend("topleft", legend = levels(SampleInfo[,colorcode]), bg="white",
          pch = 16, col = Dark8[1:length(unique(SampleInfo[,colorcode]))])
 }
 
@@ -233,15 +253,18 @@ barplot_counts = function(DF, maintitle, colorcode) {
           col = Dark8[as.factor(DF[,colorcode])], names="",
           ylab = "log2 transformed",xlab="samples")
   legend("bottomleft", legend = levels(DF[,colorcode]), pch = 16, 
-         bty = "n", bg="white",
+         bg="white",
          col = Dark8[1:length(unique(DF[,colorcode]))])
 }
 
-
+par(mfrow=c(1,1))
 boxplot_counts(Countdata, "raw counts", "CellLine")
-boxplot_counts(Countdata, "raw counts", "gRNA")
-barplot_counts(SampleInfo, "total reads", "CellLine")
-barplot_counts(SampleInfo, "total reads", "gRNA")
+boxplot_counts(Countdata, "raw counts", "Drug")
+boxplot_counts(Countdata, "raw counts", "Batch")
+
+barplot_counts(SampleInfo, "total reads", "label")
+barplot_counts(SampleInfo, "total reads", "Drug")
+barplot_counts(SampleInfo, "total reads", "Batch")
 
 plot(density(log2(rowMeans(Countdata))), main="distribution of gene expression", 
      xlab="mean log2(counts +1)")
@@ -253,7 +276,7 @@ Countdata_cl = Countdata[keeperidx, ]
 
 rowdescription = rowdescription[row.names(Countdata_cl),]
 
-fullmodel = as.formula("~CellLine+gRNA+DIFF+RAPA")
+fullmodel = as.formula("~Batch+CellLine+Drug*Conz")
 
 
 ddsMat <- DESeqDataSetFromMatrix(countData = Countdata_cl,
@@ -301,49 +324,27 @@ log2_cpm = log2(reads+1)
 
 varsset=apply(log2_cpm, 1, var)
 
-cpm.sel.trans = t(log2_cpm[order(varsset,decreasing = T)[1:2000],])
+cpm.sel.trans = t(log2_cpm[order(varsset,decreasing = T)[1:5000],])
 
 rownames(cpm.sel.trans)=SampleInfo$label_rep
 
 distance = dist(cpm.sel.trans)
 hc = hclust(distance, method="ward.D2")
+
 cutN=24
 clusters = cutree(hc, k=cutN)
-Colors=sample(jetcolors(cutN))[clusters]
-
-myLetters <- LETTERS[1:26]
-
-numRow=match(SampleInfo$Row, myLetters)
-numRow=numRow+(SampleInfo$Plate-1)*8
-addRow=LETTERS[numRow]
-
-Plotdata=data.frame(Rows=addRow, numRow = numRow, Cols = SampleInfo$Col, 
-                    Group=clusters, Colors=Colors)
+Colors=data.frame(Cellline = Dark8[as.numeric(SampleInfo$CellLine)],
+                  Drug = Dark8[as.numeric(SampleInfo$Drug)+nlevels(SampleInfo$CellLine)],
+                  Batch = Dark8[as.numeric(SampleInfo$Batch)+nlevels(SampleInfo$CellLine)++nlevels(SampleInfo$Drug)])
 
 par(mar=c(15,3,5,3))
-plot(as.dendrogram(hc), main=paste("Similairtiy by gene expression, guessed",cutN,"clusters"), cex=0.7)
-colored_dots(colors = Colors, dend = as.dendrogram(hc), rowLabels = "cluster")
+plot(as.dendrogram(hc), main=paste("Similairtiy by gene expression"), cex=0.7)
+colored_dots(colors = Colors, dend = as.dendrogram(hc))
 
 ```
 
 
 Similarity based on hcluster plot 
-```{r platesetup_cluster, fig.height=8, fig.width=15}
-
-par(mar=c(2,5,8,3))
-plot(0,0, type="n", ylab="", xlab="", 
-     ylim=rev(range(Plotdata$numRow))+c(1,-1), 
-     xlim=range(Plotdata$Cols)+c(-1,1), xaxt="n",yaxt="n" ,
-     main="plate similarity plot")
-points(y=Plotdata$numRow, x=Plotdata$Cols, pch=16, cex=4, col=Plotdata$Colors)
-text(y=Plotdata$numRow, x=Plotdata$Cols, labels = Plotdata$Group)
-text(y=Plotdata$numRow, x=Plotdata$Cols, labels = Plotdata$Group)
-axis(2, at=1:9, labels = c(paste0("P1_", LETTERS[1:8]), "P2_A"), las=1)
-axis(3, at=1:12, labels = c(paste0("Col_", 1:12)), las=3)
-abline(h=8.5)
-
-```
-
 
 
 ```{r clusterandqual, fig.height=15, fig.width=15}
@@ -355,32 +356,35 @@ colors <- colorRampPalette(brewer.pal(9, "Spectral"))(255)
 cellcol = Dark8[1:nlevels(SampleInfo$CellLine)]
 names(cellcol) = levels(SampleInfo$CellLine)
 
-gRNAcol = Dark8[c(1:nlevels(SampleInfo$gRNA))+nlevels(SampleInfo$CellLine)]
-names(gRNAcol) = levels(SampleInfo$gRNA)
+drugcol = Dark8[c(1:nlevels(SampleInfo$Drug)+nlevels(SampleInfo$CellLine))]
+names(drugcol) = levels(SampleInfo$Drug)
 
-diffcol = brewer.pal(3,"Set1")[1:nlevels(SampleInfo$DIFF)]
-names(diffcol) = levels(SampleInfo$DIFF)
 
-rapacol = brewer.pal(3,"Set2")[1:nlevels(SampleInfo$RAPA)]
-names(rapacol) = levels(SampleInfo$RAPA)
+batchcol = Dark8[c(1:nlevels(SampleInfo$Batch)+nlevels(SampleInfo$CellLine)+nlevels(SampleInfo$Drug))]
+names(batchcol) = levels(SampleInfo$Batch)
+
+conzcol = c("orange", "darkred")
 
 ann_colors = list(
-  DIFF = diffcol, 
-  RAPA = rapacol,
-  gRNA = gRNAcol,
-  CellLine=cellcol)
+  CellLine = cellcol, 
+  Drug = drugcol,
+  Batch = batchcol,
+  Conz=conzcol)
 
 
-labels = SampleInfo[,c("CellLine","gRNA","DIFF", "RAPA")] %>%  
-  mutate_all(as.character) %>% as.data.frame()
+labels = SampleInfo[,c("CellLine","Drug","Conz","Batch")] %>%  
+  mutate_if(is.factor, as.character) %>% as.data.frame()
 
 rownames(labels)=SampleInfo$label_rep
+rownames(sampleDistMatrix) = rownames(labels)
+colnames(sampleDistMatrix) = rownames(sampleDistMatrix)
+
 
 pheatmap(sampleDistMatrix,
          clustering_distance_rows = distance,
          clustering_distance_cols = distance,
          clustering_method = "ward.D2",
-         scale ="row",
+         scale ="none",
          border_color = NA, 
          annotation_row = labels,
          annotation_col = labels,
@@ -396,36 +400,23 @@ save(ddsMat, file=paste0(output,"/dds_matrix.RData"))
 ## PCA and MDS
 
 ```{r PCA_MDS}
-
 # PCA
 gpca <- glmpca(t(cpm.sel.trans), L = 2)
 gpca.dat <- gpca$factors
 gpca.dat$CellLine <- SampleInfo$CellLine
-gpca.dat$gRNA <- SampleInfo$gRNA
-gpca.dat$KO<- SampleInfo$KO
-gpca.dat$DIFF <- SampleInfo$DIFF
-gpca.dat$RAPA<- SampleInfo$RAPA
+gpca.dat$Drug <- SampleInfo$Drug
+gpca.dat$Batch<- SampleInfo$Batch
+gpca.dat$Conz <- SampleInfo$Conz
 
 rownames(gpca.dat) = SampleInfo$labels
 mds = as.data.frame(SampleInfo) %>% cbind(cmdscale(distance))
 
-save(mds, gpca.dat, file=paste0(home, "/analysis/MDSplots/mdsplots.RData"))
 
-# 
-# ggplot(gpca.dat, aes(x = dim1, y = dim2, color = CellLine, shape = DIFF)) +
-#             geom_point(size = 2)  + ggtitle("PCA with log2 counts")
-# 
-# ggplot(mds, aes(x = `1`, y = `2`, color = CellLine, shape = DIFF)) +
-#             geom_point(size = 2)  + ggtitle("MDS with log2 counts")
+ggplot(gpca.dat, aes(x = dim1, y = dim2, color = CellLine, shape = Drug, size = Conz)) +
+            geom_point()  + ggtitle("PCA with log2 counts")
 
-rsconnect::setAccountInfo(name='molgenlab',
-			  token='86875F8B6550C3A26488035E69B1F18D',
-			  secret=shinySECRET)
+ggplot(mds, aes(x = `1`, y = `2`, color = CellLine, shape = Drug, size = Conz)) +
+            geom_point()  + ggtitle("MDS with log2 counts")
 
-rsconnect::deployApp(paste0(home, "/analysis/MDSplots"))
 
 ```
-
-<iframe src="https://molgenlab.shinyapps.io/mdsplots/" height=900px width=900px />
-
-

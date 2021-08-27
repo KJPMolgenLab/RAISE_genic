@@ -1,0 +1,3461 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="AGC" />
+
+
+<title>Preprocessing_Countdata</title>
+
+<script src="site_libs/header-attrs-2.9.7/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">RAISE_GENIC</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/KJPMolgenLab/RAISE_genic">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Preprocessing_Countdata</h1>
+<h4 class="author">AGC</h4>
+<h4 class="date">27 8 2021</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2021-08-27
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>RAISE_GENIC/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20210706code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20210706)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20210706code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20210706)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree5fb75ab955009fece22db78db1c7f23b07b30941targetblank5fb75aba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/5fb75ab955009fece22db78db1c7f23b07b30941" target="_blank">5fb75ab</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree5fb75ab955009fece22db78db1c7f23b07b30941targetblank5fb75aba" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/5fb75ab955009fece22db78db1c7f23b07b30941" target="_blank">5fb75ab</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rproj.user/
+    Ignored:    data/CountmatrixA.RData
+    Ignored:    data/CountmatrixB.RData
+    Ignored:    data/Drugdata/
+    Ignored:    data/Epi25EE-DEUPUM_DATA_2021-01-21_0748.csv
+    Ignored:    data/Epi25EE-DEUPUM_R_2021-01-21_0748.r
+    Ignored:    data/Epi25EE_DataDictionary_2020-06-25.csv
+    Ignored:    data/Epi25Focal-DEUPUM_DATA_2021-01-21_0746.csv
+    Ignored:    data/Epi25Focal-DEUPUM_R_2021-01-21_0746.r
+    Ignored:    data/Epi25Focal_DataDictionary_2020-06-25.csv
+    Ignored:    data/Epi25GGEOrMixedGener-DEUPUM_DATA_2021-01-21_0744.csv
+    Ignored:    data/Epi25GGEOrMixedGener-DEUPUM_R_2021-01-21_0744.r
+    Ignored:    data/Epi25GGEOrMixedGeneralisedAndF_DataDictionary_2020-06-25.csv
+    Ignored:    data/RAISEGENIC_DATA_2021-01-23_1705.csv
+    Ignored:    data/RAISEGENIC_R_2021-01-23_1705.r
+    Ignored:    data/VCF_Files/
+
+Untracked files:
+    Untracked:  output/dds_matrix.RData
+
+Unstaged changes:
+    Modified:   analysis/02_Preprocessing_counts.Rmd
+    Modified:   analysis/03_Gene_Inspection.Rmd
+    Modified:   setup_start.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with <code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<pre class="r"><code>home = getwd()</code></pre>
+<div id="preprocessing-batch-a" class="section level2">
+<h2>Preprocessing BATCH A</h2>
+<pre class="r"><code>#Load Count Matrix
+if (file.exists(secret)){
+    source(secret)
+  } else {
+    UID    = rstudioapi::askForPassword(&quot;fuchs user&quot;)
+    PWD    = rstudioapi::askForPassword(&quot;fuchs password&quot;)
+  }
+
+filetarget= paste0(home,&quot;/data/CountmatrixA.RData&quot;)
+if(!file.exists(filetarget)){
+  url=&quot;sftp://fuchs.hhlr-gu.de//scratch/fuchs/agmisc/chiocchetti/RNASeq_Data/RAISEGenic/Rawfiles/BatchA/Countmatrix/Countmatrix.RData&quot;
+  bin = getBinaryURL(url, userpw=paste0(UID,&quot;:&quot;,PWD))
+  writeBin(bin, filetarget)
+  load(filetarget)
+} else {
+  load(filetarget)
+}
+
+Ntot= nrow(Countdata)
+
+
+#merge non unique annotations
+if(length(unique(rownames(Countdata))) != Ntot){
+  Countdata = Countdata %&gt;% group_by(row.names(Countdata)) %&gt;% summarise_each(sum)
+  Ntot= nrow(Countdata)
+}
+
+
+hgnc=gconvert(query=as.numeric(rownames(Countdata)), 
+              organism = &quot;hsapiens&quot;, 
+              numeric_ns = &quot;ENTREZGENE_ACC&quot;,
+              target = &quot;HGNC&quot;)
+
+Ids = hgnc %&gt;%  dplyr::select(name, input, description) %&gt;% group_by(input) %&gt;% 
+  summarise(name=paste(name, sep=&quot;; &quot;, collapse = &quot;;&quot;), description = dplyr::first(description))
+
+rowdescription = data.frame(entrez_gene = Ids$input, 
+                            hgnc=Ids$name, 
+                            description=Ids$description)
+
+
+if(all(row.names(Countdata) %in% rowdescription$entrez_gene)){
+  
+  rowdescription = rowdescription[match(row.names(Countdata), rowdescription$entrez_gene),]
+  rownames(rowdescription)=row.names(Countdata)
+}
+
+
+# load and parse sample information 
+SampleInfo=read_xlsx(paste0(home,&quot;/data/Drugdata/20210630_2021-090-LEX/P2021-090-LEX_Probenübersicht.xlsx&quot;))
+SampleInfo=as.data.frame(SampleInfo)
+
+# set factors and relevel
+SampleInfo$CellLine = as.factor(SampleInfo$CellLine)
+
+SampleInfo$Drug = factor(SampleInfo$Drug, levels=c(&quot;CBZ&quot;,&quot;LCA&quot;,&quot;LTA&quot;,&quot;VPA&quot;), 
+                         labels=c(&quot;Carbamazebine&quot;, &quot;Lacosamide&quot;, &quot;Levetiracetam&quot;, &quot;Valporate&quot;))
+
+rownames(SampleInfo) = paste0(SampleInfo$ID,&quot;a&quot;)
+
+# align datasets
+checkfiles = all(rownames(SampleInfo) %in% colnames(Countdata))
+IDs=intersect(rownames(SampleInfo), colnames(Countdata))
+Countdata = Countdata[,IDs]
+SampleInfo = SampleInfo[IDs, ]
+
+SampleInfo$reads_per_sample = colSums(Countdata)
+
+display_tab(head(Countdata))</code></pre>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:500px; overflow-x: scroll; width:900px; ">
+<table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE05NGSUKBR116677a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE10NGSUKBR116684a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE16NGSUKBR116673a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE21NGSUKBR116680a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE26NGSUKBR116687a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE27NGSUKBR116669a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE32NGSUKBR116676a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE37NGSUKBR116683a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE42NGSUKBR116690a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE43NGSUKBR116672a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE48NGSUKBR116679a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE53NGSUKBR116686a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE54NGSUKBR116668a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE59NGSUKBR116675a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE64NGSUKBR116682a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE69NGSUKBR116689a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE70NGSUKBR116671a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE75NGSUKBR116678a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE80NGSUKBR116685a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE81NGSUKBR116667a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE86NGSUKBR116674a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE91NGSUKBR116681a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE96NGSUKBR116688a
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE97NGSUKBR116670a
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+100287102
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+4
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+653635
+</td>
+<td style="text-align:left;">
+15
+</td>
+<td style="text-align:left;">
+60
+</td>
+<td style="text-align:left;">
+40
+</td>
+<td style="text-align:left;">
+40
+</td>
+<td style="text-align:left;">
+50
+</td>
+<td style="text-align:left;">
+50
+</td>
+<td style="text-align:left;">
+31
+</td>
+<td style="text-align:left;">
+43
+</td>
+<td style="text-align:left;">
+27
+</td>
+<td style="text-align:left;">
+34
+</td>
+<td style="text-align:left;">
+37
+</td>
+<td style="text-align:left;">
+34
+</td>
+<td style="text-align:left;">
+62
+</td>
+<td style="text-align:left;">
+39
+</td>
+<td style="text-align:left;">
+29
+</td>
+<td style="text-align:left;">
+51
+</td>
+<td style="text-align:left;">
+30
+</td>
+<td style="text-align:left;">
+47
+</td>
+<td style="text-align:left;">
+14
+</td>
+<td style="text-align:left;">
+45
+</td>
+<td style="text-align:left;">
+21
+</td>
+<td style="text-align:left;">
+53
+</td>
+<td style="text-align:left;">
+27
+</td>
+<td style="text-align:left;">
+21
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+102466751
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+100302278
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+645520
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+79501
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>display_tab(SampleInfo)</code></pre>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:500px; overflow-x: scroll; width:900px; ">
+<table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+run
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+ID
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+label
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+CellLine
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+Drug
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+Conz
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+reads_per_sample
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+DE05NGSUKBR116677a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE05NGSUKBR116677
+</td>
+<td style="text-align:left;">
+hel24_3_VPA_0.33_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Valporate
+</td>
+<td style="text-align:left;">
+0.330
+</td>
+<td style="text-align:left;">
+5802489
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE10NGSUKBR116684a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE10NGSUKBR116684
+</td>
+<td style="text-align:left;">
+hel46_11_LTA_0_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Levetiracetam
+</td>
+<td style="text-align:left;">
+0.000
+</td>
+<td style="text-align:left;">
+3829632
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE16NGSUKBR116673a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE16NGSUKBR116673
+</td>
+<td style="text-align:left;">
+hel24_3_CBZ_0.05_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Carbamazebine
+</td>
+<td style="text-align:left;">
+0.050
+</td>
+<td style="text-align:left;">
+6957719
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE21NGSUKBR116680a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE21NGSUKBR116680
+</td>
+<td style="text-align:left;">
+hel46_11_LCA_0.033_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Lacosamide
+</td>
+<td style="text-align:left;">
+0.033
+</td>
+<td style="text-align:left;">
+5330234
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE26NGSUKBR116687a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE26NGSUKBR116687
+</td>
+<td style="text-align:left;">
+hel24_3_LCA_0_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Lacosamide
+</td>
+<td style="text-align:left;">
+0.000
+</td>
+<td style="text-align:left;">
+7581643
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE27NGSUKBR116669a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE27NGSUKBR116669
+</td>
+<td style="text-align:left;">
+hel46_11_CBZ_0_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Carbamazebine
+</td>
+<td style="text-align:left;">
+0.000
+</td>
+<td style="text-align:left;">
+7782948
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE32NGSUKBR116676a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE32NGSUKBR116676
+</td>
+<td style="text-align:left;">
+hel24_3_VPA_1_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Valporate
+</td>
+<td style="text-align:left;">
+1.000
+</td>
+<td style="text-align:left;">
+6599471
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE37NGSUKBR116683a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE37NGSUKBR116683
+</td>
+<td style="text-align:left;">
+hel46_11_LTA_0.033_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Levetiracetam
+</td>
+<td style="text-align:left;">
+0.033
+</td>
+<td style="text-align:left;">
+5917539
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE42NGSUKBR116690a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE42NGSUKBR116690
+</td>
+<td style="text-align:left;">
+hel24_3_LTA_0_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Levetiracetam
+</td>
+<td style="text-align:left;">
+0.000
+</td>
+<td style="text-align:left;">
+6113612
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE43NGSUKBR116672a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE43NGSUKBR116672
+</td>
+<td style="text-align:left;">
+hel46_11_VPA_0_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Valporate
+</td>
+<td style="text-align:left;">
+0.000
+</td>
+<td style="text-align:left;">
+6943707
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE48NGSUKBR116679a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE48NGSUKBR116679
+</td>
+<td style="text-align:left;">
+hel46_11_LCA_0.1_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Lacosamide
+</td>
+<td style="text-align:left;">
+0.100
+</td>
+<td style="text-align:left;">
+1960112
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE53NGSUKBR116686a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE53NGSUKBR116686
+</td>
+<td style="text-align:left;">
+hel24_3_LCA_0.033_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Lacosamide
+</td>
+<td style="text-align:left;">
+0.033
+</td>
+<td style="text-align:left;">
+9448109
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE54NGSUKBR116668a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE54NGSUKBR116668
+</td>
+<td style="text-align:left;">
+hel46_11_CBZ_0.017_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Carbamazebine
+</td>
+<td style="text-align:left;">
+0.017
+</td>
+<td style="text-align:left;">
+7935977
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE59NGSUKBR116675a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE59NGSUKBR116675
+</td>
+<td style="text-align:left;">
+hel24_3_CBZ_0_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Carbamazebine
+</td>
+<td style="text-align:left;">
+0.000
+</td>
+<td style="text-align:left;">
+7351776
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE64NGSUKBR116682a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE64NGSUKBR116682
+</td>
+<td style="text-align:left;">
+hel46_11_LTA_0.1_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Levetiracetam
+</td>
+<td style="text-align:left;">
+0.100
+</td>
+<td style="text-align:left;">
+3660031
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE69NGSUKBR116689a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE69NGSUKBR116689
+</td>
+<td style="text-align:left;">
+hel24_3_LTA_0.033_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Levetiracetam
+</td>
+<td style="text-align:left;">
+0.033
+</td>
+<td style="text-align:left;">
+8748404
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE70NGSUKBR116671a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE70NGSUKBR116671
+</td>
+<td style="text-align:left;">
+hel46_11_VPA_0.33_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Valporate
+</td>
+<td style="text-align:left;">
+0.330
+</td>
+<td style="text-align:left;">
+5059990
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE75NGSUKBR116678a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE75NGSUKBR116678
+</td>
+<td style="text-align:left;">
+hel24_3_VPA_0_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Valporate
+</td>
+<td style="text-align:left;">
+0.000
+</td>
+<td style="text-align:left;">
+10643345
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE80NGSUKBR116685a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE80NGSUKBR116685
+</td>
+<td style="text-align:left;">
+hel24_3_LCA_0.1_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Lacosamide
+</td>
+<td style="text-align:left;">
+0.100
+</td>
+<td style="text-align:left;">
+7768491
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE81NGSUKBR116667a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE81NGSUKBR116667
+</td>
+<td style="text-align:left;">
+hel46_11_CBZ_0.05_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Carbamazebine
+</td>
+<td style="text-align:left;">
+0.050
+</td>
+<td style="text-align:left;">
+8031545
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE86NGSUKBR116674a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE86NGSUKBR116674
+</td>
+<td style="text-align:left;">
+hel24_3_CBZ_0.017_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Carbamazebine
+</td>
+<td style="text-align:left;">
+0.017
+</td>
+<td style="text-align:left;">
+6032406
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE91NGSUKBR116681a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE91NGSUKBR116681
+</td>
+<td style="text-align:left;">
+hel46_11_LCA_0_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Lacosamide
+</td>
+<td style="text-align:left;">
+0.000
+</td>
+<td style="text-align:left;">
+6890440
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE96NGSUKBR116688a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE96NGSUKBR116688
+</td>
+<td style="text-align:left;">
+hel24_3_LTA_0.1_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Levetiracetam
+</td>
+<td style="text-align:left;">
+0.100
+</td>
+<td style="text-align:left;">
+6482887
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE97NGSUKBR116670a
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE97NGSUKBR116670
+</td>
+<td style="text-align:left;">
+hel46_11_VPA_1_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Valporate
+</td>
+<td style="text-align:left;">
+1.000
+</td>
+<td style="text-align:left;">
+6737009
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>Countdata.A = Countdata
+SampleInfo.A = SampleInfo
+SampleInfo.A$Batch = &quot;A&quot;</code></pre>
+<p>Total number of samples overlapping between Counts and SampleInfo: 24</p>
+</div>
+<div id="preprocessing-batch-b" class="section level2">
+<h2>Preprocessing BATCH B</h2>
+<pre class="r"><code>#Load Count Matrix
+if (file.exists(secret)){
+    source(secret)
+  } else {
+    UID    = rstudioapi::askForPassword(&quot;fuchs user&quot;)
+    PWD    = rstudioapi::askForPassword(&quot;fuchs password&quot;)
+  }
+
+filetarget= paste0(home,&quot;/data/CountmatrixB.RData&quot;)
+if(!file.exists(filetarget)){
+  url=&quot;sftp://fuchs.hhlr-gu.de//scratch/fuchs/agmisc/chiocchetti/RNASeq_Data/RAISEGenic/Rawfiles/BatchB/Countmatrix/Countmatrix.RData&quot;
+  bin = getBinaryURL(url, userpw=paste0(UID,&quot;:&quot;,PWD))
+  writeBin(bin, filetarget)
+  load(filetarget)
+} else {
+  load(filetarget)
+}
+
+Ntot= nrow(Countdata)
+
+
+#merge non unique annotations
+if(length(unique(rownames(Countdata))) != Ntot){
+  Countdata = Countdata %&gt;% group_by(row.names(Countdata)) %&gt;% summarise_each(sum)
+  Ntot= nrow(Countdata)
+}
+
+hgnc=gconvert(query=as.numeric(rownames(Countdata)), 
+              organism = &quot;hsapiens&quot;, 
+              numeric_ns = &quot;ENTREZGENE_ACC&quot;,
+              target = &quot;HGNC&quot;)
+
+Ids = hgnc %&gt;%  dplyr::select(name, input, description) %&gt;% group_by(input) %&gt;% 
+  summarise(name=paste(name, sep=&quot;; &quot;, collapse = &quot;;&quot;), description = dplyr::first(description))
+
+rowdescription = data.frame(entrez_gene = Ids$input, 
+                            hgnc=Ids$name, 
+                            description=Ids$description)
+
+
+if(all(row.names(Countdata) %in% rowdescription$entrez_gene)){
+  
+  rowdescription = rowdescription[match(row.names(Countdata), rowdescription$entrez_gene),]
+  rownames(rowdescription)=row.names(Countdata)
+}
+
+
+# load and parse sample information 
+SampleInfo=read_xlsx(paste0(home,&quot;/data/Drugdata/20210630_2021-090-LEX/P2021-090-LEX_Probenübersicht.xlsx&quot;))
+SampleInfo=as.data.frame(SampleInfo)
+
+# set factors and relevel
+SampleInfo$CellLine = as.factor(SampleInfo$CellLine)
+
+SampleInfo$Drug = factor(SampleInfo$Drug, levels=c(&quot;CBZ&quot;,&quot;LCA&quot;,&quot;LTA&quot;,&quot;VPA&quot;), 
+                         labels=c(&quot;Carbamazebine&quot;, &quot;Lacosamide&quot;, &quot;Levetiracetam&quot;, &quot;Valporate&quot;))
+
+rownames(SampleInfo) = paste0(SampleInfo$ID,&quot;b&quot;)
+
+# align datasets
+checkfiles = all(rownames(SampleInfo) %in% colnames(Countdata))
+IDs=intersect(rownames(SampleInfo), colnames(Countdata))
+Countdata = Countdata[,IDs]
+SampleInfo = SampleInfo[IDs, ]
+
+SampleInfo$reads_per_sample = colSums(Countdata)
+
+display_tab(head(Countdata))</code></pre>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:500px; overflow-x: scroll; width:900px; ">
+<table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE05NGSUKBR116677b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE10NGSUKBR116684b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE16NGSUKBR116673b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE21NGSUKBR116680b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE26NGSUKBR116687b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE27NGSUKBR116669b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE32NGSUKBR116676b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE37NGSUKBR116683b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE42NGSUKBR116690b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE43NGSUKBR116672b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE48NGSUKBR116679b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE53NGSUKBR116686b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE54NGSUKBR116668b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE59NGSUKBR116675b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE64NGSUKBR116682b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE69NGSUKBR116689b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE70NGSUKBR116671b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE75NGSUKBR116678b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE80NGSUKBR116685b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE81NGSUKBR116667b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE86NGSUKBR116674b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE91NGSUKBR116681b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE96NGSUKBR116688b
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+DE97NGSUKBR116670b
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+100287102
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+4
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+7
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+653635
+</td>
+<td style="text-align:left;">
+50
+</td>
+<td style="text-align:left;">
+168
+</td>
+<td style="text-align:left;">
+29
+</td>
+<td style="text-align:left;">
+17
+</td>
+<td style="text-align:left;">
+99
+</td>
+<td style="text-align:left;">
+45
+</td>
+<td style="text-align:left;">
+82
+</td>
+<td style="text-align:left;">
+26
+</td>
+<td style="text-align:left;">
+112
+</td>
+<td style="text-align:left;">
+60
+</td>
+<td style="text-align:left;">
+118
+</td>
+<td style="text-align:left;">
+26
+</td>
+<td style="text-align:left;">
+70
+</td>
+<td style="text-align:left;">
+60
+</td>
+<td style="text-align:left;">
+165
+</td>
+<td style="text-align:left;">
+37
+</td>
+<td style="text-align:left;">
+59
+</td>
+<td style="text-align:left;">
+28
+</td>
+<td style="text-align:left;">
+60
+</td>
+<td style="text-align:left;">
+41
+</td>
+<td style="text-align:left;">
+88
+</td>
+<td style="text-align:left;">
+120
+</td>
+<td style="text-align:left;">
+27
+</td>
+<td style="text-align:left;">
+39
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+102466751
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+100302278
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+645520
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+4
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+79501
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>display_tab(SampleInfo)</code></pre>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:500px; overflow-x: scroll; width:900px; ">
+<table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+run
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+ID
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+label
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+CellLine
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+Drug
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+Conz
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+reads_per_sample
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+DE05NGSUKBR116677b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE05NGSUKBR116677
+</td>
+<td style="text-align:left;">
+hel24_3_VPA_0.33_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Valporate
+</td>
+<td style="text-align:left;">
+0.330
+</td>
+<td style="text-align:left;">
+5672011
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE10NGSUKBR116684b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE10NGSUKBR116684
+</td>
+<td style="text-align:left;">
+hel46_11_LTA_0_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Levetiracetam
+</td>
+<td style="text-align:left;">
+0.000
+</td>
+<td style="text-align:left;">
+6952359
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE16NGSUKBR116673b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE16NGSUKBR116673
+</td>
+<td style="text-align:left;">
+hel24_3_CBZ_0.05_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Carbamazebine
+</td>
+<td style="text-align:left;">
+0.050
+</td>
+<td style="text-align:left;">
+5250989
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE21NGSUKBR116680b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE21NGSUKBR116680
+</td>
+<td style="text-align:left;">
+hel46_11_LCA_0.033_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Lacosamide
+</td>
+<td style="text-align:left;">
+0.033
+</td>
+<td style="text-align:left;">
+2812500
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE26NGSUKBR116687b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE26NGSUKBR116687
+</td>
+<td style="text-align:left;">
+hel24_3_LCA_0_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Lacosamide
+</td>
+<td style="text-align:left;">
+0.000
+</td>
+<td style="text-align:left;">
+6613634
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE27NGSUKBR116669b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE27NGSUKBR116669
+</td>
+<td style="text-align:left;">
+hel46_11_CBZ_0_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Carbamazebine
+</td>
+<td style="text-align:left;">
+0.000
+</td>
+<td style="text-align:left;">
+5416271
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE32NGSUKBR116676b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE32NGSUKBR116676
+</td>
+<td style="text-align:left;">
+hel24_3_VPA_1_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Valporate
+</td>
+<td style="text-align:left;">
+1.000
+</td>
+<td style="text-align:left;">
+10161184
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE37NGSUKBR116683b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE37NGSUKBR116683
+</td>
+<td style="text-align:left;">
+hel46_11_LTA_0.033_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Levetiracetam
+</td>
+<td style="text-align:left;">
+0.033
+</td>
+<td style="text-align:left;">
+6835600
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE42NGSUKBR116690b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE42NGSUKBR116690
+</td>
+<td style="text-align:left;">
+hel24_3_LTA_0_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Levetiracetam
+</td>
+<td style="text-align:left;">
+0.000
+</td>
+<td style="text-align:left;">
+4468026
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE43NGSUKBR116672b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE43NGSUKBR116672
+</td>
+<td style="text-align:left;">
+hel46_11_VPA_0_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Valporate
+</td>
+<td style="text-align:left;">
+0.000
+</td>
+<td style="text-align:left;">
+5440184
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE48NGSUKBR116679b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE48NGSUKBR116679
+</td>
+<td style="text-align:left;">
+hel46_11_LCA_0.1_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Lacosamide
+</td>
+<td style="text-align:left;">
+0.100
+</td>
+<td style="text-align:left;">
+5887063
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE53NGSUKBR116686b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE53NGSUKBR116686
+</td>
+<td style="text-align:left;">
+hel24_3_LCA_0.033_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Lacosamide
+</td>
+<td style="text-align:left;">
+0.033
+</td>
+<td style="text-align:left;">
+5025366
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE54NGSUKBR116668b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE54NGSUKBR116668
+</td>
+<td style="text-align:left;">
+hel46_11_CBZ_0.017_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Carbamazebine
+</td>
+<td style="text-align:left;">
+0.017
+</td>
+<td style="text-align:left;">
+7910705
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE59NGSUKBR116675b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE59NGSUKBR116675
+</td>
+<td style="text-align:left;">
+hel24_3_CBZ_0_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Carbamazebine
+</td>
+<td style="text-align:left;">
+0.000
+</td>
+<td style="text-align:left;">
+7321062
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE64NGSUKBR116682b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE64NGSUKBR116682
+</td>
+<td style="text-align:left;">
+hel46_11_LTA_0.1_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Levetiracetam
+</td>
+<td style="text-align:left;">
+0.100
+</td>
+<td style="text-align:left;">
+8877974
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE69NGSUKBR116689b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE69NGSUKBR116689
+</td>
+<td style="text-align:left;">
+hel24_3_LTA_0.033_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Levetiracetam
+</td>
+<td style="text-align:left;">
+0.033
+</td>
+<td style="text-align:left;">
+6535502
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE70NGSUKBR116671b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE70NGSUKBR116671
+</td>
+<td style="text-align:left;">
+hel46_11_VPA_0.33_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Valporate
+</td>
+<td style="text-align:left;">
+0.330
+</td>
+<td style="text-align:left;">
+5178085
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE75NGSUKBR116678b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE75NGSUKBR116678
+</td>
+<td style="text-align:left;">
+hel24_3_VPA_0_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Valporate
+</td>
+<td style="text-align:left;">
+0.000
+</td>
+<td style="text-align:left;">
+4800614
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE80NGSUKBR116685b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE80NGSUKBR116685
+</td>
+<td style="text-align:left;">
+hel24_3_LCA_0.1_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Lacosamide
+</td>
+<td style="text-align:left;">
+0.100
+</td>
+<td style="text-align:left;">
+5874461
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE81NGSUKBR116667b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE81NGSUKBR116667
+</td>
+<td style="text-align:left;">
+hel46_11_CBZ_0.05_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Carbamazebine
+</td>
+<td style="text-align:left;">
+0.050
+</td>
+<td style="text-align:left;">
+4830419
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE86NGSUKBR116674b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE86NGSUKBR116674
+</td>
+<td style="text-align:left;">
+hel24_3_CBZ_0.017_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Carbamazebine
+</td>
+<td style="text-align:left;">
+0.017
+</td>
+<td style="text-align:left;">
+7357108
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE91NGSUKBR116681b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE91NGSUKBR116681
+</td>
+<td style="text-align:left;">
+hel46_11_LCA_0_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Lacosamide
+</td>
+<td style="text-align:left;">
+0.000
+</td>
+<td style="text-align:left;">
+6419539
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE96NGSUKBR116688b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE96NGSUKBR116688
+</td>
+<td style="text-align:left;">
+hel24_3_LTA_0.1_mM
+</td>
+<td style="text-align:left;">
+hel24_3
+</td>
+<td style="text-align:left;">
+Levetiracetam
+</td>
+<td style="text-align:left;">
+0.100
+</td>
+<td style="text-align:left;">
+5542746
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE97NGSUKBR116670b
+</td>
+<td style="text-align:left;">
+P2021-090-LEX
+</td>
+<td style="text-align:left;">
+DE97NGSUKBR116670
+</td>
+<td style="text-align:left;">
+hel46_11_VPA_1_mM
+</td>
+<td style="text-align:left;">
+hel46_11
+</td>
+<td style="text-align:left;">
+Valporate
+</td>
+<td style="text-align:left;">
+1.000
+</td>
+<td style="text-align:left;">
+5444077
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>Countdata.B = Countdata
+SampleInfo.B = SampleInfo
+SampleInfo.B$Batch = &quot;B&quot;</code></pre>
+<pre class="r"><code>Countdata = merge(Countdata.A, Countdata.B, by=0, all=TRUE)
+
+SampleInfo = rbind(SampleInfo.A, SampleInfo.B)
+Countdata = Countdata %&gt;% column_to_rownames(&quot;Row.names&quot;)
+
+SampleInfo$label = as.factor(SampleInfo$label)
+SampleInfo$reads_per_sample = colSums(Countdata)
+SampleInfo$Batch = as.factor(SampleInfo$Batch)
+SampleInfo$CellLine = as.factor(SampleInfo$CellLine)
+SampleInfo$Drug = as.factor(SampleInfo$Drug)
+SampleInfo$label_rep = paste0(SampleInfo$label, &quot;_&quot;, SampleInfo$Batch)
+
+SampleInfo = SampleInfo[order(SampleInfo$Drug,SampleInfo$Conz,  SampleInfo$CellLine, SampleInfo$Batch),]
+Countdata = Countdata[,rownames(SampleInfo)]</code></pre>
+</div>
+<div id="merged-datasets" class="section level2">
+<h2>Merged Datasets</h2>
+<pre class="r"><code>boxplot_counts = function(plotsubset, maintitle, colorcode) {
+  par(mar=c(3,3,5,7))
+  a =boxplot(log2(plotsubset+1), main = maintitle, 
+             col = Dark8[as.factor(SampleInfo[,colorcode])], names=NA,
+             ylab = &quot;log2 transformed&quot;, xlab=&quot;samples&quot;)
+  legend(&quot;topleft&quot;, legend = levels(SampleInfo[,colorcode]), bg=&quot;white&quot;,
+         pch = 16, col = Dark8[1:length(unique(SampleInfo[,colorcode]))])
+}
+
+
+barplot_counts = function(DF, maintitle, colorcode) {
+  barplot(log2(DF[,&quot;reads_per_sample&quot;]), main = maintitle, 
+          col = Dark8[as.factor(DF[,colorcode])], names=&quot;&quot;,
+          ylab = &quot;log2 transformed&quot;,xlab=&quot;samples&quot;)
+  legend(&quot;bottomleft&quot;, legend = levels(DF[,colorcode]), pch = 16, 
+         bg=&quot;white&quot;,
+         col = Dark8[1:length(unique(DF[,colorcode]))])
+}
+
+par(mfrow=c(1,1))
+boxplot_counts(Countdata, &quot;raw counts&quot;, &quot;CellLine&quot;)</code></pre>
+<p><img src="figure/02_Preprocessing_counts.Rmd/plot_counts-1.png" width="4500" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>boxplot_counts(Countdata, &quot;raw counts&quot;, &quot;Drug&quot;)</code></pre>
+<p><img src="figure/02_Preprocessing_counts.Rmd/plot_counts-2.png" width="4500" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>boxplot_counts(Countdata, &quot;raw counts&quot;, &quot;Batch&quot;)</code></pre>
+<p><img src="figure/02_Preprocessing_counts.Rmd/plot_counts-3.png" width="4500" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>barplot_counts(SampleInfo, &quot;total reads&quot;, &quot;label&quot;)</code></pre>
+<p><img src="figure/02_Preprocessing_counts.Rmd/plot_counts-4.png" width="4500" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>barplot_counts(SampleInfo, &quot;total reads&quot;, &quot;Drug&quot;)</code></pre>
+<p><img src="figure/02_Preprocessing_counts.Rmd/plot_counts-5.png" width="4500" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>barplot_counts(SampleInfo, &quot;total reads&quot;, &quot;Batch&quot;)</code></pre>
+<p><img src="figure/02_Preprocessing_counts.Rmd/plot_counts-6.png" width="4500" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plot(density(log2(rowMeans(Countdata))), main=&quot;distribution of gene expression&quot;, 
+     xlab=&quot;mean log2(counts +1)&quot;)</code></pre>
+<p><img src="figure/02_Preprocessing_counts.Rmd/plot_counts-7.png" width="4500" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># remove genes wich were not detected in at least 50% of the samples 
+keeperidx = rowSums(Countdata&gt;1)&gt;nrow(SampleInfo)/2
+
+Countdata_cl = Countdata[keeperidx, ]
+
+rowdescription = rowdescription[row.names(Countdata_cl),]
+
+fullmodel = as.formula(&quot;~CellLine+Drug+Conz+Drug*Conz&quot;)
+
+
+ddsMat &lt;- DESeqDataSetFromMatrix(countData = Countdata_cl,
+                                 colData = SampleInfo,
+                                 rowData = rowdescription,
+                                 design = fullmodel)
+
+
+ddsMat = estimateSizeFactors(ddsMat)
+ddsMat = estimateDispersions(ddsMat)</code></pre>
+<pre><code>gene-wise dispersion estimates</code></pre>
+<pre><code>mean-dispersion relationship</code></pre>
+<pre><code>final dispersion estimates</code></pre>
+<pre class="r"><code>reads  = as.data.frame(counts(ddsMat, normalized=T))
+
+SDs = apply(reads, 1, sd)
+keepvar = SDs&gt;0
+
+ddsMat &lt;- ddsMat[keepvar,]
+
+Nfilt = length(ddsMat)
+reads  = as.data.frame(counts(ddsMat, normalized=T))
+
+SampleInfo$reads_per_sample_cl= colSums(reads)</code></pre>
+<div id="before-cleaning" class="section level3">
+<h3>before cleaning</h3>
+<ul>
+<li>Average reads per samples: 6 379 937</li>
+<li>Standard deviation reads per samples: 1 715 445</li>
+<li>Total genes mapped: 28 395</li>
+</ul>
+</div>
+<div id="after-cleaning" class="section level3">
+<h3>after cleaning</h3>
+<ul>
+<li>Average reads per samples: 6 027 387</li>
+<li>Standard deviation reads per samples: 890 040.7</li>
+<li>Genes removed due to low reads: 12 761</li>
+<li>Total genes included after filtering: 15 634</li>
+</ul>
+</div>
+</div>
+<div id="clustering" class="section level2">
+<h2>Clustering</h2>
+<p>hierarchical clustering based on the top 2000 genes by variance</p>
+<pre class="r"><code>log2_cpm = log2(reads+1)
+
+varsset=apply(log2_cpm, 1, var)
+
+cpm.sel.trans = t(log2_cpm[order(varsset,decreasing = T)[1:5000],])
+
+rownames(cpm.sel.trans)=SampleInfo$label_rep
+
+distance = dist(cpm.sel.trans)
+hc = hclust(distance, method=&quot;ward.D2&quot;)
+
+cutN=24
+clusters = cutree(hc, k=cutN)
+Colors=data.frame(Cellline = Dark8[as.numeric(SampleInfo$CellLine)],
+                  Drug = Dark8[as.numeric(SampleInfo$Drug)+nlevels(SampleInfo$CellLine)],
+                  Batch = Dark8[as.numeric(SampleInfo$Batch)+nlevels(SampleInfo$CellLine)++nlevels(SampleInfo$Drug)])
+
+par(mar=c(15,3,5,3))
+plot(as.dendrogram(hc), main=paste(&quot;Similairtiy by gene expression&quot;), cex=0.7)
+colored_dots(colors = Colors, dend = as.dendrogram(hc))</code></pre>
+<p><img src="figure/02_Preprocessing_counts.Rmd/hcluster-1.png" width="7500" style="display: block; margin: auto;" /></p>
+<p>Similarity based on hcluster plot</p>
+<pre class="r"><code>sampleDistMatrix &lt;- as.matrix(distance)
+
+#colors for plotting heatmap
+colors &lt;- colorRampPalette(brewer.pal(9, &quot;Spectral&quot;))(255)
+
+cellcol = Dark8[1:nlevels(SampleInfo$CellLine)]
+names(cellcol) = levels(SampleInfo$CellLine)
+
+drugcol = Dark8[c(1:nlevels(SampleInfo$Drug)+nlevels(SampleInfo$CellLine))]
+names(drugcol) = levels(SampleInfo$Drug)
+
+
+batchcol = Dark8[c(1:nlevels(SampleInfo$Batch)+nlevels(SampleInfo$CellLine)+nlevels(SampleInfo$Drug))]
+names(batchcol) = levels(SampleInfo$Batch)
+
+conzcol = c(&quot;orange&quot;, &quot;darkred&quot;)
+
+ann_colors = list(
+  CellLine = cellcol, 
+  Drug = drugcol,
+  Batch = batchcol,
+  Conz=conzcol)
+
+
+labels = SampleInfo[,c(&quot;CellLine&quot;,&quot;Drug&quot;,&quot;Conz&quot;,&quot;Batch&quot;)] %&gt;%  
+  mutate_if(is.factor, as.character) %&gt;% as.data.frame()
+
+rownames(labels)=SampleInfo$label_rep
+rownames(sampleDistMatrix) = rownames(labels)
+colnames(sampleDistMatrix) = rownames(sampleDistMatrix)
+
+
+pheatmap(sampleDistMatrix,
+         clustering_distance_rows = distance,
+         clustering_distance_cols = distance,
+         clustering_method = &quot;ward.D2&quot;,
+         scale =&quot;none&quot;,
+         border_color = NA, 
+         annotation_row = labels,
+         annotation_col = labels,
+         annotation_colors = ann_colors,
+         col = colors, 
+         main = &quot;Distances  normalized log2 counts&quot;)</code></pre>
+<p><img src="figure/02_Preprocessing_counts.Rmd/clusterandqual-1.png" width="7500" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>save(ddsMat, file=paste0(output,&quot;/dds_matrix.RData&quot;))</code></pre>
+</div>
+<div id="pca-and-mds" class="section level2">
+<h2>PCA and MDS</h2>
+<pre class="r"><code># PCA
+gpca &lt;- glmpca(t(cpm.sel.trans), L = 2)
+gpca.dat &lt;- gpca$factors
+gpca.dat$CellLine &lt;- SampleInfo$CellLine
+gpca.dat$Drug &lt;- SampleInfo$Drug
+gpca.dat$Batch&lt;- SampleInfo$Batch
+gpca.dat$Conz &lt;- SampleInfo$Conz
+
+rownames(gpca.dat) = SampleInfo$labels
+mds = as.data.frame(SampleInfo) %&gt;% cbind(cmdscale(distance))
+
+
+ggplot(gpca.dat, aes(x = dim1, y = dim2, color = CellLine, shape = Drug, size = Conz)) +
+            geom_point()  + ggtitle(&quot;PCA with log2 counts&quot;)</code></pre>
+<p><img src="figure/02_Preprocessing_counts.Rmd/PCA_MDS-1.png" width="4500" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot(mds, aes(x = `1`, y = `2`, color = CellLine, shape = Drug, size = Conz)) +
+            geom_point()  + ggtitle(&quot;MDS with log2 counts&quot;)</code></pre>
+<p><img src="figure/02_Preprocessing_counts.Rmd/PCA_MDS-2.png" width="4500" style="display: block; margin: auto;" /></p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.0.4 (2021-02-15)
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+Running under: Windows 10 x64 (build 18363)
+
+Matrix products: default
+
+locale:
+[1] LC_COLLATE=German_Germany.1252  LC_CTYPE=German_Germany.1252   
+[3] LC_MONETARY=German_Germany.1252 LC_NUMERIC=C                   
+[5] LC_TIME=German_Germany.1252    
+
+attached base packages:
+[1] parallel  stats4    stats     graphics  grDevices utils     datasets 
+[8] methods   base     
+
+other attached packages:
+ [1] readxl_1.3.1                gprofiler2_0.2.0           
+ [3] dendextend_1.14.0           pheatmap_1.0.12            
+ [5] glmpca_0.2.0                DESeq2_1.30.1              
+ [7] SummarizedExperiment_1.20.0 Biobase_2.50.0             
+ [9] MatrixGenerics_1.2.1        matrixStats_0.58.0         
+[11] GenomicRanges_1.42.0        GenomeInfoDb_1.26.4        
+[13] IRanges_2.24.1              S4Vectors_0.28.1           
+[15] BiocGenerics_0.36.0         RCurl_1.98-1.2             
+[17] knitr_1.33                  RColorBrewer_1.1-2         
+[19] compareGroups_4.5.1         forcats_0.5.1              
+[21] stringr_1.4.0               dplyr_1.0.5                
+[23] purrr_0.3.4                 readr_1.4.0                
+[25] tidyr_1.1.3                 tibble_3.1.0               
+[27] ggplot2_3.3.5               tidyverse_1.3.0            
+[29] kableExtra_1.3.4           
+
+loaded via a namespace (and not attached):
+  [1] uuid_0.1-4             backports_1.2.1        workflowr_1.6.2       
+  [4] systemfonts_1.0.1      lazyeval_0.2.2         splines_4.0.4         
+  [7] BiocParallel_1.24.1    digest_0.6.27          htmltools_0.5.1.1     
+ [10] viridis_0.5.1          fansi_0.4.2            magrittr_2.0.1        
+ [13] Rsolnp_1.16            memoise_2.0.0          annotate_1.68.0       
+ [16] modelr_0.1.8           officer_0.3.17         svglite_2.0.0         
+ [19] colorspace_2.0-0       blob_1.2.1             rvest_1.0.0           
+ [22] haven_2.3.1            xfun_0.24              crayon_1.4.1          
+ [25] jsonlite_1.7.2         genefilter_1.72.1      survival_3.2-9        
+ [28] glue_1.4.2             gtable_0.3.0           zlibbioc_1.36.0       
+ [31] XVector_0.30.0         webshot_0.5.2          DelayedArray_0.16.2   
+ [34] scales_1.1.1           DBI_1.1.1              Rcpp_1.0.6            
+ [37] viridisLite_0.3.0      xtable_1.8-4           bit_4.0.4             
+ [40] truncnorm_1.0-8        htmlwidgets_1.5.3      httr_1.4.2            
+ [43] ellipsis_0.3.1         mice_3.13.0            pkgconfig_2.0.3       
+ [46] XML_3.99-0.5           farver_2.1.0           sass_0.3.1            
+ [49] dbplyr_2.1.0           locfit_1.5-9.4         utf8_1.1.4            
+ [52] tidyselect_1.1.0       labeling_0.4.2         rlang_0.4.10          
+ [55] later_1.1.0.1          AnnotationDbi_1.52.0   munsell_0.5.0         
+ [58] cellranger_1.1.0       tools_4.0.4            cachem_1.0.4          
+ [61] cli_3.0.1              generics_0.1.0         RSQLite_2.2.4         
+ [64] broom_0.7.5            evaluate_0.14          fastmap_1.1.0         
+ [67] yaml_2.2.1             bit64_4.0.5            fs_1.5.0              
+ [70] zip_2.1.1              xml2_1.3.2             compiler_4.0.4        
+ [73] rstudioapi_0.13        plotly_4.9.3           reprex_1.0.0          
+ [76] geneplotter_1.68.0     bslib_0.2.4            stringi_1.7.3         
+ [79] HardyWeinberg_1.7.1    highr_0.9              gdtools_0.2.3         
+ [82] lattice_0.20-41        Matrix_1.3-2           vctrs_0.3.6           
+ [85] pillar_1.5.1           lifecycle_1.0.0        BiocManager_1.30.12   
+ [88] jquerylib_0.1.3        data.table_1.14.0      bitops_1.0-6          
+ [91] flextable_0.6.4        httpuv_1.5.5           R6_2.5.0              
+ [94] promises_1.2.0.1       gridExtra_2.3          writexl_1.3.1         
+ [97] MASS_7.3-53.1          assertthat_0.2.1       chron_2.3-56          
+[100] rprojroot_2.0.2        withr_2.4.1            GenomeInfoDbData_1.2.4
+[103] hms_1.0.0              grid_4.0.4             rmarkdown_2.9.7       
+[106] git2r_0.28.0           lubridate_1.7.10       base64enc_0.1-3       </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
