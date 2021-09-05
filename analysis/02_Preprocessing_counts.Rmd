@@ -110,7 +110,7 @@ SampleInfo=as.data.frame(SampleInfo)
 SampleInfo$CellLine = as.factor(SampleInfo$CellLine)
 
 SampleInfo$Drug = factor(SampleInfo$Drug, levels=c("CBZ","LCA","LTA","VPA"), 
-                         labels=c("Carbamazebine", "Lacosamide", "Levetiracetam", "Valporate"))
+                         labels=c("Carbamazepine", "Lacosamide", "Levetiracetam", "Valporate"))
 
 rownames(SampleInfo) = paste0(SampleInfo$ID,"a")
 
@@ -192,7 +192,7 @@ SampleInfo=as.data.frame(SampleInfo)
 SampleInfo$CellLine = as.factor(SampleInfo$CellLine)
 
 SampleInfo$Drug = factor(SampleInfo$Drug, levels=c("CBZ","LCA","LTA","VPA"), 
-                         labels=c("Carbamazebine", "Lacosamide", "Levetiracetam", "Valporate"))
+                         labels=c("Carbamazepine", "Lacosamide", "Levetiracetam", "Valporate"))
 
 rownames(SampleInfo) = paste0(SampleInfo$ID,"b")
 
@@ -265,6 +265,7 @@ boxplot_counts(Countdata, "raw counts", "Batch")
 barplot_counts(SampleInfo, "total reads", "label")
 barplot_counts(SampleInfo, "total reads", "Drug")
 barplot_counts(SampleInfo, "total reads", "Batch")
+
 
 plot(density(log2(rowMeans(Countdata))), main="distribution of gene expression", 
      xlab="mean log2(counts +1)")
@@ -351,7 +352,7 @@ Similarity based on hcluster plot
 sampleDistMatrix <- as.matrix(distance)
 
 #colors for plotting heatmap
-colors <- colorRampPalette(brewer.pal(9, "Spectral"))(255)
+colors <- rev(colorRampPalette(brewer.pal(9, "Spectral"))(255))
 
 cellcol = Dark8[1:nlevels(SampleInfo$CellLine)]
 names(cellcol) = levels(SampleInfo$CellLine)

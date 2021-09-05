@@ -56,10 +56,11 @@ comparison <- function(dds_object, samples, target, randomeffect){
     return(res)
   }
   ## with random effects
-  if(length(randomeffect)==1){
+  if(length(randomeffect)!=0){
     log_cpm=log2(counts(dds_filt, normalize=T)+1)
     design = model.matrix( designform, colData(dds_filt))
     rande = colData(dds_filt)[,randomeffect]
+    rande = as.factor(apply( rande, 1 , paste , collapse = "-" ))
     dupcor <- duplicateCorrelation(log_cpm, design, block=rande)
     fitDupCor <- lmFit(log_cpm, design, block=rande, correlation=dupcor$consensus)
     fit<- eBayes(fitDupCor)

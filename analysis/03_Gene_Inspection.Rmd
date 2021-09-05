@@ -154,6 +154,7 @@ geneheatmap=function(GOIsEntrez,exprobj,CellID){
     mutate_if(is.factor, as.character) %>% as.data.frame()
   
   
+  
   rownames(labels)= colnames(dataset)
   
   pheatmap(dataset, 

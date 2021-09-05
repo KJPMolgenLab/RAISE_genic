@@ -9,6 +9,6 @@ wflow_use_github(organization = "KJPMolgenLab",
 
 source("code/00_Installer.R")
 
-
-system("git commit -a -m \"updated Peprocessing\"")
+system("git add docs/* analysis/* code/*")
+system("git commit -a -m \"adds QC and WGCNA\"")
 system("git push -u origin master")
