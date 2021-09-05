@@ -110,7 +110,7 @@ SampleInfo=as.data.frame(SampleInfo)
 SampleInfo$CellLine = as.factor(SampleInfo$CellLine)
 
 SampleInfo$Drug = factor(SampleInfo$Drug, levels=c("CBZ","LCA","LTA","VPA"), 
-                         labels=c("Carbamazepine", "Lacosamide", "Levetiracetam", "Valporate"))
+                         labels=c("Carbamazepine", "Lacosamide", "Levetiracetam", "Valproate"))
 
 rownames(SampleInfo) = paste0(SampleInfo$ID,"a")
 
@@ -192,7 +192,7 @@ SampleInfo=as.data.frame(SampleInfo)
 SampleInfo$CellLine = as.factor(SampleInfo$CellLine)
 
 SampleInfo$Drug = factor(SampleInfo$Drug, levels=c("CBZ","LCA","LTA","VPA"), 
-                         labels=c("Carbamazepine", "Lacosamide", "Levetiracetam", "Valporate"))
+                         labels=c("Carbamazepine", "Lacosamide", "Levetiracetam", "Valproate"))
 
 rownames(SampleInfo) = paste0(SampleInfo$ID,"b")
 

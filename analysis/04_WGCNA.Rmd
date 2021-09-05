@@ -58,10 +58,6 @@ WGCNA_matrix <- t(log2(vsd+1)) #Need to transform for further calculations
   
 if(reanalyze | !file.exists(paste0(output,"/WGCNA_adj_TOM.RData"))){
   
-  
-
-  
-  
   s = abs(bicor(WGCNA_matrix)) #biweight mid-correlation
   powers = c(c(1:10), seq(from = 12, to=20, by=2))
   sft = pickSoftThreshold(WGCNA_matrix, powerVector = powers, verbose = 5)
@@ -257,25 +253,20 @@ for (module in names(Genes_of_interset)){
   }
   print(p)
 }
-
-
 ```
 
 
-```{r}
+```{r stats_ME}
 
 SampleInfo=as.data.frame(colData(ddsMat))
 MEnames = grep("ME", colnames(SampleInfo), value = T)
 randomeffect = c("Batch", "CellLine")
 
-drug="Valporate"
 target = "Conz"
 
-## dont get it why it does not work do manually 
-
-testdrug = function (drug, target, MEs){  
+for (drug in unique(SampleInfo$Drug)){
   res=data.frame()
-  for (mod in MEs){
+  for (mod in MEnames){
     re = paste0("(1|", randomeffect, ")", collapse="+")
     y = SampleInfo[,mod]
     model = paste0("y~",re,"+", target)
@@ -286,23 +277,18 @@ testdrug = function (drug, target, MEs){
     res = rbind(res, stats)
     colnames(res) = colnames(summary(resultlme)$coeff)
   }
-  rownames(res) = MEs
+  rownames(res) = MEnames
   res$p.value = 2*pt(res$`t value`, sum(SampleInfo$Drug==drug), lower=FALSE)
   res$p.value[res$p.value>1]=1
-  res
-}
-assign(paste0("WGCNA_lmer_", drug), res)
-drug = unique(SampleInfo$Drug)[4]
-
-for (d in unique(SampleInfo$Drug)){
-  assign(paste0("WGCNA_lmer_", d), testdrug(drug = d, target="Conz", MEs = MEnames))
+  assign(paste0("WGCNA_lmer_", drug), res)
 }
 
-boxplot(SampleInfo[SampleInfo$Drug=="Valporate", "MEdarkturquoise"] ~ as.factor(SampleInfo[SampleInfo$Drug=="Valporate", "Conz"]), 
-         ylab="MEdarkturquoise", xlab="mM", col="darkturquoise")
-
-boxplot(SampleInfo[SampleInfo$Drug=="Levetiracetam", "MEcyan"] ~ as.factor(SampleInfo[SampleInfo$Drug=="Valporate", "Conz"]), 
-         ylab="MEcyan", xlab="mM", col="cyan")
+# 
+# boxplot(SampleInfo[SampleInfo$Drug=="Valproate", "MEdarkturquoise"] ~ as.factor(SampleInfo[SampleInfo$Drug=="Valporate", "Conz"]), 
+#          ylab="MEdarkturquoise", xlab="mM", col="darkturquoise")
+# 
+# boxplot(SampleInfo[SampleInfo$Drug=="Levetiracetam", "MEcyan"] ~ as.factor(SampleInfo[SampleInfo$Drug=="Valporate", "Conz"]), 
+#          ylab="MEcyan", xlab="mM", col="cyan")
 
 ```
 

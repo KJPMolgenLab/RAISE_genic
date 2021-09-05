@@ -47,10 +47,10 @@ log_2cpm=log2(counts(ddsMat, normalize=T)+1)
 
 ```{r loops_for_comparison, message=F}
 
-if(reanalyze | !file.exists(paste0(home,"/output/ResTabs_KO.RData"))){
+if(reanalyze | !file.exists(paste0(home,"/output/ResTabs_DE.RData"))){
   # calculate all combinations 
   
-  Drugs=unique(SampleInfo$Drug)
+  Drugs=unique(as.character(SampleInfo$Drug))
   target="Conz"
   # no random effects included 
   for(d in Drugs){
@@ -65,7 +65,7 @@ if(reanalyze | !file.exists(paste0(home,"/output/ResTabs_KO.RData"))){
   comparisons= apropos("restab")
   save(list = comparisons, file = paste0(home,"/output/ResTabs_KO.RData"))
 } else 
-  load(file = paste0(home,"/output/ResTabs_KO.RData"))
+  load(file = paste0(home,"/output/ResTabs_DE.RData"))
 
 
 ```
@@ -73,8 +73,8 @@ if(reanalyze | !file.exists(paste0(home,"/output/ResTabs_KO.RData"))){
 
 ```{r predef_for_analaysis}
 mypval=0.05
+nompval = 0.001
 colors <- rev(colorRampPalette(brewer.pal(9, "Spectral"))(255))
-
 
 getlinmodoutput = function(targetdrug){
   
@@ -82,6 +82,14 @@ getlinmodoutput = function(targetdrug){
   res = get(paste0("restab_", targetdrug))
   pvalrep =  res$adj.P.Val<mypval 
   hits=rownames(res)[pvalrep]
+  nomp=F
+  
+  if(length(hits)==0){
+    nomp=T
+    pvalrep =  res$P.Value<nompval
+    hits=rownames(res)[pvalrep]
+    print("nominal P-value used")
+  }
   
   SamplesSet=SampleInfo[samplesincl,]
   
@@ -114,7 +122,8 @@ getlinmodoutput = function(targetdrug){
     mutate_if(is.factor, as.character) %>% as.data.frame()
   
   rownames(collabels)=SamplesSet$label_rep
-  
+  maintitle = "Normalized log2 counts PROLIF noRAPA"
+  if(nomp){maintitle=paste(maintitle, "nominal sig")}
   
   pheatmap(plotmatrix[,],
            border_color = NA, 
@@ -124,7 +133,7 @@ getlinmodoutput = function(targetdrug){
            cluster_cols = F,
            col = colors, 
            scale = "row",
-           main = "Normalized log2 counts PROLIF noRAPA")
+           main = maintitle)
   
   
   gene_univers = rownames(ddsMat)
@@ -157,7 +166,6 @@ getlinmodoutput = function(targetdrug){
 ### Carbamazepine
 
 ```{r Carbamazepine,  fig.height=20, fig.width=15}
-
 getlinmodoutput(targetdrug = "Carbamazepine")
 
 ```
@@ -183,6 +191,6 @@ getlinmodoutput(targetdrug = "Levetiracetam")
 
 ```{r Valporate ,  fig.height=20, fig.width=15}
 
-getlinmodoutput(targetdrug = "Valporate")
+getlinmodoutput(targetdrug = "Valproate")
 
 ```
