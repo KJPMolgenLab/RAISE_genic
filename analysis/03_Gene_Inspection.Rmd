@@ -112,30 +112,39 @@ GOIsEntrezFull=c(NCAM1="4684",
                  STX1A="6804",
                  SNCA="6622")
 
-
-
 GOIsEntrez=c(
   OCT4="5460",
-  PAX6="5080",
+  NANOG="79923",
   SOX2="6657",
-  VGLUT1="57030",
-  GAD1="2571",	
-  GLAST_SLC1A3="6507",
-  MAPT=	"4137",	
-  DCX="1641",
-  NEUN="146713")
+  NESTIN="10763",
+  PAX6="5080",
+  GFAP="2670",
+  AQP4="361",
+  ASCL1="429",
+  Olig2="10215",
+  TMEM119="338773",
+  TUBB3="10381",
+  MAP2="4133",
+  SYP="6855",
+  SLC17A7="57030",
+  GAD1="2571",
+  SERT1="6532",
+  CHAT="1103",
+  TH="7054")
 
 
 
-
-CellID = levels(SampleInfo$CellLine)
-exprobj=ddsMat
+log2_cpm
 
 
 geneheatmap=function(GOIsEntrez,exprobj,CellID){
   
   idx = match(GOIsEntrez, rownames(exprobj))
-  log_2cpm=log2(counts(exprobj, normalize=T)+1)
+  vsd <- vst(exprobj, blind=FALSE)
+  mat <- assay(vsd)
+  mat <- limma::removeBatchEffect(mat, vsd$Batch)
+  log2_cpm <- limma::removeBatchEffect(mat, dds2$Batch)
+
   idxsmpl = SampleInfo$CellLine %in% CellID
   
   dataset= log_2cpm[idx, rownames(SampleInfo)[idxsmpl]]
@@ -182,7 +191,8 @@ geneheatmap=function(GOIsEntrez,exprobj,CellID){
            main=CellID)
 }
 
-geneheatmap(GOIsEntrez,ddsMat,CellID=CellID)
+geneheatmap(GOIsEntrez,ddsMat,CellID=unique(SampleInfo$CellLine)
+
 
 ```
 

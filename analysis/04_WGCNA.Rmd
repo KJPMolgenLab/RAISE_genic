@@ -6,13 +6,14 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-reanalyze=F
+reanalyze=T
 home = getwd()
 output= paste0(home, "/output/")
 
 source(paste0(home,"/code/custom_functions.R"))
 
 library(DESeq2)
+library(limma)
 library(knitr)
 library(tidyverse)
 library(pheatmap)
@@ -52,10 +53,13 @@ log_2cpm=log2(counts(ddsMat, normalize=T)+1)
 allowWGCNAThreads()
 
 dds2 = DESeq(ddsMat)
-vsd = getVarianceStabilizedData(dds2)
-WGCNA_matrix <- t(log2(vsd+1)) #Need to transform for further calculations
 
-  
+vsd <- vst(dds2, blind=FALSE)
+vsd <- limma::removeBatchEffect(vsd, dds2$Batch)
+
+WGCNA_matrix <- t(vsd) #Need to transform for further calculations
+
+
 if(reanalyze | !file.exists(paste0(output,"/WGCNA_adj_TOM.RData"))){
   
   s = abs(bicor(WGCNA_matrix)) #biweight mid-correlation
@@ -69,14 +73,13 @@ if(reanalyze | !file.exists(paste0(output,"/WGCNA_adj_TOM.RData"))){
        type="n", main = paste("Scale independence"));
   text(sft$fitIndices[,1], -sign(sft$fitIndices[,3])*sft$fitIndices[,2],
        labels=powers,cex=cex1,col="red");
-  abline(h=0.80,col="red")
+  abline(h=0.90,col="red")
   
   plot(sft$fitIndices[,1], sft$fitIndices[,5],xlab="Soft Threshold (power)",ylab="Mean Connectivity", 
        type="n",main = paste("Mean connectivity"))
   text(sft$fitIndices[,1], sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
   
-  
-  softPower = 6; # The point where the curve flattens
+  softPower = 8; # The point where the curve flattens
   
   adj= adjacency(WGCNA_matrix,type = "unsigned", power = softPower);
   
@@ -289,6 +292,15 @@ for (drug in unique(SampleInfo$Drug)){
 # 
 # boxplot(SampleInfo[SampleInfo$Drug=="Levetiracetam", "MEcyan"] ~ as.factor(SampleInfo[SampleInfo$Drug=="Valporate", "Conz"]), 
 #          ylab="MEcyan", xlab="mM", col="cyan")
+
+for (i in apropos("WGCNA_lmer_")){
+  i
+  
+}
+
+save(list=apropos("WGCNA_lmer_"), paste0(output,"WGCNA_lmer_res.RData"))
+
+
 
 ```
 

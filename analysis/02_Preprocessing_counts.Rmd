@@ -277,6 +277,7 @@ Countdata_cl = Countdata[keeperidx, ]
 
 rowdescription = rowdescription[row.names(Countdata_cl),]
 
+
 fullmodel = as.formula("~Batch+CellLine+Drug*Conz")
 
 
@@ -285,6 +286,7 @@ ddsMat <- DESeqDataSetFromMatrix(countData = Countdata_cl,
                                  rowData = rowdescription,
                                  design = fullmodel)
 
+ddsMat = ddsMat[rowSums(counts(ddsMat)) > (2 * ncol(ddsMat)), ]
 
 ddsMat = estimateSizeFactors(ddsMat)
 ddsMat = estimateDispersions(ddsMat)
@@ -319,18 +321,23 @@ SampleInfo$reads_per_sample_cl= colSums(reads)
 
 ## Clustering 
 
-hierarchical clustering based on the top 2000 genes by variance 
+hierarchical clustering based on the top 2000 genes by variance removing batch effects
+
 ```{r hcluster, fig.height=10, fig.width=15}
-log2_cpm = log2(reads+1)
+
+vsd <- vst(ddsMat, blind=FALSE)
+mat <- assay(vsd)
+log2_cpm <- limma::removeBatchEffect(mat, vsd$Batch)
+
 
 varsset=apply(log2_cpm, 1, var)
 
-cpm.sel.trans = t(log2_cpm[order(varsset,decreasing = T)[1:5000],])
+cpm.sel.trans = t(log2_cpm[order(varsset,decreasing = T)[1:2000],])
 
 rownames(cpm.sel.trans)=SampleInfo$label_rep
 
 distance = dist(cpm.sel.trans)
-hc = hclust(distance, method="ward.D2")
+hc = stats::hclust(distance, method = "ward.D2")
 
 cutN=24
 clusters = cutree(hc, k=cutN)
