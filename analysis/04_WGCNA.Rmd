@@ -288,18 +288,30 @@ for (drug in unique(SampleInfo$Drug)){
 }
 
 # 
-# boxplot(SampleInfo[SampleInfo$Drug=="Valproate", "MEdarkturquoise"] ~ as.factor(SampleInfo[SampleInfo$Drug=="Valporate", "Conz"]), 
-#          ylab="MEdarkturquoise", xlab="mM", col="darkturquoise")
+# 
 # 
 # boxplot(SampleInfo[SampleInfo$Drug=="Levetiracetam", "MEcyan"] ~ as.factor(SampleInfo[SampleInfo$Drug=="Valporate", "Conz"]), 
 #          ylab="MEcyan", xlab="mM", col="cyan")
 
 for (i in apropos("WGCNA_lmer_")){
-  i
+  print(i)
+  tmp=get(i)
+  print(tmp)
+  if( any(tmp$p.value <=0.05)){
+    Drug=gsub("WGCNA_lmer_","",i)
+    for(mod in rownames(tmp)[tmp$p.value<=0.1]){
+    boxplot(SampleInfo[SampleInfo$Drug==Drug, mod] ~ as.factor(SampleInfo[SampleInfo$Drug==Drug, "Conz"]), 
+            ylab=mod, xlab=paste("mM", Drug), col=gsub("ME","",mod))
+      mtext(paste("p.value =",tmp[mod,"p.value"]), 3)
+    }
+    
+  }
   
 }
 
 save(list=apropos("WGCNA_lmer_"), file=paste0(output,"/WGCNA_lmer_res.RData"))
+
+
 
 
 
