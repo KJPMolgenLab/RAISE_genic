@@ -475,16 +475,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree7330ccdd33f0eab5e85237bf0f8a3ca462a52fe0targetblank7330ccda"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/7330ccdd33f0eab5e85237bf0f8a3ca462a52fe0" target="_blank">7330ccd</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree51c7a7299ddc772a7b89149ea6c118d338794d89targetblank51c7a72a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/51c7a7299ddc772a7b89149ea6c118d338794d89" target="_blank">51c7a72</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree7330ccdd33f0eab5e85237bf0f8a3ca462a52fe0targetblank7330ccda" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree51c7a7299ddc772a7b89149ea6c118d338794d89targetblank51c7a72a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/7330ccdd33f0eab5e85237bf0f8a3ca462a52fe0" target="_blank">7330ccd</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/51c7a7299ddc772a7b89149ea6c118d338794d89" target="_blank">51c7a72</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -518,6 +518,7 @@ Untracked files:
     Untracked:  output/GOres_Valproate.xlsx
     Untracked:  output/ResTabs_KO.RData
     Untracked:  output/WGCNA_adj_TOM.RData
+    Untracked:  output/WGCNA_lmer_res.RData
     Untracked:  output/dds_matrix.RData
 
 Unstaged changes:
@@ -869,18 +870,100 @@ boundary (singular) fit: see ?isSingular
 boundary (singular) fit: see ?isSingular
 boundary (singular) fit: see ?isSingular</code></pre>
 <pre class="r"><code># 
-# boxplot(SampleInfo[SampleInfo$Drug==&quot;Valproate&quot;, &quot;MEdarkturquoise&quot;] ~ as.factor(SampleInfo[SampleInfo$Drug==&quot;Valporate&quot;, &quot;Conz&quot;]), 
-#          ylab=&quot;MEdarkturquoise&quot;, xlab=&quot;mM&quot;, col=&quot;darkturquoise&quot;)
+# 
 # 
 # boxplot(SampleInfo[SampleInfo$Drug==&quot;Levetiracetam&quot;, &quot;MEcyan&quot;] ~ as.factor(SampleInfo[SampleInfo$Drug==&quot;Valporate&quot;, &quot;Conz&quot;]), 
 #          ylab=&quot;MEcyan&quot;, xlab=&quot;mM&quot;, col=&quot;cyan&quot;)
 
 for (i in apropos(&quot;WGCNA_lmer_&quot;)){
-  i
+  print(i)
+  tmp=get(i)
+  print(tmp)
+  if( any(tmp$p.value &lt;=0.05)){
+    Drug=gsub(&quot;WGCNA_lmer_&quot;,&quot;&quot;,i)
+    for(mod in rownames(tmp)[tmp$p.value&lt;=0.1]){
+    boxplot(SampleInfo[SampleInfo$Drug==Drug, mod] ~ as.factor(SampleInfo[SampleInfo$Drug==Drug, &quot;Conz&quot;]), 
+            ylab=mod, xlab=paste(&quot;mM&quot;, Drug), col=gsub(&quot;ME&quot;,&quot;&quot;,mod))
+      mtext(paste(&quot;p.value =&quot;,tmp[mod,&quot;p.value&quot;]), 3)
+    }
+    
+  }
   
-}
-
-save(list=apropos(&quot;WGCNA_lmer_&quot;), file=paste0(output,&quot;/WGCNA_lmer_res.RData&quot;))</code></pre>
+}</code></pre>
+<pre><code>[1] &quot;WGCNA_lmer_Carbamazepine&quot;
+                  Estimate Std. Error    t value   p.value
+MEblack         -0.0308981  0.1206994 -0.2559922 1.0000000
+MEpink          -0.7511446  0.8018757 -0.9367344 1.0000000
+MEpaleturquoise -0.1364928  0.3097091 -0.4407130 1.0000000
+MEdarkorange    -0.4790800  0.4158734 -1.1519852 1.0000000
+MEroyalblue     -0.4621586  0.3773989 -1.2245890 1.0000000
+MEcyan          -0.7638931  0.9212228 -0.8292164 1.0000000
+MEblue          -0.2012450  0.7824777 -0.2571894 1.0000000
+MEorangered4    -0.6684336  0.8765548 -0.7625691 1.0000000
+MEdarkmagenta   -0.4115402  0.4144480 -0.9929840 1.0000000
+MElightyellow   -0.2226813  0.2959703 -0.7523770 1.0000000
+MEdarkgreen      0.1113621  0.2375402  0.4688137 0.6476050
+MEdarkturquoise  0.1609182  0.5229821  0.3076935 0.7635905
+MEbrown          0.9469838  1.2232495  0.7741542 0.4538224
+MEdarkred       -0.5191557  1.0781622 -0.4815191 1.0000000
+MEturquoise      0.4783824  0.6700363  0.7139649 0.4889039
+MEgrey           0.1233465  0.6547395  0.1883902 0.8537191
+[1] &quot;WGCNA_lmer_Lacosamide&quot;
+                   Estimate Std. Error    t value    p.value
+MEblack          0.05643154 0.16476858  0.3424897 0.73790662
+MEpink          -0.09669742 0.09589239 -1.0083952 1.00000000
+MEpaleturquoise -0.35171259 0.23311093 -1.5087778 1.00000000
+MEdarkorange    -1.26680951 0.65410707 -1.9367005 1.00000000
+MEroyalblue     -1.39419402 0.73752807 -1.8903606 1.00000000
+MEcyan          -1.65122879 1.18532555 -1.3930593 1.00000000
+MEblue          -1.57162015 0.81589806 -1.9262457 1.00000000
+MEorangered4    -1.43216221 0.84502972 -1.6948069 1.00000000
+MEdarkmagenta   -1.12715025 0.68462438 -1.6463776 1.00000000
+MElightyellow   -0.22076741 0.34469231 -0.6404768 1.00000000
+MEdarkgreen     -0.15595070 0.09320124 -1.6732685 1.00000000
+MEdarkturquoise -0.13238024 0.18179402 -0.7281881 1.00000000
+MEbrown          1.91618895 1.06531152  1.7987123 0.09724570
+MEdarkred        0.67087507 1.08420479  0.6187715 0.54763346
+MEturquoise      1.89119264 1.02656759  1.8422485 0.09027312
+MEgrey          -1.92832711 1.19829970 -1.6092194 1.00000000
+[1] &quot;WGCNA_lmer_Levetiracetam&quot;
+                   Estimate Std. Error     t value   p.value
+MEblack          0.03548968 0.08070528  0.43974425 0.6679376
+MEpink           0.02907601 0.12500523  0.23259836 0.8199931
+MEpaleturquoise -0.01989690 0.34082968 -0.05837785 1.0000000
+MEdarkorange     0.07838122 0.66481757  0.11789883 0.9080983
+MEroyalblue     -0.12722017 0.71769547 -0.17726204 1.0000000
+MEcyan          -0.23965902 0.97605086 -0.24553948 1.0000000
+MEblue           0.15646300 0.91864462  0.17031940 0.8675968
+MEorangered4    -0.11885945 0.80168481 -0.14826207 1.0000000
+MEdarkmagenta   -0.12785002 0.70791165 -0.18060166 1.0000000
+MElightyellow   -0.18318623 0.20239983 -0.90507103 1.0000000
+MEdarkgreen      0.10200417 0.08010513  1.27337874 0.2269978
+MEdarkturquoise  0.09190754 0.10269236  0.89497928 0.3883974
+MEbrown         -0.85423605 0.87386547 -0.97753725 1.0000000
+MEdarkred        0.99771665 1.25925320  0.79230821 0.4435628
+MEturquoise      0.16299790 1.16157433  0.14032499 0.8907311
+MEgrey          -1.92969808 1.36213637 -1.41667026 1.0000000
+[1] &quot;WGCNA_lmer_Valproate&quot;
+                    Estimate Std. Error     t value      p.value
+MEblack          0.027137995 0.01049702  2.58530437 2.386346e-02
+MEpink           0.005260886 0.03070639  0.17132870 8.668204e-01
+MEpaleturquoise  0.067398753 0.01145784  5.88232563 7.454171e-05
+MEdarkorange    -0.057796263 0.05619678 -1.02846212 1.000000e+00
+MEroyalblue     -0.068410415 0.05671953 -1.20611737 1.000000e+00
+MEcyan          -0.168504450 0.10242509 -1.64514823 1.000000e+00
+MEblue          -0.022625177 0.05236029 -0.43210569 1.000000e+00
+MEorangered4    -0.113895588 0.08596836 -1.32485470 1.000000e+00
+MEdarkmagenta   -0.048176905 0.04646197 -1.03691051 1.000000e+00
+MElightyellow   -0.073857023 0.02761493 -2.67453234 1.000000e+00
+MEdarkgreen     -0.017628169 0.01553755 -1.13455265 1.000000e+00
+MEdarkturquoise -0.017422340 0.02570275 -0.67783944 1.000000e+00
+MEbrown          0.103591253 0.09120458  1.13581198 2.782111e-01
+MEdarkred        0.002590198 0.07678361  0.03373374 9.736441e-01
+MEturquoise      0.107536564 0.09137789  1.17683355 2.620782e-01
+MEgrey           0.060730610 0.03396164  1.78821216 9.899850e-02</code></pre>
+<p><img src="figure/04_WGCNA.Rmd/stats_ME-1.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/stats_ME-2.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/stats_ME-3.png" width="4500" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>save(list=apropos(&quot;WGCNA_lmer_&quot;), file=paste0(output,&quot;/WGCNA_lmer_res.RData&quot;))</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
