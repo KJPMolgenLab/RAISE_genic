@@ -134,16 +134,12 @@ GOIsEntrez=c(
 
 
 
-log2_cpm
-
-
-geneheatmap=function(GOIsEntrez,exprobj,CellID){
+geneheatmap=function(GOIsEntrez,exprobj,CellID, rankconz=F){
   
   idx = match(GOIsEntrez, rownames(exprobj))
   vsd <- vst(exprobj, blind=FALSE)
   mat <- assay(vsd)
-  mat <- limma::removeBatchEffect(mat, vsd$Batch)
-  log2_cpm <- limma::removeBatchEffect(mat, dds2$Batch)
+  log_2cpm <- limma::removeBatchEffect(mat, vsd$Batch)
 
   idxsmpl = SampleInfo$CellLine %in% CellID
   
@@ -176,8 +172,11 @@ geneheatmap=function(GOIsEntrez,exprobj,CellID){
   
   labels = SampleInfo[,c("Drug","Conz","CellLine","Batch")] %>%  
     mutate_if(is.factor, as.character) %>% as.data.frame()
-  
-  
+   
+  if(rankconz){
+    labels$Conz = as.numeric(factor(labels$Conz, levels=c(unique(labels$Conz)), 
+                          labels=c(0,1,2,1,2,1,2)))
+   }
   
   rownames(labels)= colnames(dataset)
   
@@ -191,7 +190,10 @@ geneheatmap=function(GOIsEntrez,exprobj,CellID){
            main=CellID)
 }
 
-geneheatmap(GOIsEntrez,ddsMat,CellID=unique(SampleInfo$CellLine)
+geneheatmap(GOIsEntrez = GOIsEntrez,
+            exprobj = ddsMat,
+            CellID=unique(SampleInfo$CellLine),
+            rankconz = T)
 
 
 ```

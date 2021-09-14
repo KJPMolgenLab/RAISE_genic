@@ -5,9 +5,14 @@ date: "22 3 2021"
 output: html_document
 ---
 
+```{r}
+home = getwd()
+```
+
+
 ```{r setup, include=FALSE}
 reanalyze=T
-home = getwd()
+
 output= paste0(home, "/output/")
 
 source(paste0(home,"/code/custom_functions.R"))
@@ -37,9 +42,6 @@ opts_chunk$set(echo = TRUE,
 
 load(paste0(output,"/dds_matrix.RData"))
 SampleInfo = as.data.frame(colData(ddsMat))
-log_2cpm=log2(counts(ddsMat, normalize=T)+1)
-
-
 
 ```
 
@@ -52,10 +54,9 @@ log_2cpm=log2(counts(ddsMat, normalize=T)+1)
 #calclute the adjacency matrix
 allowWGCNAThreads()
 
-dds2 = DESeq(ddsMat)
-
-vsd <- vst(dds2, blind=FALSE)
-vsd <- limma::removeBatchEffect(vsd, dds2$Batch)
+vsd <- vst(ddsMat, blind=FALSE)
+vsd <- assay(vsd)
+vsd <- limma::removeBatchEffect(vsd, ddsMat$Batch)
 
 WGCNA_matrix <- t(vsd) #Need to transform for further calculations
 
@@ -298,7 +299,7 @@ for (i in apropos("WGCNA_lmer_")){
   
 }
 
-save(list=apropos("WGCNA_lmer_"), paste0(output,"WGCNA_lmer_res.RData"))
+save(list=apropos("WGCNA_lmer_"), file=paste0(output,"/WGCNA_lmer_res.RData"))
 
 
 
