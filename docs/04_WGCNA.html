@@ -384,7 +384,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-09-05
+<strong>Last updated:</strong> 2021-09-14
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -475,16 +475,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree59e7c000f3739e7c0b6ecf30a1948eb19c83a11dtargetblank59e7c00a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/59e7c000f3739e7c0b6ecf30a1948eb19c83a11d" target="_blank">59e7c00</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree7330ccdd33f0eab5e85237bf0f8a3ca462a52fe0targetblank7330ccda"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/7330ccdd33f0eab5e85237bf0f8a3ca462a52fe0" target="_blank">7330ccd</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree59e7c000f3739e7c0b6ecf30a1948eb19c83a11dtargetblank59e7c00a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree7330ccdd33f0eab5e85237bf0f8a3ca462a52fe0targetblank7330ccda" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/59e7c000f3739e7c0b6ecf30a1948eb19c83a11d" target="_blank">59e7c00</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/7330ccdd33f0eab5e85237bf0f8a3ca462a52fe0" target="_blank">7330ccd</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -541,6 +541,7 @@ There are no past versions. Publish this analysis with <code>wflow_publish()</co
 </div>
 </div>
 </div>
+<pre class="r"><code>home = getwd()</code></pre>
 <div id="wgcna" class="section level1">
 <h1>WGCNA</h1>
 <div id="identify-gene-modules" class="section level2">
@@ -548,19 +549,13 @@ There are no past versions. Publish this analysis with <code>wflow_publish()</co
 <pre class="r"><code>#calclute the adjacency matrix
 allowWGCNAThreads()</code></pre>
 <pre><code>Allowing multi-threading with up to 16 threads.</code></pre>
-<pre class="r"><code>dds2 = DESeq(ddsMat)</code></pre>
-<pre><code>using pre-existing size factors</code></pre>
-<pre><code>estimating dispersions</code></pre>
-<pre><code>found already estimated dispersions, replacing these</code></pre>
-<pre><code>gene-wise dispersion estimates</code></pre>
-<pre><code>mean-dispersion relationship</code></pre>
-<pre><code>final dispersion estimates</code></pre>
-<pre><code>fitting model and testing</code></pre>
-<pre><code>390 rows did not converge in beta, labelled in mcols(object)$betaConv. Use larger maxit argument with nbinomWaldTest</code></pre>
-<pre class="r"><code>vsd = getVarianceStabilizedData(dds2)
-WGCNA_matrix &lt;- t(log2(vsd+1)) #Need to transform for further calculations
+<pre class="r"><code>vsd &lt;- vst(ddsMat, blind=FALSE)
+vsd &lt;- assay(vsd)
+vsd &lt;- limma::removeBatchEffect(vsd, ddsMat$Batch)
 
-  
+WGCNA_matrix &lt;- t(vsd) #Need to transform for further calculations
+
+
 if(reanalyze | !file.exists(paste0(output,&quot;/WGCNA_adj_TOM.RData&quot;))){
   
   s = abs(bicor(WGCNA_matrix)) #biweight mid-correlation
@@ -574,14 +569,13 @@ if(reanalyze | !file.exists(paste0(output,&quot;/WGCNA_adj_TOM.RData&quot;))){
        type=&quot;n&quot;, main = paste(&quot;Scale independence&quot;));
   text(sft$fitIndices[,1], -sign(sft$fitIndices[,3])*sft$fitIndices[,2],
        labels=powers,cex=cex1,col=&quot;red&quot;);
-  abline(h=0.80,col=&quot;red&quot;)
+  abline(h=0.90,col=&quot;red&quot;)
   
   plot(sft$fitIndices[,1], sft$fitIndices[,5],xlab=&quot;Soft Threshold (power)&quot;,ylab=&quot;Mean Connectivity&quot;, 
        type=&quot;n&quot;,main = paste(&quot;Mean connectivity&quot;))
   text(sft$fitIndices[,1], sft$fitIndices[,5], labels=powers, cex=cex1,col=&quot;red&quot;)
   
-  
-  softPower = 6; # The point where the curve flattens
+  softPower = 8; # The point where the curve flattens
   
   adj= adjacency(WGCNA_matrix,type = &quot;unsigned&quot;, power = softPower);
   
@@ -592,9 +586,40 @@ if(reanalyze | !file.exists(paste0(output,&quot;/WGCNA_adj_TOM.RData&quot;))){
   
 } else {
   load(paste0(output,&quot;/WGCNA_adj_TOM.RData&quot;))
-}
-
-SubGeneNames&lt;-colnames(WGCNA_matrix)
+}</code></pre>
+<pre><code>pickSoftThreshold: will use block size 2862.
+ pickSoftThreshold: calculating connectivity for given powers...
+   ..working on genes 1 through 2862 of 15629
+   ..working on genes 2863 through 5724 of 15629
+   ..working on genes 5725 through 8586 of 15629
+   ..working on genes 8587 through 11448 of 15629
+   ..working on genes 11449 through 14310 of 15629
+   ..working on genes 14311 through 15629 of 15629
+   Power SFT.R.sq  slope truncated.R.sq mean.k. median.k. max.k.
+1      1    0.139  0.578          0.894 4250.00  4140.000   6930
+2      2    0.397 -0.618          0.891 1750.00  1560.000   4150
+3      3    0.719 -1.020          0.926  883.00   701.000   2820
+4      4    0.787 -1.220          0.928  503.00   350.000   2060
+5      5    0.812 -1.350          0.934  310.00   187.000   1570
+6      6    0.831 -1.420          0.944  203.00   106.000   1230
+7      7    0.846 -1.470          0.955  139.00    62.300    994
+8      8    0.857 -1.500          0.963   98.50    38.100    815
+9      9    0.857 -1.540          0.964   71.80    23.800    678
+10    10    0.856 -1.570          0.964   53.50    15.200    571
+11    12    0.858 -1.610          0.968   31.50     6.570    417
+12    14    0.878 -1.610          0.982   19.60     3.000    314
+13    16    0.886 -1.630          0.985   12.80     1.450    242
+14    18    0.896 -1.630          0.989    8.62     0.724    191
+15    20    0.902 -1.640          0.991    6.00     0.376    153</code></pre>
+<p><img src="figure/04_WGCNA.Rmd/adjacency-1.png" width="4500" style="display: block; margin: auto;" /></p>
+<pre><code>TOM calculation: adjacency..
+..will not use multithreading.
+ Fraction of slow calculations: 0.000000
+..connectivity..
+..matrix multiplication (system BLAS)..
+..normalization..
+..done.</code></pre>
+<pre class="r"><code>SubGeneNames&lt;-colnames(WGCNA_matrix)
 
 colnames(TOM) =rownames(TOM) =SubGeneNames
 dissTOM=1-TOM
@@ -623,29 +648,33 @@ dynamicMods = cutreeDynamic(dendro = geneTree,
 dynamicColors = labels2colors(dynamicMods)
 table(dynamicColors)</code></pre>
 <pre><code>dynamicColors
-        black          blue         brown          cyan     darkgreen 
-          559          3142          1557           237           154 
-     darkgrey    darkorange       darkred darkturquoise         green 
-          141           137           165           154           896 
-  greenyellow        grey60     lightcyan    lightgreen   lightyellow 
-          331           214           224           201           171 
-      magenta  midnightblue        orange          pink        purple 
-          357           228           138           441           349 
-          red     royalblue   saddlebrown        salmon       skyblue 
-          627           165            87           273           119 
-          tan     turquoise         white        yellow 
-          309          3168           136           954 </code></pre>
+         black           blue          brown           cyan      darkgreen 
+           496           2594            795            287            175 
+      darkgrey    darkmagenta darkolivegreen     darkorange        darkred 
+           170            118            118            165            205 
+ darkturquoise          green    greenyellow           grey         grey60 
+           172            521            401            213            246 
+     lightcyan     lightgreen    lightyellow        magenta   midnightblue 
+           247            228            225            467            271 
+        orange     orangered4  paleturquoise           pink          plum1 
+           166             63            130            474             70 
+        purple            red      royalblue    saddlebrown         salmon 
+           417            511            209            136            378 
+       sienna3        skyblue       skyblue3      steelblue            tan 
+           105            154             89            130            397 
+     turquoise         violet          white         yellow    yellowgreen 
+          2989            129            158            718             92 </code></pre>
 <pre class="r"><code>plotDendroAndColors(geneTree, dynamicColors, &quot;Dynamic Tree Cut&quot;, 
                     dendroLabels = FALSE, hang = 0.03, 
                     addGuide = TRUE, 
                     guideHang = 0.05, 
                     main = &quot;Gene dendrogram and module colors&quot;)</code></pre>
-<p><img src="figure/04_WGCNA.Rmd/adjacency-1.png" width="4500" style="display: block; margin: auto;" /></p>
+<p><img src="figure/04_WGCNA.Rmd/adjacency-2.png" width="4500" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>diag(dissTOM) = NA;
 
 #Visualize the Tom plot. Raise the dissimilarity matrix to the power of 4 to bring out the module structure
 TOMplot(dissTOM^4, geneTree, as.character(dynamicColors), main=&quot;weighted distance of Topological overlap Matrix&quot;)</code></pre>
-<p><img src="figure/04_WGCNA.Rmd/adjacency-2.png" width="4500" style="display: block; margin: auto;" /></p>
+<p><img src="figure/04_WGCNA.Rmd/adjacency-3.png" width="4500" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="module-eigengenes" class="section level1">
@@ -809,13 +838,49 @@ boundary (singular) fit: see ?isSingular
 boundary (singular) fit: see ?isSingular
 boundary (singular) fit: see ?isSingular
 boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
 boundary (singular) fit: see ?isSingular</code></pre>
 <pre class="r"><code># 
 # boxplot(SampleInfo[SampleInfo$Drug==&quot;Valproate&quot;, &quot;MEdarkturquoise&quot;] ~ as.factor(SampleInfo[SampleInfo$Drug==&quot;Valporate&quot;, &quot;Conz&quot;]), 
 #          ylab=&quot;MEdarkturquoise&quot;, xlab=&quot;mM&quot;, col=&quot;darkturquoise&quot;)
 # 
 # boxplot(SampleInfo[SampleInfo$Drug==&quot;Levetiracetam&quot;, &quot;MEcyan&quot;] ~ as.factor(SampleInfo[SampleInfo$Drug==&quot;Valporate&quot;, &quot;Conz&quot;]), 
-#          ylab=&quot;MEcyan&quot;, xlab=&quot;mM&quot;, col=&quot;cyan&quot;)</code></pre>
+#          ylab=&quot;MEcyan&quot;, xlab=&quot;mM&quot;, col=&quot;cyan&quot;)
+
+for (i in apropos(&quot;WGCNA_lmer_&quot;)){
+  i
+  
+}
+
+save(list=apropos(&quot;WGCNA_lmer_&quot;), file=paste0(output,&quot;/WGCNA_lmer_res.RData&quot;))</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -845,18 +910,18 @@ other attached packages:
  [5] flashClust_1.01-2           WGCNA_1.70-3               
  [7] fastcluster_1.1.25          dynamicTreeCut_1.63-1      
  [9] pheatmap_1.0.12             knitr_1.33                 
-[11] DESeq2_1.30.1               SummarizedExperiment_1.20.0
-[13] Biobase_2.50.0              MatrixGenerics_1.2.1       
-[15] matrixStats_0.58.0          GenomicRanges_1.42.0       
-[17] GenomeInfoDb_1.26.4         IRanges_2.24.1             
-[19] S4Vectors_0.28.1            BiocGenerics_0.36.0        
-[21] RColorBrewer_1.1-2          compareGroups_4.5.1        
-[23] forcats_0.5.1               stringr_1.4.0              
-[25] dplyr_1.0.5                 purrr_0.3.4                
-[27] readr_1.4.0                 tidyr_1.1.3                
-[29] tibble_3.1.0                ggplot2_3.3.5              
-[31] tidyverse_1.3.0             kableExtra_1.3.4           
-[33] workflowr_1.6.2            
+[11] limma_3.46.0                DESeq2_1.30.1              
+[13] SummarizedExperiment_1.20.0 Biobase_2.50.0             
+[15] MatrixGenerics_1.2.1        matrixStats_0.58.0         
+[17] GenomicRanges_1.42.0        GenomeInfoDb_1.26.4        
+[19] IRanges_2.24.1              S4Vectors_0.28.1           
+[21] BiocGenerics_0.36.0         RColorBrewer_1.1-2         
+[23] compareGroups_4.5.1         forcats_0.5.1              
+[25] stringr_1.4.0               dplyr_1.0.5                
+[27] purrr_0.3.4                 readr_1.4.0                
+[29] tidyr_1.1.3                 tibble_3.1.0               
+[31] ggplot2_3.3.5               tidyverse_1.3.0            
+[33] kableExtra_1.3.4            workflowr_1.6.2            
 
 loaded via a namespace (and not attached):
   [1] utf8_1.1.4             tidyselect_1.1.0       RSQLite_2.2.4         
@@ -886,7 +951,7 @@ loaded via a namespace (and not attached):
  [73] xlsxjars_0.6.1         evaluate_0.14          xtable_1.8-4          
  [76] XML_3.99-0.5           jpeg_0.1-8.1           readxl_1.3.1          
  [79] gridExtra_2.3          compiler_4.0.4         mice_3.13.0           
- [82] writexl_1.3.1          KernSmooth_2.23-18     crayon_1.4.1          
+ [82] KernSmooth_2.23-18     writexl_1.3.1          crayon_1.4.1          
  [85] minqa_1.2.4            htmltools_0.5.1.1      later_1.1.0.1         
  [88] Formula_1.2-4          geneplotter_1.68.0     lubridate_1.7.10      
  [91] DBI_1.1.1              dbplyr_2.1.0           MASS_7.3-53.1         
