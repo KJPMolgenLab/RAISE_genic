@@ -9,6 +9,7 @@ output: html_document
 
 ```{r setup, include=FALSE, echo=F}
 reanalyze=T
+
 home = getwd()
 output= paste0(home, "/output/")
 
@@ -36,7 +37,12 @@ opts_chunk$set(echo = TRUE,
 
 load(paste0(output,"/dds_matrix.RData"))
 SampleInfo = as.data.frame(colData(ddsMat))
-log_2cpm=log2(counts(ddsMat, normalize=T)+1)
+
+vsd <- vst(ddsMat, blind=FALSE)
+vsd <- assay(vsd)
+vsd <- limma::removeBatchEffect(vsd, ddsMat$Batch, ddsMat$CellLine)
+log_2cpm=vsd
+
 
 ```
 
@@ -64,6 +70,7 @@ if(reanalyze | !file.exists(paste0(home,"/output/ResTabs_DE.RData"))){
   }
   comparisons= apropos("restab")
   save(list = comparisons, file = paste0(home,"/output/ResTabs_KO.RData"))
+  
 } else 
   load(file = paste0(home,"/output/ResTabs_DE.RData"))
 
@@ -74,6 +81,7 @@ if(reanalyze | !file.exists(paste0(home,"/output/ResTabs_DE.RData"))){
 ```{r predef_for_analaysis}
 mypval=0.05
 nompval = 0.001
+
 colors <- rev(colorRampPalette(brewer.pal(9, "Spectral"))(255))
 
 getlinmodoutput = function(targetdrug){
@@ -83,17 +91,22 @@ getlinmodoutput = function(targetdrug){
   pvalrep =  res$adj.P.Val<mypval 
   hits=rownames(res)[pvalrep]
   nomp=F
+  corrtest="adjp"
   
   if(length(hits)==0){
     nomp=T
     pvalrep =  res$P.Value<nompval
     hits=rownames(res)[pvalrep]
     print("nominal P-value used")
+    corrtest="uncorr_sig"
   }
   
   SamplesSet=SampleInfo[samplesincl,]
   
   plotmatrix = log_2cpm[hits,rownames(SamplesSet)]
+  
+  genlist=mcols(ddsMat)[hits,c("hgnc", "entrez_gene")]
+  write.csv(genlist, paste0(output,"/",targetdrug,"_",corrtest,".csv"))
   
   rownames(SamplesSet)=SamplesSet$label_rep
   
@@ -157,7 +170,6 @@ getlinmodoutput = function(targetdrug){
   }
   print(p)
 }
-
 
 
 ```

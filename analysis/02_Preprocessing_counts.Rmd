@@ -16,6 +16,7 @@ secret="C:/Users/andreas_chiocchetti/OneDrive/personal/fuchs_credentials.R"
 
 
 output= paste0(home, "/output/")
+rankconz = T
 
 source(paste0(home,"/code/00_installer.R")) # installs pacakges if needed
 source(paste0(home,"/code/custom_functions.R")) #also defines colors
@@ -56,11 +57,11 @@ set.seed(157434538)
 
 #Load Count Matrix
 if (file.exists(secret)){
-    source(secret)
-  } else {
-    UID    = rstudioapi::askForPassword("fuchs user")
-    PWD    = rstudioapi::askForPassword("fuchs password")
-  }
+  source(secret)
+} else {
+  UID    = rstudioapi::askForPassword("fuchs user")
+  PWD    = rstudioapi::askForPassword("fuchs password")
+}
 
 filetarget= paste0(home,"/data/CountmatrixA.RData")
 if(!file.exists(filetarget)){
@@ -139,11 +140,11 @@ Total number of samples overlapping between Counts and SampleInfo: `r nrow(Sampl
 
 #Load Count Matrix
 if (file.exists(secret)){
-    source(secret)
-  } else {
-    UID    = rstudioapi::askForPassword("fuchs user")
-    PWD    = rstudioapi::askForPassword("fuchs password")
-  }
+  source(secret)
+} else {
+  UID    = rstudioapi::askForPassword("fuchs user")
+  PWD    = rstudioapi::askForPassword("fuchs password")
+}
 
 filetarget= paste0(home,"/data/CountmatrixB.RData")
 if(!file.exists(filetarget)){
@@ -327,7 +328,7 @@ hierarchical clustering based on the top 2000 genes by variance removing batch e
 
 vsd <- vst(ddsMat, blind=FALSE)
 mat <- assay(vsd)
-log2_cpm <- limma::removeBatchEffect(mat, vsd$Batch)
+log2_cpm <- limma::removeBatchEffect(mat, vsd$Batch, vsd$CellLine)
 
 
 varsset=apply(log2_cpm, 1, var)
@@ -346,7 +347,7 @@ Colors=data.frame(Cellline = Dark8[as.numeric(SampleInfo$CellLine)],
                   Batch = Dark8[as.numeric(SampleInfo$Batch)+nlevels(SampleInfo$CellLine)++nlevels(SampleInfo$Drug)])
 
 par(mar=c(15,3,5,3))
-plot(as.dendrogram(hc), main=paste("Similairtiy by gene expression"), cex=0.7)
+plot(as.dendrogram(hc), main=paste("Similarity by gene expression top 2000"), cex=0.7)
 colored_dots(colors = Colors, dend = as.dendrogram(hc))
 
 ```
@@ -382,7 +383,10 @@ ann_colors = list(
 
 labels = SampleInfo[,c("CellLine","Drug","Conz","Batch")] %>%  
   mutate_if(is.factor, as.character) %>% as.data.frame()
-
+if(rankconz){
+  labels$Conz = as.numeric(factor(labels$Conz, levels=c(unique(labels$Conz)), 
+                                  labels=c(0,1,2,1,2,1,2)))
+}
 rownames(labels)=SampleInfo$label_rep
 rownames(sampleDistMatrix) = rownames(labels)
 colnames(sampleDistMatrix) = rownames(sampleDistMatrix)
@@ -416,15 +420,21 @@ gpca.dat$Drug <- SampleInfo$Drug
 gpca.dat$Batch<- SampleInfo$Batch
 gpca.dat$Conz <- SampleInfo$Conz
 
+if(rankconz){
+  gpca.dat$Conz = as.numeric(factor(gpca.dat$Conz, levels=c(unique(gpca.dat$Conz)), 
+                                     labels=c(0,1,2,1,2,1,2)))
+}
+
+
 rownames(gpca.dat) = SampleInfo$labels
 mds = as.data.frame(SampleInfo) %>% cbind(cmdscale(distance))
 
 
 ggplot(gpca.dat, aes(x = dim1, y = dim2, color = CellLine, shape = Drug, size = Conz)) +
-            geom_point()  + ggtitle("PCA with log2 counts")
+  geom_point()  + ggtitle("PCA with log2 counts")
 
 ggplot(mds, aes(x = `1`, y = `2`, color = CellLine, shape = Drug, size = Conz)) +
-            geom_point()  + ggtitle("MDS with log2 counts")
+  geom_point()  + ggtitle("MDS with log2 counts")
 
 
 ```

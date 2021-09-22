@@ -11,7 +11,8 @@ home = getwd()
 
 
 ```{r setup, include=FALSE}
-reanalyze=T
+reanalyze=F
+rankconz=T
 
 output= paste0(home, "/output/")
 
@@ -56,7 +57,7 @@ allowWGCNAThreads()
 
 vsd <- vst(ddsMat, blind=FALSE)
 vsd <- assay(vsd)
-vsd <- limma::removeBatchEffect(vsd, ddsMat$Batch)
+vsd <- limma::removeBatchEffect(vsd, ddsMat$Batch, ddsMat$CellLine)
 
 WGCNA_matrix <- t(vsd) #Need to transform for further calculations
 
@@ -90,6 +91,7 @@ if(reanalyze | !file.exists(paste0(output,"/WGCNA_adj_TOM.RData"))){
   save(list = c("adj", "TOM"), file=paste0(output,"/WGCNA_adj_TOM.RData"))
   
 } else {
+  print("loading precalculated data")
   load(paste0(output,"/WGCNA_adj_TOM.RData"))
 }
 
@@ -144,7 +146,10 @@ MEList = moduleEigengenes(WGCNA_matrix, colors = dynamicColors)
 MEs = MEList$eigengenes 
 plotEigengeneNetworks(MEs, "Eigengenes_before_merging", marDendro = c(0,4,1,2), marHeatmap = c(3,4,1,2))
 
-MEList_new = mergeCloseModules(WGCNA_matrix, colors = dynamicColors, MEs = MEs, cutHeight = 0.2)
+MEList_new = mergeCloseModules(WGCNA_matrix, 
+                               colors = dynamicColors, 
+                               MEs = MEs, 
+                               cutHeight = 0.1)
 
 plotEigengeneNetworks(MEList_new$newMEs, "Eigengenes_after_merging", 
                       marDendro = c(0,4,1,2), marHeatmap = c(3,4,1,2))
@@ -157,15 +162,20 @@ colors_new = MEList_new$colors
 
 mcols(ddsMat) = cbind(mcols(ddsMat), data.frame(cluster=colors_new))
 
+clusterdataframe=data.frame(entrezgene=mcols(ddsMat)$entrez_gene,hgnc=mcols(ddsMat)$hgnc,  cluster=colors_new)
+
+
 save(ddsMat, file=paste0(output,"/dds_matrix.RData"))
+write.csv(clusterdataframe, file=paste0(output,"/clusterdataframe.csv"))
 
 ```
 
 ## Heatmaps MEs
 ```{r heatmap,  fig.height=20, fig.width=15}
 #colors for plotting heatmap
-#colors for plotting heatmap
-colors <- colorRampPalette(brewer.pal(9, "Spectral"))(255)
+
+
+colors <- rev(colorRampPalette(brewer.pal(9, "Spectral"))(255))
 
 cellcol = Dark8[1:nlevels(SampleInfo$CellLine)]
 names(cellcol) = levels(SampleInfo$CellLine)
@@ -173,19 +183,20 @@ names(cellcol) = levels(SampleInfo$CellLine)
 drugcol = Dark8[c(1:nlevels(SampleInfo$Drug)+nlevels(SampleInfo$CellLine))]
 names(drugcol) = levels(SampleInfo$Drug)
 
-
 batchcol = Dark8[c(1:nlevels(SampleInfo$Batch)+nlevels(SampleInfo$CellLine)+nlevels(SampleInfo$Drug))]
 names(batchcol) = levels(SampleInfo$Batch)
 
 conzcol = c("orange", "darkred")
 
+clustercol = unique(colors_new)
+names(clustercol) = clustercol
+
 ann_colors = list(
   CellLine = cellcol, 
   Drug = drugcol,
   Batch = batchcol,
-  Conz=conzcol)
-
-
+  Conz=conzcol, 
+  cluster = clustercol)
 
 idx=order(SampleInfo$CellLine, SampleInfo$Drug, SampleInfo$Conz,SampleInfo$Batch)
 WGCNA_matrix_sorted=WGCNA_matrix[idx, order(colors_new)]
@@ -193,7 +204,10 @@ rownames(WGCNA_matrix_sorted) = SampleInfo$label_rep[idx]
 
 collabels = SampleInfo[idx,c("CellLine","Drug","Conz","Batch")] %>%  
   mutate_if(is.factor, as.character) %>% as.data.frame()
-
+if(rankconz){
+    collabels$Conz = as.numeric(factor(collabels$Conz, levels=c(unique(collabels$Conz)), 
+                          labels=c(0,1,2,1,2,1,2)))
+   }
 rownames(collabels)=SampleInfo$label_rep[idx]
 
 genlabels = data.frame(cluster = as.character(colors_new)[order(colors_new)])
@@ -201,7 +215,7 @@ rownames(genlabels) = colnames(WGCNA_matrix_sorted)
 
 pheatmap(t(WGCNA_matrix_sorted),
          cluster_rows= F,
-         cluster_cols = F,
+         cluster_cols = T,
          border_color = NA, 
          clustering_method = "ward.D2",
          annotation_row = genlabels,
@@ -214,22 +228,19 @@ pheatmap(t(WGCNA_matrix_sorted),
 MElabels = data.frame(cluster = gsub("ME", "",colnames(MEs)))
 rownames(MElabels) = colnames(MEs)
 
-clustcol = gplots::col2hex(unique(as.character(MElabels$cluster)))
-names(clustcol) = as.character(MElabels$cluster)
-
-
 rownames(MEs) = SampleInfo[rownames(MEs),"label_rep"]
 
 pheatmap(t(MEs[idx,]),
          border_color = NA, 
          annotation_row = MElabels,
-         cluster_cols = F,
+         cluster_cols = T,
          annotation_col = collabels,
          clustering_method = "ward.D2",
          annotation_colors = ann_colors,
          scale="none",
          col = colors, 
          main = "Distances  normalized log2 counts")
+
 
 ```
 
@@ -257,6 +268,8 @@ for (module in names(Genes_of_interset)){
   }
   print(p)
 }
+
+
 ```
 
 
@@ -297,10 +310,13 @@ for (i in apropos("WGCNA_lmer_")){
   print(i)
   tmp=get(i)
   print(tmp)
+  write.csv(tmp, file=paste0(output, "/",i,".csv"))
+  xlsx::write.xlsx(tmp, file=paste0(output, "/",i,".xlsx"))
   if( any(tmp$p.value <=0.05)){
     Drug=gsub("WGCNA_lmer_","",i)
     for(mod in rownames(tmp)[tmp$p.value<=0.1]){
-    boxplot(SampleInfo[SampleInfo$Drug==Drug, mod] ~ as.factor(SampleInfo[SampleInfo$Drug==Drug, "Conz"]), 
+    boxplot(SampleInfo[SampleInfo$Drug==Drug, mod] ~
+              as.factor(SampleInfo[SampleInfo$Drug==Drug, "Conz"]), 
             ylab=mod, xlab=paste("mM", Drug), col=gsub("ME","",mod))
       mtext(paste("p.value =",tmp[mod,"p.value"]), 3)
     }
@@ -310,9 +326,6 @@ for (i in apropos("WGCNA_lmer_")){
 }
 
 save(list=apropos("WGCNA_lmer_"), file=paste0(output,"/WGCNA_lmer_res.RData"))
-
-
-
 
 
 ```

@@ -3,7 +3,8 @@ require("tidyverse")
 require("compareGroups")
 require("RColorBrewer")
 require("stringr")
-
+require("pheatmap")
+require("DESeq2")
 
 Dark8 = brewer.pal(8, "Dark2")
 Dark8_50 = paste0(brewer.pal(8, "Dark2"), "7D")
@@ -119,4 +120,56 @@ GOplot = function(GOtable, N, Title="GO plot"){
     theme(plot.title = element_text(hjust = 0.5))+
     scale_y_continuous(breaks=N:1,
                      labels=Tabtoplot$term_name)
-  }
+}
+
+geneheatmap=function(GOIsEntrez,exprobj,CellID){
+
+  idx = match(GOIsEntrez, rownames(exprobj))
+  log_2cpm=log2(counts(exprobj, normalize=T)+1)
+  tmpsmpl = rownames(SampleInfo)[SampleInfo$CellLine %in% CellID]
+  tmpsmpl = intersect(colnames(exprobj), tmpsmpl)
+  idxsmpl = rownames(SampleInfo) %in% tmpsmpl
+
+
+  dataset= log_2cpm[idx, rownames(SampleInfo)[idxsmpl]]
+
+  colnames(dataset)= SampleInfo[rownames(SampleInfo)[idxsmpl],"label_rep"]
+  rownames(dataset) = names(GOIsEntrez)
+
+  #colors for plotting heatmap
+  colors <- rev(colorRampPalette(brewer.pal(9, "Spectral"))(255))
+
+
+  gRNAcol = Dark8[c(1:nlevels(SampleInfo$gRNA))+nlevels(SampleInfo$CellLine)]
+  names(gRNAcol) = levels(SampleInfo$gRNA)
+
+  diffcol = brewer.pal(3,"Set1")[1:nlevels(SampleInfo$DIFF)]
+  names(diffcol) = levels(SampleInfo$DIFF)
+
+  rapacol = brewer.pal(3,"Set2")[1:nlevels(SampleInfo$RAPA)]
+  names(rapacol) = levels(SampleInfo$RAPA)
+
+  ann_colors = list(
+    DIFF = diffcol,
+    RAPA = rapacol,
+    gRNA = gRNAcol)
+
+
+
+  labels = SampleInfo[match(colnames(dataset), SampleInfo$label_rep),
+                      c("gRNA","DIFF", "RAPA", "CellLine")] %>%
+    mutate_all(as.character) %>% as.data.frame()
+
+
+  rownames(labels)=colnames(dataset)
+
+  pheatmap(dataset,
+           cluster_rows = F,
+           cluster_cols = F,
+           col = colors,
+           scale = "column",
+           annotation_col = labels,
+           annotation_colors = ann_colors,
+           main=paste(CellID, collapse=" "))
+
+}

@@ -13,7 +13,7 @@ home = getwd()
 ```{r setup, include=FALSE}
 
 output= paste0(home, "/output/")
-
+rankconz=T
 source(paste0(home,"/code/custom_functions.R"))
 
 library(DESeq2)
@@ -133,13 +133,12 @@ GOIsEntrez=c(
   TH="7054")
 
 
-
 geneheatmap=function(GOIsEntrez,exprobj,CellID, rankconz=F){
   
   idx = match(GOIsEntrez, rownames(exprobj))
   vsd <- vst(exprobj, blind=FALSE)
   mat <- assay(vsd)
-  log_2cpm <- limma::removeBatchEffect(mat, vsd$Batch)
+  log_2cpm <- limma::removeBatchEffect(mat, vsd$Batch, vsd$CellLine)
 
   idxsmpl = SampleInfo$CellLine %in% CellID
   
