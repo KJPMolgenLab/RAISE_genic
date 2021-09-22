@@ -287,7 +287,7 @@ $(document).ready(function () {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -296,7 +296,7 @@ $(document).ready(function () {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -305,10 +305,10 @@ $(document).ready(function () {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-09-15
+<strong>Last updated:</strong> 2021-09-22
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 1 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>RAISE_GENIC/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -324,28 +324,28 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree1e5d9e40b4a15b76a463518c7a4dbb072bb11672targetblank1e5d9e4a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/1e5d9e40b4a15b76a463518c7a4dbb072bb11672" target="_blank">1e5d9e4</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree032ccd182c38e09ed41a1cb4b27c1ed61c1547eftargetblank032ccd1a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/032ccd182c38e09ed41a1cb4b27c1ed61c1547ef" target="_blank">032ccd1</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree1e5d9e40b4a15b76a463518c7a4dbb072bb11672targetblank1e5d9e4a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree032ccd182c38e09ed41a1cb4b27c1ed61c1547eftargetblank032ccd1a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/1e5d9e40b4a15b76a463518c7a4dbb072bb11672" target="_blank">1e5d9e4</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/032ccd182c38e09ed41a1cb4b27c1ed61c1547ef" target="_blank">032ccd1</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -370,6 +370,7 @@ Ignored files:
     Ignored:    data/VCF_Files/
 
 Untracked files:
+    Untracked:  output/Carbamazepine_uncorr_sig.csv
     Untracked:  output/GOresWGCNA.xlsx
     Untracked:  output/GOres_Carbamazebine.xlsx
     Untracked:  output/GOres_Carbamazepine.xlsx
@@ -377,13 +378,25 @@ Untracked files:
     Untracked:  output/GOres_Levetiracetam.xlsx
     Untracked:  output/GOres_Valporate.xlsx
     Untracked:  output/GOres_Valproate.xlsx
+    Untracked:  output/Lacosamide_uncorr_sig.csv
+    Untracked:  output/Levetiracetam_uncorr_sig.csv
     Untracked:  output/ResTabs_KO.RData
+    Untracked:  output/Valproate_adjp.csv
     Untracked:  output/WGCNA_adj_TOM.RData
+    Untracked:  output/WGCNA_lmer_Carbamazepine.csv
+    Untracked:  output/WGCNA_lmer_Carbamazepine.xlsx
+    Untracked:  output/WGCNA_lmer_Lacosamide.csv
+    Untracked:  output/WGCNA_lmer_Lacosamide.xlsx
+    Untracked:  output/WGCNA_lmer_Levetiracetam.csv
+    Untracked:  output/WGCNA_lmer_Levetiracetam.xlsx
+    Untracked:  output/WGCNA_lmer_Valproate.csv
+    Untracked:  output/WGCNA_lmer_Valproate.xlsx
     Untracked:  output/WGCNA_lmer_res.RData
+    Untracked:  output/clusterdataframe.csv
     Untracked:  output/dds_matrix.RData
+    Untracked:  protocols_Pandolfo/
 
 Unstaged changes:
-    Modified:   analysis/index.Rmd
     Modified:   setup_start.R
 
 </code></pre>

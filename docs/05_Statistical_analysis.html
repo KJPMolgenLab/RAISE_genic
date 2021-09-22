@@ -366,7 +366,7 @@ div.tocify {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -375,7 +375,7 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -384,10 +384,10 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-09-16
+<strong>Last updated:</strong> 2021-09-22
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>RAISE_GENIC/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -403,12 +403,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
 </div>
 </div>
 </div>
@@ -475,16 +475,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree98476e28da2722a024cceb8c995c259d77a85c11targetblank98476e2a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/98476e28da2722a024cceb8c995c259d77a85c11" target="_blank">98476e2</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree032ccd182c38e09ed41a1cb4b27c1ed61c1547eftargetblank032ccd1a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/032ccd182c38e09ed41a1cb4b27c1ed61c1547ef" target="_blank">032ccd1</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree98476e28da2722a024cceb8c995c259d77a85c11targetblank98476e2a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree032ccd182c38e09ed41a1cb4b27c1ed61c1547eftargetblank032ccd1a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/98476e28da2722a024cceb8c995c259d77a85c11" target="_blank">98476e2</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/032ccd182c38e09ed41a1cb4b27c1ed61c1547ef" target="_blank">032ccd1</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -509,6 +509,7 @@ Ignored files:
     Ignored:    data/VCF_Files/
 
 Untracked files:
+    Untracked:  output/Carbamazepine_uncorr_sig.csv
     Untracked:  output/GOresWGCNA.xlsx
     Untracked:  output/GOres_Carbamazebine.xlsx
     Untracked:  output/GOres_Carbamazepine.xlsx
@@ -518,15 +519,20 @@ Untracked files:
     Untracked:  output/GOres_Valproate.xlsx
     Untracked:  output/ResTabs_KO.RData
     Untracked:  output/WGCNA_adj_TOM.RData
+    Untracked:  output/WGCNA_lmer_Carbamazepine.csv
+    Untracked:  output/WGCNA_lmer_Carbamazepine.xlsx
+    Untracked:  output/WGCNA_lmer_Lacosamide.csv
+    Untracked:  output/WGCNA_lmer_Lacosamide.xlsx
+    Untracked:  output/WGCNA_lmer_Levetiracetam.csv
+    Untracked:  output/WGCNA_lmer_Levetiracetam.xlsx
+    Untracked:  output/WGCNA_lmer_Valproate.csv
+    Untracked:  output/WGCNA_lmer_Valproate.xlsx
     Untracked:  output/WGCNA_lmer_res.RData
+    Untracked:  output/clusterdataframe.csv
     Untracked:  output/dds_matrix.RData
     Untracked:  protocols_Pandolfo/
 
 Unstaged changes:
-    Modified:   analysis/02_Preprocessing_counts.Rmd
-    Modified:   analysis/03_Gene_Inspection.Rmd
-    Modified:   analysis/04_WGCNA.Rmd
-    Modified:   analysis/05_Statistical_analysis.Rmd
     Modified:   setup_start.R
 
 </code></pre>
@@ -569,6 +575,7 @@ There are no past versions. Publish this analysis with <code>wflow_publish()</co
   }
   comparisons= apropos(&quot;restab&quot;)
   save(list = comparisons, file = paste0(home,&quot;/output/ResTabs_KO.RData&quot;))
+  
 } else 
   load(file = paste0(home,&quot;/output/ResTabs_DE.RData&quot;))</code></pre>
 <pre><code>[1] &quot;restab_Carbamazepine&quot;
@@ -577,6 +584,7 @@ There are no past versions. Publish this analysis with <code>wflow_publish()</co
 [1] &quot;restab_Valproate&quot;</code></pre>
 <pre class="r"><code>mypval=0.05
 nompval = 0.001
+
 colors &lt;- rev(colorRampPalette(brewer.pal(9, &quot;Spectral&quot;))(255))
 
 getlinmodoutput = function(targetdrug){
@@ -586,17 +594,22 @@ getlinmodoutput = function(targetdrug){
   pvalrep =  res$adj.P.Val&lt;mypval 
   hits=rownames(res)[pvalrep]
   nomp=F
+  corrtest=&quot;adjp&quot;
   
   if(length(hits)==0){
     nomp=T
     pvalrep =  res$P.Value&lt;nompval
     hits=rownames(res)[pvalrep]
     print(&quot;nominal P-value used&quot;)
+    corrtest=&quot;uncorr_sig&quot;
   }
   
   SamplesSet=SampleInfo[samplesincl,]
   
   plotmatrix = log_2cpm[hits,rownames(SamplesSet)]
+  
+  genlist=mcols(ddsMat)[hits,c(&quot;hgnc&quot;, &quot;entrez_gene&quot;)]
+  write.csv(genlist, paste0(output,&quot;/&quot;,targetdrug,&quot;_&quot;,corrtest,&quot;.csv&quot;))
   
   rownames(SamplesSet)=SamplesSet$label_rep
   
@@ -666,7 +679,7 @@ getlinmodoutput = function(targetdrug){
 <h3>Carbamazepine</h3>
 <pre class="r"><code>getlinmodoutput(targetdrug = &quot;Carbamazepine&quot;)</code></pre>
 <pre><code>[1] &quot;nominal P-value used&quot;</code></pre>
-<pre><code>Loading required package: gprofiler2</code></pre>
+<pre><code>Lade nötiges Paket: gprofiler2</code></pre>
 <pre><code>No results to show
 Please make sure that the organism is correct or set significant = FALSE</code></pre>
 <p><img src="figure/05_Statistical_analysis.Rmd/Carbamazepine-1.png" width="7500" style="display: block; margin: auto;" /></p>
@@ -724,64 +737,64 @@ other attached packages:
  [1] gprofiler2_0.2.0            xlsx_0.6.5                 
  [3] limma_3.46.0                flashClust_1.01-2          
  [5] WGCNA_1.70-3                fastcluster_1.1.25         
- [7] dynamicTreeCut_1.63-1       pheatmap_1.0.12            
- [9] knitr_1.33                  DESeq2_1.30.1              
-[11] SummarizedExperiment_1.20.0 Biobase_2.50.0             
-[13] MatrixGenerics_1.2.1        matrixStats_0.58.0         
-[15] GenomicRanges_1.42.0        GenomeInfoDb_1.26.4        
-[17] IRanges_2.24.1              S4Vectors_0.28.1           
-[19] BiocGenerics_0.36.0         RColorBrewer_1.1-2         
+ [7] dynamicTreeCut_1.63-1       knitr_1.33                 
+ [9] DESeq2_1.30.1               SummarizedExperiment_1.20.0
+[11] Biobase_2.50.0              MatrixGenerics_1.2.1       
+[13] matrixStats_0.58.0          GenomicRanges_1.42.0       
+[15] GenomeInfoDb_1.26.4         IRanges_2.24.1             
+[17] S4Vectors_0.28.1            BiocGenerics_0.36.0        
+[19] pheatmap_1.0.12             RColorBrewer_1.1-2         
 [21] compareGroups_4.5.1         forcats_0.5.1              
 [23] stringr_1.4.0               dplyr_1.0.5                
 [25] purrr_0.3.4                 readr_1.4.0                
 [27] tidyr_1.1.3                 tibble_3.1.0               
 [29] ggplot2_3.3.5               tidyverse_1.3.0            
-[31] kableExtra_1.3.4           
+[31] kableExtra_1.3.4            workflowr_1.6.2            
 
 loaded via a namespace (and not attached):
   [1] readxl_1.3.1           uuid_0.1-4             backports_1.2.1       
-  [4] Hmisc_4.5-0            workflowr_1.6.2        systemfonts_1.0.1     
-  [7] lazyeval_0.2.2         splines_4.0.4          BiocParallel_1.24.1   
- [10] digest_0.6.27          foreach_1.5.1          htmltools_0.5.1.1     
- [13] GO.db_3.12.1           fansi_0.4.2            checkmate_2.0.0       
- [16] magrittr_2.0.1         Rsolnp_1.16            memoise_2.0.0         
- [19] cluster_2.1.1          doParallel_1.0.16      annotate_1.68.0       
- [22] modelr_0.1.8           officer_0.3.17         svglite_2.0.0         
- [25] jpeg_0.1-8.1           colorspace_2.0-0       blob_1.2.1            
- [28] rvest_1.0.0            haven_2.3.1            xfun_0.24             
- [31] crayon_1.4.1           RCurl_1.98-1.2         jsonlite_1.7.2        
- [34] genefilter_1.72.1      impute_1.64.0          survival_3.2-9        
- [37] iterators_1.0.13       glue_1.4.2             gtable_0.3.0          
- [40] zlibbioc_1.36.0        XVector_0.30.0         webshot_0.5.2         
- [43] DelayedArray_0.16.2    scales_1.1.1           DBI_1.1.1             
- [46] Rcpp_1.0.6             htmlTable_2.1.0        viridisLite_0.3.0     
- [49] xtable_1.8-4           foreign_0.8-81         bit_4.0.4             
- [52] preprocessCore_1.52.1  Formula_1.2-4          truncnorm_1.0-8       
- [55] htmlwidgets_1.5.3      httr_1.4.2             ellipsis_0.3.1        
- [58] mice_3.13.0            farver_2.1.0           rJava_0.9-13          
- [61] pkgconfig_2.0.3        XML_3.99-0.5           nnet_7.3-15           
- [64] sass_0.3.1             dbplyr_2.1.0           locfit_1.5-9.4        
- [67] utf8_1.1.4             labeling_0.4.2         tidyselect_1.1.0      
- [70] rlang_0.4.10           later_1.1.0.1          AnnotationDbi_1.52.0  
- [73] munsell_0.5.0          cellranger_1.1.0       tools_4.0.4           
- [76] cachem_1.0.4           cli_3.0.1              generics_0.1.0        
- [79] RSQLite_2.2.4          broom_0.7.5            evaluate_0.14         
- [82] fastmap_1.1.0          yaml_2.2.1             bit64_4.0.5           
- [85] fs_1.5.0               zip_2.1.1              xml2_1.3.2            
- [88] compiler_4.0.4         rstudioapi_0.13        plotly_4.9.3          
- [91] png_0.1-7              reprex_1.0.0           statmod_1.4.35        
- [94] geneplotter_1.68.0     bslib_0.2.4            stringi_1.7.3         
- [97] HardyWeinberg_1.7.1    highr_0.9              gdtools_0.2.3         
-[100] lattice_0.20-41        Matrix_1.3-2           vctrs_0.3.6           
-[103] pillar_1.5.1           lifecycle_1.0.0        jquerylib_0.1.3       
-[106] data.table_1.14.0      bitops_1.0-6           flextable_0.6.4       
-[109] httpuv_1.5.5           R6_2.5.0               latticeExtra_0.6-29   
-[112] promises_1.2.0.1       gridExtra_2.3          writexl_1.3.1         
-[115] codetools_0.2-18       assertthat_0.2.1       xlsxjars_0.6.1        
-[118] chron_2.3-56           rprojroot_2.0.2        withr_2.4.1           
-[121] GenomeInfoDbData_1.2.4 hms_1.0.0              rpart_4.1-15          
-[124] grid_4.0.4             rmarkdown_2.9.7        git2r_0.28.0          
-[127] lubridate_1.7.10       base64enc_0.1-3       </code></pre>
+  [4] Hmisc_4.5-0            systemfonts_1.0.1      lazyeval_0.2.2        
+  [7] splines_4.0.4          BiocParallel_1.24.1    digest_0.6.27         
+ [10] foreach_1.5.1          htmltools_0.5.1.1      GO.db_3.12.1          
+ [13] fansi_0.4.2            checkmate_2.0.0        magrittr_2.0.1        
+ [16] Rsolnp_1.16            memoise_2.0.0          cluster_2.1.1         
+ [19] doParallel_1.0.16      annotate_1.68.0        modelr_0.1.8          
+ [22] officer_0.3.17         svglite_2.0.0          jpeg_0.1-8.1          
+ [25] colorspace_2.0-0       blob_1.2.1             rvest_1.0.0           
+ [28] haven_2.3.1            xfun_0.24              crayon_1.4.1          
+ [31] RCurl_1.98-1.2         jsonlite_1.7.2         genefilter_1.72.1     
+ [34] impute_1.64.0          survival_3.2-9         iterators_1.0.13      
+ [37] glue_1.4.2             gtable_0.3.0           zlibbioc_1.36.0       
+ [40] XVector_0.30.0         webshot_0.5.2          DelayedArray_0.16.2   
+ [43] scales_1.1.1           DBI_1.1.1              Rcpp_1.0.6            
+ [46] htmlTable_2.1.0        viridisLite_0.3.0      xtable_1.8-4          
+ [49] foreign_0.8-81         bit_4.0.4              preprocessCore_1.52.1 
+ [52] Formula_1.2-4          truncnorm_1.0-8        htmlwidgets_1.5.3     
+ [55] httr_1.4.2             ellipsis_0.3.1         mice_3.13.0           
+ [58] farver_2.1.0           rJava_0.9-13           pkgconfig_2.0.3       
+ [61] XML_3.99-0.5           nnet_7.3-15            sass_0.3.1            
+ [64] dbplyr_2.1.0           locfit_1.5-9.4         utf8_1.1.4            
+ [67] labeling_0.4.2         tidyselect_1.1.0       rlang_0.4.10          
+ [70] later_1.1.0.1          AnnotationDbi_1.52.0   munsell_0.5.0         
+ [73] cellranger_1.1.0       tools_4.0.4            cachem_1.0.4          
+ [76] cli_3.0.1              generics_0.1.0         RSQLite_2.2.4         
+ [79] broom_0.7.5            evaluate_0.14          fastmap_1.1.0         
+ [82] yaml_2.2.1             bit64_4.0.5            fs_1.5.0              
+ [85] zip_2.1.1              xml2_1.3.2             compiler_4.0.4        
+ [88] rstudioapi_0.13        plotly_4.9.3           png_0.1-7             
+ [91] reprex_1.0.0           statmod_1.4.35         geneplotter_1.68.0    
+ [94] bslib_0.2.4            stringi_1.7.3          HardyWeinberg_1.7.1   
+ [97] highr_0.9              gdtools_0.2.3          lattice_0.20-41       
+[100] Matrix_1.3-2           vctrs_0.3.6            pillar_1.5.1          
+[103] lifecycle_1.0.0        jquerylib_0.1.3        data.table_1.14.0     
+[106] bitops_1.0-6           flextable_0.6.4        httpuv_1.5.5          
+[109] R6_2.5.0               latticeExtra_0.6-29    promises_1.2.0.1      
+[112] gridExtra_2.3          writexl_1.3.1          codetools_0.2-18      
+[115] assertthat_0.2.1       xlsxjars_0.6.1         chron_2.3-56          
+[118] rprojroot_2.0.2        withr_2.4.1            GenomeInfoDbData_1.2.4
+[121] hms_1.0.0              rpart_4.1-15           grid_4.0.4            
+[124] rmarkdown_2.9.7        git2r_0.28.0           lubridate_1.7.10      
+[127] base64enc_0.1-3       </code></pre>
 </div>
 </div>
 </div>

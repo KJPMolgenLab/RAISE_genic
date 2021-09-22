@@ -384,7 +384,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-09-14
+<strong>Last updated:</strong> 2021-09-22
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -475,16 +475,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree51c7a7299ddc772a7b89149ea6c118d338794d89targetblank51c7a72a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/51c7a7299ddc772a7b89149ea6c118d338794d89" target="_blank">51c7a72</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree032ccd182c38e09ed41a1cb4b27c1ed61c1547eftargetblank032ccd1a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/032ccd182c38e09ed41a1cb4b27c1ed61c1547ef" target="_blank">032ccd1</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree51c7a7299ddc772a7b89149ea6c118d338794d89targetblank51c7a72a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictree032ccd182c38e09ed41a1cb4b27c1ed61c1547eftargetblank032ccd1a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/51c7a7299ddc772a7b89149ea6c118d338794d89" target="_blank">51c7a72</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/032ccd182c38e09ed41a1cb4b27c1ed61c1547ef" target="_blank">032ccd1</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -509,6 +509,7 @@ Ignored files:
     Ignored:    data/VCF_Files/
 
 Untracked files:
+    Untracked:  output/Carbamazepine_uncorr_sig.csv
     Untracked:  output/GOresWGCNA.xlsx
     Untracked:  output/GOres_Carbamazebine.xlsx
     Untracked:  output/GOres_Carbamazepine.xlsx
@@ -518,8 +519,18 @@ Untracked files:
     Untracked:  output/GOres_Valproate.xlsx
     Untracked:  output/ResTabs_KO.RData
     Untracked:  output/WGCNA_adj_TOM.RData
+    Untracked:  output/WGCNA_lmer_Carbamazepine.csv
+    Untracked:  output/WGCNA_lmer_Carbamazepine.xlsx
+    Untracked:  output/WGCNA_lmer_Lacosamide.csv
+    Untracked:  output/WGCNA_lmer_Lacosamide.xlsx
+    Untracked:  output/WGCNA_lmer_Levetiracetam.csv
+    Untracked:  output/WGCNA_lmer_Levetiracetam.xlsx
+    Untracked:  output/WGCNA_lmer_Valproate.csv
+    Untracked:  output/WGCNA_lmer_Valproate.xlsx
     Untracked:  output/WGCNA_lmer_res.RData
+    Untracked:  output/clusterdataframe.csv
     Untracked:  output/dds_matrix.RData
+    Untracked:  protocols_Pandolfo/
 
 Unstaged changes:
     Modified:   setup_start.R
@@ -552,7 +563,7 @@ allowWGCNAThreads()</code></pre>
 <pre><code>Allowing multi-threading with up to 16 threads.</code></pre>
 <pre class="r"><code>vsd &lt;- vst(ddsMat, blind=FALSE)
 vsd &lt;- assay(vsd)
-vsd &lt;- limma::removeBatchEffect(vsd, ddsMat$Batch)
+vsd &lt;- limma::removeBatchEffect(vsd, ddsMat$Batch, ddsMat$CellLine)
 
 WGCNA_matrix &lt;- t(vsd) #Need to transform for further calculations
 
@@ -586,40 +597,10 @@ if(reanalyze | !file.exists(paste0(output,&quot;/WGCNA_adj_TOM.RData&quot;))){
   save(list = c(&quot;adj&quot;, &quot;TOM&quot;), file=paste0(output,&quot;/WGCNA_adj_TOM.RData&quot;))
   
 } else {
+  print(&quot;loading precalculated data&quot;)
   load(paste0(output,&quot;/WGCNA_adj_TOM.RData&quot;))
 }</code></pre>
-<pre><code>pickSoftThreshold: will use block size 2862.
- pickSoftThreshold: calculating connectivity for given powers...
-   ..working on genes 1 through 2862 of 15629
-   ..working on genes 2863 through 5724 of 15629
-   ..working on genes 5725 through 8586 of 15629
-   ..working on genes 8587 through 11448 of 15629
-   ..working on genes 11449 through 14310 of 15629
-   ..working on genes 14311 through 15629 of 15629
-   Power SFT.R.sq  slope truncated.R.sq mean.k. median.k. max.k.
-1      1    0.139  0.578          0.894 4250.00  4140.000   6930
-2      2    0.397 -0.618          0.891 1750.00  1560.000   4150
-3      3    0.719 -1.020          0.926  883.00   701.000   2820
-4      4    0.787 -1.220          0.928  503.00   350.000   2060
-5      5    0.812 -1.350          0.934  310.00   187.000   1570
-6      6    0.831 -1.420          0.944  203.00   106.000   1230
-7      7    0.846 -1.470          0.955  139.00    62.300    994
-8      8    0.857 -1.500          0.963   98.50    38.100    815
-9      9    0.857 -1.540          0.964   71.80    23.800    678
-10    10    0.856 -1.570          0.964   53.50    15.200    571
-11    12    0.858 -1.610          0.968   31.50     6.570    417
-12    14    0.878 -1.610          0.982   19.60     3.000    314
-13    16    0.886 -1.630          0.985   12.80     1.450    242
-14    18    0.896 -1.630          0.989    8.62     0.724    191
-15    20    0.902 -1.640          0.991    6.00     0.376    153</code></pre>
-<p><img src="figure/04_WGCNA.Rmd/adjacency-1.png" width="4500" style="display: block; margin: auto;" /></p>
-<pre><code>TOM calculation: adjacency..
-..will not use multithreading.
- Fraction of slow calculations: 0.000000
-..connectivity..
-..matrix multiplication (system BLAS)..
-..normalization..
-..done.</code></pre>
+<pre><code>[1] &quot;loading precalculated data&quot;</code></pre>
 <pre class="r"><code>SubGeneNames&lt;-colnames(WGCNA_matrix)
 
 colnames(TOM) =rownames(TOM) =SubGeneNames
@@ -649,33 +630,29 @@ dynamicMods = cutreeDynamic(dendro = geneTree,
 dynamicColors = labels2colors(dynamicMods)
 table(dynamicColors)</code></pre>
 <pre><code>dynamicColors
-         black           blue          brown           cyan      darkgreen 
-           496           2594            795            287            175 
-      darkgrey    darkmagenta darkolivegreen     darkorange        darkred 
-           170            118            118            165            205 
- darkturquoise          green    greenyellow           grey         grey60 
-           172            521            401            213            246 
-     lightcyan     lightgreen    lightyellow        magenta   midnightblue 
-           247            228            225            467            271 
-        orange     orangered4  paleturquoise           pink          plum1 
-           166             63            130            474             70 
-        purple            red      royalblue    saddlebrown         salmon 
-           417            511            209            136            378 
-       sienna3        skyblue       skyblue3      steelblue            tan 
-           105            154             89            130            397 
-     turquoise         violet          white         yellow    yellowgreen 
-          2989            129            158            718             92 </code></pre>
+        black          blue         brown          cyan     darkgreen 
+          596          2220          1138           277           186 
+     darkgrey    darkorange       darkred darkturquoise         green 
+          171           111           190           180           770 
+  greenyellow          grey        grey60     lightcyan    lightgreen 
+          451           326           243           261           226 
+  lightyellow       magenta  midnightblue        orange          pink 
+          195           560           269           114           585 
+       purple           red     royalblue   saddlebrown        salmon 
+          484           603           193            72           337 
+      skyblue           tan     turquoise         white        yellow 
+          101           353          3319           110           988 </code></pre>
 <pre class="r"><code>plotDendroAndColors(geneTree, dynamicColors, &quot;Dynamic Tree Cut&quot;, 
                     dendroLabels = FALSE, hang = 0.03, 
                     addGuide = TRUE, 
                     guideHang = 0.05, 
                     main = &quot;Gene dendrogram and module colors&quot;)</code></pre>
-<p><img src="figure/04_WGCNA.Rmd/adjacency-2.png" width="4500" style="display: block; margin: auto;" /></p>
+<p><img src="figure/04_WGCNA.Rmd/adjacency-1.png" width="4500" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>diag(dissTOM) = NA;
 
 #Visualize the Tom plot. Raise the dissimilarity matrix to the power of 4 to bring out the module structure
 TOMplot(dissTOM^4, geneTree, as.character(dynamicColors), main=&quot;weighted distance of Topological overlap Matrix&quot;)</code></pre>
-<p><img src="figure/04_WGCNA.Rmd/adjacency-3.png" width="4500" style="display: block; margin: auto;" /></p>
+<p><img src="figure/04_WGCNA.Rmd/adjacency-2.png" width="4500" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="module-eigengenes" class="section level1">
@@ -687,8 +664,11 @@ MEList = moduleEigengenes(WGCNA_matrix, colors = dynamicColors)
 MEs = MEList$eigengenes 
 plotEigengeneNetworks(MEs, &quot;Eigengenes_before_merging&quot;, marDendro = c(0,4,1,2), marHeatmap = c(3,4,1,2))</code></pre>
 <p><img src="figure/04_WGCNA.Rmd/MEs-1.png" width="7500" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>MEList_new = mergeCloseModules(WGCNA_matrix, colors = dynamicColors, MEs = MEs, cutHeight = 0.2)</code></pre>
-<pre><code> mergeCloseModules: Merging modules whose distance is less than 0.2
+<pre class="r"><code>MEList_new = mergeCloseModules(WGCNA_matrix, 
+                               colors = dynamicColors, 
+                               MEs = MEs, 
+                               cutHeight = 0.1)</code></pre>
+<pre><code> mergeCloseModules: Merging modules whose distance is less than 0.1
    Calculating new MEs...</code></pre>
 <pre class="r"><code>plotEigengeneNetworks(MEList_new$newMEs, &quot;Eigengenes_after_merging&quot;, 
                       marDendro = c(0,4,1,2), marHeatmap = c(3,4,1,2))</code></pre>
@@ -701,13 +681,18 @@ colors_new = MEList_new$colors
 
 mcols(ddsMat) = cbind(mcols(ddsMat), data.frame(cluster=colors_new))
 
-save(ddsMat, file=paste0(output,&quot;/dds_matrix.RData&quot;))</code></pre>
+clusterdataframe=data.frame(entrezgene=mcols(ddsMat)$entrez_gene,hgnc=mcols(ddsMat)$hgnc,  cluster=colors_new)
+
+
+save(ddsMat, file=paste0(output,&quot;/dds_matrix.RData&quot;))
+write.csv(clusterdataframe, file=paste0(output,&quot;/clusterdataframe.csv&quot;))</code></pre>
 </div>
 <div id="heatmaps-mes" class="section level2">
 <h2>Heatmaps MEs</h2>
 <pre class="r"><code>#colors for plotting heatmap
-#colors for plotting heatmap
-colors &lt;- colorRampPalette(brewer.pal(9, &quot;Spectral&quot;))(255)
+
+
+colors &lt;- rev(colorRampPalette(brewer.pal(9, &quot;Spectral&quot;))(255))
 
 cellcol = Dark8[1:nlevels(SampleInfo$CellLine)]
 names(cellcol) = levels(SampleInfo$CellLine)
@@ -715,19 +700,20 @@ names(cellcol) = levels(SampleInfo$CellLine)
 drugcol = Dark8[c(1:nlevels(SampleInfo$Drug)+nlevels(SampleInfo$CellLine))]
 names(drugcol) = levels(SampleInfo$Drug)
 
-
 batchcol = Dark8[c(1:nlevels(SampleInfo$Batch)+nlevels(SampleInfo$CellLine)+nlevels(SampleInfo$Drug))]
 names(batchcol) = levels(SampleInfo$Batch)
 
 conzcol = c(&quot;orange&quot;, &quot;darkred&quot;)
 
+clustercol = unique(colors_new)
+names(clustercol) = clustercol
+
 ann_colors = list(
   CellLine = cellcol, 
   Drug = drugcol,
   Batch = batchcol,
-  Conz=conzcol)
-
-
+  Conz=conzcol, 
+  cluster = clustercol)
 
 idx=order(SampleInfo$CellLine, SampleInfo$Drug, SampleInfo$Conz,SampleInfo$Batch)
 WGCNA_matrix_sorted=WGCNA_matrix[idx, order(colors_new)]
@@ -735,7 +721,10 @@ rownames(WGCNA_matrix_sorted) = SampleInfo$label_rep[idx]
 
 collabels = SampleInfo[idx,c(&quot;CellLine&quot;,&quot;Drug&quot;,&quot;Conz&quot;,&quot;Batch&quot;)] %&gt;%  
   mutate_if(is.factor, as.character) %&gt;% as.data.frame()
-
+if(rankconz){
+    collabels$Conz = as.numeric(factor(collabels$Conz, levels=c(unique(collabels$Conz)), 
+                          labels=c(0,1,2,1,2,1,2)))
+   }
 rownames(collabels)=SampleInfo$label_rep[idx]
 
 genlabels = data.frame(cluster = as.character(colors_new)[order(colors_new)])
@@ -743,7 +732,7 @@ rownames(genlabels) = colnames(WGCNA_matrix_sorted)
 
 pheatmap(t(WGCNA_matrix_sorted),
          cluster_rows= F,
-         cluster_cols = F,
+         cluster_cols = T,
          border_color = NA, 
          clustering_method = &quot;ward.D2&quot;,
          annotation_row = genlabels,
@@ -756,16 +745,12 @@ pheatmap(t(WGCNA_matrix_sorted),
 <pre class="r"><code>MElabels = data.frame(cluster = gsub(&quot;ME&quot;, &quot;&quot;,colnames(MEs)))
 rownames(MElabels) = colnames(MEs)
 
-clustcol = gplots::col2hex(unique(as.character(MElabels$cluster)))
-names(clustcol) = as.character(MElabels$cluster)
-
-
 rownames(MEs) = SampleInfo[rownames(MEs),&quot;label_rep&quot;]
 
 pheatmap(t(MEs[idx,]),
          border_color = NA, 
          annotation_row = MElabels,
-         cluster_cols = F,
+         cluster_cols = T,
          annotation_col = collabels,
          clustering_method = &quot;ward.D2&quot;,
          annotation_colors = ann_colors,
@@ -795,7 +780,7 @@ for (module in names(Genes_of_interset)){
   }
   print(p)
 }</code></pre>
-<p><img src="figure/04_WGCNA.Rmd/goresplots-1.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-2.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-3.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-4.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-5.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-6.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-7.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-8.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-9.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-10.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-11.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-12.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-13.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-14.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-15.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-16.png" width="4500" style="display: block; margin: auto;" /></p>
+<p><img src="figure/04_WGCNA.Rmd/goresplots-1.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-2.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-3.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-4.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-5.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-6.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-7.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-8.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-9.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-10.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-11.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-12.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-13.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-14.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-15.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-16.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-17.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-18.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-19.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-20.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-21.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-22.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-23.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-24.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-25.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/goresplots-26.png" width="4500" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>SampleInfo=as.data.frame(colData(ddsMat))
 MEnames = grep(&quot;ME&quot;, colnames(SampleInfo), value = T)
 randomeffect = c(&quot;Batch&quot;, &quot;CellLine&quot;)
@@ -868,6 +853,38 @@ boundary (singular) fit: see ?isSingular
 boundary (singular) fit: see ?isSingular
 boundary (singular) fit: see ?isSingular
 boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
+boundary (singular) fit: see ?isSingular
 boundary (singular) fit: see ?isSingular</code></pre>
 <pre class="r"><code># 
 # 
@@ -879,10 +896,13 @@ for (i in apropos(&quot;WGCNA_lmer_&quot;)){
   print(i)
   tmp=get(i)
   print(tmp)
+  write.csv(tmp, file=paste0(output, &quot;/&quot;,i,&quot;.csv&quot;))
+  xlsx::write.xlsx(tmp, file=paste0(output, &quot;/&quot;,i,&quot;.xlsx&quot;))
   if( any(tmp$p.value &lt;=0.05)){
     Drug=gsub(&quot;WGCNA_lmer_&quot;,&quot;&quot;,i)
     for(mod in rownames(tmp)[tmp$p.value&lt;=0.1]){
-    boxplot(SampleInfo[SampleInfo$Drug==Drug, mod] ~ as.factor(SampleInfo[SampleInfo$Drug==Drug, &quot;Conz&quot;]), 
+    boxplot(SampleInfo[SampleInfo$Drug==Drug, mod] ~
+              as.factor(SampleInfo[SampleInfo$Drug==Drug, &quot;Conz&quot;]), 
             ylab=mod, xlab=paste(&quot;mM&quot;, Drug), col=gsub(&quot;ME&quot;,&quot;&quot;,mod))
       mtext(paste(&quot;p.value =&quot;,tmp[mod,&quot;p.value&quot;]), 3)
     }
@@ -891,77 +911,117 @@ for (i in apropos(&quot;WGCNA_lmer_&quot;)){
   
 }</code></pre>
 <pre><code>[1] &quot;WGCNA_lmer_Carbamazepine&quot;
-                  Estimate Std. Error    t value   p.value
-MEblack         -0.0308981  0.1206994 -0.2559922 1.0000000
-MEpink          -0.7511446  0.8018757 -0.9367344 1.0000000
-MEpaleturquoise -0.1364928  0.3097091 -0.4407130 1.0000000
-MEdarkorange    -0.4790800  0.4158734 -1.1519852 1.0000000
-MEroyalblue     -0.4621586  0.3773989 -1.2245890 1.0000000
-MEcyan          -0.7638931  0.9212228 -0.8292164 1.0000000
-MEblue          -0.2012450  0.7824777 -0.2571894 1.0000000
-MEorangered4    -0.6684336  0.8765548 -0.7625691 1.0000000
-MEdarkmagenta   -0.4115402  0.4144480 -0.9929840 1.0000000
-MElightyellow   -0.2226813  0.2959703 -0.7523770 1.0000000
-MEdarkgreen      0.1113621  0.2375402  0.4688137 0.6476050
-MEdarkturquoise  0.1609182  0.5229821  0.3076935 0.7635905
-MEbrown          0.9469838  1.2232495  0.7741542 0.4538224
-MEdarkred       -0.5191557  1.0781622 -0.4815191 1.0000000
-MEturquoise      0.4783824  0.6700363  0.7139649 0.4889039
-MEgrey           0.1233465  0.6547395  0.1883902 0.8537191
+                   Estimate Std. Error     t value   p.value
+MEorange        -0.55950112  0.6296187 -0.88863488 1.0000000
+MEcyan           0.05720246  0.5914946  0.09670833 0.9245544
+MEskyblue       -0.42840882  1.1043703 -0.38792134 1.0000000
+MEdarkorange    -0.96594849  1.3939537 -0.69295592 1.0000000
+MEgreenyellow   -0.43308892  1.0464723 -0.41385607 1.0000000
+MElightcyan      1.04963536  1.4828509  0.70784957 0.4925587
+MEwhite          0.47531104  1.5026702  0.31631095 0.7572010
+MEturquoise      0.53186161  0.7336930  0.72491034 0.4824036
+MEdarkturquoise  0.45468044  0.7126941  0.63797423 0.5354752
+MEgreen          0.91769076  1.1385508  0.80601650 0.4359155
+MEgrey60         0.68268029  1.7486895  0.39039538 0.7030858
+MEblue          -0.31826494  0.7813832 -0.40730970 1.0000000
+MEred            0.07936965  1.5328752  0.05177829 0.9595573
+MElightyellow   -0.30359521  0.7643069 -0.39721637 1.0000000
+MEmagenta       -0.72053056  0.8702054 -0.82800058 1.0000000
+MEmidnightblue   0.72997722  0.6241204  1.16960955 0.2648653
+MEblack          0.33799268  0.4304476  0.78521223 0.4475551
+MEbrown          0.13697829  0.2905043  0.47151895 0.6457275
+MEsaddlebrown   -0.16167600  0.5730328 -0.28214091 1.0000000
+MEdarkred       -0.39080947  0.5572832 -0.70127625 1.0000000
+MEroyalblue     -0.29368581  0.3794929 -0.77389008 1.0000000
+MEdarkgreen     -0.57747441  0.9392240 -0.61484206 1.0000000
+MEpink          -0.73423522  1.3463121 -0.54536778 1.0000000
+MEdarkgrey      -0.59795551  1.6066199 -0.37218232 1.0000000
+MEpurple        -0.69564367  0.9211407 -0.75519810 1.0000000
+MEgrey          -0.38359639  0.3990969 -0.96116112 1.0000000
 [1] &quot;WGCNA_lmer_Lacosamide&quot;
                    Estimate Std. Error    t value    p.value
-MEblack          0.05643154 0.16476858  0.3424897 0.73790662
-MEpink          -0.09669742 0.09589239 -1.0083952 1.00000000
-MEpaleturquoise -0.35171259 0.23311093 -1.5087778 1.00000000
-MEdarkorange    -1.26680951 0.65410707 -1.9367005 1.00000000
-MEroyalblue     -1.39419402 0.73752807 -1.8903606 1.00000000
-MEcyan          -1.65122879 1.18532555 -1.3930593 1.00000000
-MEblue          -1.57162015 0.81589806 -1.9262457 1.00000000
-MEorangered4    -1.43216221 0.84502972 -1.6948069 1.00000000
-MEdarkmagenta   -1.12715025 0.68462438 -1.6463776 1.00000000
-MElightyellow   -0.22076741 0.34469231 -0.6404768 1.00000000
-MEdarkgreen     -0.15595070 0.09320124 -1.6732685 1.00000000
-MEdarkturquoise -0.13238024 0.18179402 -0.7281881 1.00000000
-MEbrown          1.91618895 1.06531152  1.7987123 0.09724570
-MEdarkred        0.67087507 1.08420479  0.6187715 0.54763346
-MEturquoise      1.89119264 1.02656759  1.8422485 0.09027312
-MEgrey          -1.92832711 1.19829970 -1.6092194 1.00000000
+MEorange         0.30188600  0.1834194  1.6458786 0.12570859
+MEcyan           1.23250416  0.9501760  1.2971325 0.21897047
+MEskyblue        0.66484349  0.9918425  0.6703116 0.51535238
+MEdarkorange    -0.15167368  1.1314848 -0.1340484 1.00000000
+MEgreenyellow    0.81167571  1.1825006  0.6864062 0.50550428
+MElightcyan      1.01579893  1.1641388  0.8725754 0.40001773
+MEwhite          1.62429234  1.2212679  1.3300049 0.20824285
+MEturquoise      2.01402573  1.0973476  1.8353580 0.09134563
+MEdarkturquoise  1.65483831  0.9267324  1.7856702 0.09942709
+MEgreen          2.05269013  1.1870499  1.7292366 0.10938103
+MEgrey60        -1.08526430  0.9872256 -1.0993073 1.00000000
+MEblue          -1.67627131  0.8026601 -2.0883950 1.00000000
+MEred           -1.85801308  1.0432076 -1.7810579 1.00000000
+MElightyellow   -0.76582631  0.4862513 -1.5749598 1.00000000
+MEmagenta       -0.11977421  0.1009214 -1.1868071 1.00000000
+MEmidnightblue   0.96416396  0.8491232  1.1354818 0.27834400
+MEblack         -0.45004830  0.2885052 -1.5599315 1.00000000
+MEbrown          0.04834995  0.1882753  0.2568046 0.80167974
+MEsaddlebrown   -1.41873105  0.6683127 -2.1228551 1.00000000
+MEdarkred       -1.09504359  0.4475660 -2.4466639 1.00000000
+MEroyalblue     -0.69665464  0.4602229 -1.5137332 1.00000000
+MEdarkgreen     -1.50657658  0.8206739 -1.8357798 1.00000000
+MEpink          -1.40315871  1.0998738 -1.2757452 1.00000000
+MEdarkgrey      -0.97917883  1.1430945 -0.8566035 1.00000000
+MEpurple        -1.67405044  1.1681476 -1.4330813 1.00000000
+MEgrey          -1.92874435  1.2749109 -1.5128464 1.00000000
 [1] &quot;WGCNA_lmer_Levetiracetam&quot;
-                   Estimate Std. Error     t value   p.value
-MEblack          0.03548968 0.08070528  0.43974425 0.6679376
-MEpink           0.02907601 0.12500523  0.23259836 0.8199931
-MEpaleturquoise -0.01989690 0.34082968 -0.05837785 1.0000000
-MEdarkorange     0.07838122 0.66481757  0.11789883 0.9080983
-MEroyalblue     -0.12722017 0.71769547 -0.17726204 1.0000000
-MEcyan          -0.23965902 0.97605086 -0.24553948 1.0000000
-MEblue           0.15646300 0.91864462  0.17031940 0.8675968
-MEorangered4    -0.11885945 0.80168481 -0.14826207 1.0000000
-MEdarkmagenta   -0.12785002 0.70791165 -0.18060166 1.0000000
-MElightyellow   -0.18318623 0.20239983 -0.90507103 1.0000000
-MEdarkgreen      0.10200417 0.08010513  1.27337874 0.2269978
-MEdarkturquoise  0.09190754 0.10269236  0.89497928 0.3883974
-MEbrown         -0.85423605 0.87386547 -0.97753725 1.0000000
-MEdarkred        0.99771665 1.25925320  0.79230821 0.4435628
-MEturquoise      0.16299790 1.16157433  0.14032499 0.8907311
-MEgrey          -1.92969808 1.36213637 -1.41667026 1.0000000
+                    Estimate Std. Error      t value   p.value
+MEorange         0.001793353 0.26633557  0.006733434 0.9947382
+MEcyan           0.556045836 1.07572683  0.516902450 0.6146180
+MEskyblue        1.055667013 1.12682965  0.936847030 0.3673097
+MEdarkorange     1.239266793 1.24927617  0.991987859 0.3407853
+MEgreenyellow    0.936905392 1.31412557  0.712949672 0.4895094
+MElightcyan     -1.045664045 0.69827679 -1.497492207 1.0000000
+MEwhite         -1.233999134 0.91650193 -1.346422847 1.0000000
+MEturquoise      0.051554536 1.22672474  0.042026165 0.9671690
+MEdarkturquoise -0.244411638 0.98721224 -0.247577601 1.0000000
+MEgreen         -0.809480443 0.95186712 -0.850413280 1.0000000
+MEgrey60         0.052303883 0.68760259  0.076067025 0.9406193
+MEblue           0.274350461 0.92695087  0.295970876 0.7723117
+MEred            0.172082004 1.14186754  0.150702246 0.8827142
+MElightyellow   -0.060725080 0.46551618 -0.130446767 1.0000000
+MEmagenta        0.062654429 0.09162501  0.683813583 0.5070831
+MEmidnightblue  -0.200206685 0.45896125 -0.436216966 1.0000000
+MEblack          0.190992137 0.31532460  0.605700080 0.5559971
+MEbrown          0.172689595 0.15381481  1.122711073 0.2835213
+MEsaddlebrown    0.328057888 0.82201480  0.399090001 0.6968379
+MEdarkred       -0.211670226 0.61736091 -0.342863021 1.0000000
+MEroyalblue     -0.253873736 0.46406840 -0.547061024 1.0000000
+MEdarkgreen     -0.394693800 0.83600562 -0.472118599 1.0000000
+MEpink          -0.397889551 0.82962628 -0.479600948 1.0000000
+MEdarkgrey      -0.667765875 0.79267528 -0.842420459 1.0000000
+MEpurple        -0.390397865 0.96864773 -0.403033891 1.0000000
+MEgrey          -1.907903960 1.33552426 -1.428580537 1.0000000
 [1] &quot;WGCNA_lmer_Valproate&quot;
-                    Estimate Std. Error     t value      p.value
-MEblack          0.027137995 0.01049702  2.58530437 2.386346e-02
-MEpink           0.005260886 0.03070639  0.17132870 8.668204e-01
-MEpaleturquoise  0.067398753 0.01145784  5.88232563 7.454171e-05
-MEdarkorange    -0.057796263 0.05619678 -1.02846212 1.000000e+00
-MEroyalblue     -0.068410415 0.05671953 -1.20611737 1.000000e+00
-MEcyan          -0.168504450 0.10242509 -1.64514823 1.000000e+00
-MEblue          -0.022625177 0.05236029 -0.43210569 1.000000e+00
-MEorangered4    -0.113895588 0.08596836 -1.32485470 1.000000e+00
-MEdarkmagenta   -0.048176905 0.04646197 -1.03691051 1.000000e+00
-MElightyellow   -0.073857023 0.02761493 -2.67453234 1.000000e+00
-MEdarkgreen     -0.017628169 0.01553755 -1.13455265 1.000000e+00
-MEdarkturquoise -0.017422340 0.02570275 -0.67783944 1.000000e+00
-MEbrown          0.103591253 0.09120458  1.13581198 2.782111e-01
-MEdarkred        0.002590198 0.07678361  0.03373374 9.736441e-01
-MEturquoise      0.107536564 0.09137789  1.17683355 2.620782e-01
-MEgrey           0.060730610 0.03396164  1.78821216 9.899850e-02</code></pre>
+                    Estimate Std. Error     t value     p.value
+MEorange        -0.004123493 0.01524700 -0.27044612 1.000000000
+MEcyan           0.018970168 0.06601031  0.28738189 0.778722349
+MEskyblue        0.064308415 0.07041745  0.91324539 0.379096584
+MEdarkorange    -0.027768199 0.09201876 -0.30176671 1.000000000
+MEgreenyellow    0.015210933 0.08054767  0.18884386 0.853371371
+MElightcyan      0.102479926 0.06846798  1.49675693 0.160288702
+MEwhite          0.062989657 0.07807065  0.80682889 0.435465007
+MEturquoise      0.105076937 0.09088770  1.15611828 0.270131870
+MEdarkturquoise  0.112057648 0.07504361  1.49323370 0.161195886
+MEgreen          0.110822042 0.09012793  1.22960819 0.242407725
+MEgrey60         0.091818327 0.03790496  2.42232983 0.032180246
+MEblue          -0.037350452 0.06870866 -0.54360617 1.000000000
+MEred           -0.009879820 0.03329672 -0.29672049 1.000000000
+MElightyellow   -0.087174751 0.05379089 -1.62062287 1.000000000
+MEmagenta       -0.021943222 0.03114768 -0.70448986 1.000000000
+MEmidnightblue   0.170423422 0.06959507  2.44878590 0.030661221
+MEblack          0.061419160 0.01512636  4.06040614 0.001580554
+MEbrown          0.008726959 0.02227693  0.39174878 0.702111719
+MEsaddlebrown   -0.018106289 0.05268405 -0.34367686 1.000000000
+MEdarkred       -0.002280399 0.04413420 -0.05166966 1.000000000
+MEroyalblue     -0.027445474 0.04380659 -0.62651470 1.000000000
+MEdarkgreen     -0.097980667 0.08674318 -1.12954888 1.000000000
+MEpink          -0.140330319 0.11134728 -1.26029414 1.000000000
+MEdarkgrey      -0.176498628 0.10592821 -1.66620989 1.000000000
+MEpurple        -0.158028078 0.09660331 -1.63584541 1.000000000
+MEgrey           0.054752582 0.04325371  1.26584699 0.229591965</code></pre>
 <p><img src="figure/04_WGCNA.Rmd/stats_ME-1.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/stats_ME-2.png" width="4500" style="display: block; margin: auto;" /><img src="figure/04_WGCNA.Rmd/stats_ME-3.png" width="4500" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>save(list=apropos(&quot;WGCNA_lmer_&quot;), file=paste0(output,&quot;/WGCNA_lmer_res.RData&quot;))</code></pre>
 <br>
@@ -992,13 +1052,13 @@ other attached packages:
  [3] xlsx_0.6.5                  gprofiler2_0.2.0           
  [5] flashClust_1.01-2           WGCNA_1.70-3               
  [7] fastcluster_1.1.25          dynamicTreeCut_1.63-1      
- [9] pheatmap_1.0.12             knitr_1.33                 
-[11] limma_3.46.0                DESeq2_1.30.1              
-[13] SummarizedExperiment_1.20.0 Biobase_2.50.0             
-[15] MatrixGenerics_1.2.1        matrixStats_0.58.0         
-[17] GenomicRanges_1.42.0        GenomeInfoDb_1.26.4        
-[19] IRanges_2.24.1              S4Vectors_0.28.1           
-[21] BiocGenerics_0.36.0         RColorBrewer_1.1-2         
+ [9] knitr_1.33                  limma_3.46.0               
+[11] DESeq2_1.30.1               SummarizedExperiment_1.20.0
+[13] Biobase_2.50.0              MatrixGenerics_1.2.1       
+[15] matrixStats_0.58.0          GenomicRanges_1.42.0       
+[17] GenomeInfoDb_1.26.4         IRanges_2.24.1             
+[19] S4Vectors_0.28.1            BiocGenerics_0.36.0        
+[21] pheatmap_1.0.12             RColorBrewer_1.1-2         
 [23] compareGroups_4.5.1         forcats_0.5.1              
 [25] stringr_1.4.0               dplyr_1.0.5                
 [27] purrr_0.3.4                 readr_1.4.0                
@@ -1007,51 +1067,50 @@ other attached packages:
 [33] kableExtra_1.3.4            workflowr_1.6.2            
 
 loaded via a namespace (and not attached):
-  [1] utf8_1.1.4             tidyselect_1.1.0       RSQLite_2.2.4         
-  [4] AnnotationDbi_1.52.0   htmlwidgets_1.5.3      grid_4.0.4            
-  [7] BiocParallel_1.24.1    munsell_0.5.0          codetools_0.2-18      
- [10] preprocessCore_1.52.1  chron_2.3-56           statmod_1.4.35        
- [13] withr_2.4.1            colorspace_2.0-0       highr_0.9             
- [16] uuid_0.1-4             rstudioapi_0.13        officer_0.3.17        
- [19] rJava_0.9-13           labeling_0.4.2         git2r_0.28.0          
- [22] GenomeInfoDbData_1.2.4 bit64_4.0.5            farver_2.1.0          
- [25] rprojroot_2.0.2        vctrs_0.3.6            generics_0.1.0        
- [28] xfun_0.24              R6_2.5.0               doParallel_1.0.16     
- [31] locfit_1.5-9.4         bitops_1.0-6           cachem_1.0.4          
- [34] DelayedArray_0.16.2    assertthat_0.2.1       promises_1.2.0.1      
- [37] scales_1.1.1           nnet_7.3-15            gtable_0.3.0          
- [40] rlang_0.4.10           genefilter_1.72.1      systemfonts_1.0.1     
- [43] splines_4.0.4          lazyeval_0.2.2         impute_1.64.0         
- [46] broom_0.7.5            checkmate_2.0.0        yaml_2.2.1            
- [49] modelr_0.1.8           backports_1.2.1        httpuv_1.5.5          
- [52] HardyWeinberg_1.7.1    Hmisc_4.5-0            tools_4.0.4           
- [55] ellipsis_0.3.1         gplots_3.1.1           jquerylib_0.1.3       
- [58] Rsolnp_1.16            Rcpp_1.0.6             base64enc_0.1-3       
- [61] zlibbioc_1.36.0        RCurl_1.98-1.2         rpart_4.1-15          
- [64] haven_2.3.1            cluster_2.1.1          fs_1.5.0              
- [67] magrittr_2.0.1         data.table_1.14.0      flextable_0.6.4       
- [70] reprex_1.0.0           truncnorm_1.0-8        hms_1.0.0             
- [73] xlsxjars_0.6.1         evaluate_0.14          xtable_1.8-4          
- [76] XML_3.99-0.5           jpeg_0.1-8.1           readxl_1.3.1          
- [79] gridExtra_2.3          compiler_4.0.4         mice_3.13.0           
- [82] KernSmooth_2.23-18     writexl_1.3.1          crayon_1.4.1          
- [85] minqa_1.2.4            htmltools_0.5.1.1      later_1.1.0.1         
- [88] Formula_1.2-4          geneplotter_1.68.0     lubridate_1.7.10      
- [91] DBI_1.1.1              dbplyr_2.1.0           MASS_7.3-53.1         
- [94] boot_1.3-27            cli_3.0.1              pkgconfig_2.0.3       
- [97] foreign_0.8-81         plotly_4.9.3           xml2_1.3.2            
-[100] foreach_1.5.1          svglite_2.0.0          annotate_1.68.0       
-[103] bslib_0.2.4            webshot_0.5.2          XVector_0.30.0        
-[106] rvest_1.0.0            digest_0.6.27          rmarkdown_2.9.7       
-[109] cellranger_1.1.0       htmlTable_2.1.0        gdtools_0.2.3         
-[112] gtools_3.8.2           nloptr_1.2.2.2         lifecycle_1.0.0       
-[115] nlme_3.1-152           jsonlite_1.7.2         viridisLite_0.3.0     
-[118] fansi_0.4.2            pillar_1.5.1           lattice_0.20-41       
-[121] fastmap_1.1.0          httr_1.4.2             survival_3.2-9        
-[124] GO.db_3.12.1           glue_1.4.2             zip_2.1.1             
-[127] png_0.1-7              iterators_1.0.13       bit_4.0.4             
-[130] stringi_1.7.3          sass_0.3.1             blob_1.2.1            
-[133] latticeExtra_0.6-29    caTools_1.18.2         memoise_2.0.0         </code></pre>
+  [1] readxl_1.3.1           uuid_0.1-4             backports_1.2.1       
+  [4] Hmisc_4.5-0            systemfonts_1.0.1      lazyeval_0.2.2        
+  [7] splines_4.0.4          BiocParallel_1.24.1    digest_0.6.27         
+ [10] foreach_1.5.1          htmltools_0.5.1.1      GO.db_3.12.1          
+ [13] fansi_0.4.2            checkmate_2.0.0        magrittr_2.0.1        
+ [16] Rsolnp_1.16            memoise_2.0.0          cluster_2.1.1         
+ [19] doParallel_1.0.16      annotate_1.68.0        modelr_0.1.8          
+ [22] officer_0.3.17         svglite_2.0.0          jpeg_0.1-8.1          
+ [25] colorspace_2.0-0       blob_1.2.1             rvest_1.0.0           
+ [28] haven_2.3.1            xfun_0.24              crayon_1.4.1          
+ [31] RCurl_1.98-1.2         jsonlite_1.7.2         genefilter_1.72.1     
+ [34] impute_1.64.0          survival_3.2-9         iterators_1.0.13      
+ [37] glue_1.4.2             gtable_0.3.0           zlibbioc_1.36.0       
+ [40] XVector_0.30.0         webshot_0.5.2          DelayedArray_0.16.2   
+ [43] scales_1.1.1           DBI_1.1.1              Rcpp_1.0.6            
+ [46] htmlTable_2.1.0        viridisLite_0.3.0      xtable_1.8-4          
+ [49] foreign_0.8-81         bit_4.0.4              preprocessCore_1.52.1 
+ [52] Formula_1.2-4          truncnorm_1.0-8        htmlwidgets_1.5.3     
+ [55] httr_1.4.2             ellipsis_0.3.1         mice_3.13.0           
+ [58] farver_2.1.0           rJava_0.9-13           pkgconfig_2.0.3       
+ [61] XML_3.99-0.5           nnet_7.3-15            sass_0.3.1            
+ [64] dbplyr_2.1.0           locfit_1.5-9.4         utf8_1.1.4            
+ [67] labeling_0.4.2         tidyselect_1.1.0       rlang_0.4.10          
+ [70] later_1.1.0.1          AnnotationDbi_1.52.0   munsell_0.5.0         
+ [73] cellranger_1.1.0       tools_4.0.4            cachem_1.0.4          
+ [76] cli_3.0.1              generics_0.1.0         RSQLite_2.2.4         
+ [79] broom_0.7.5            evaluate_0.14          fastmap_1.1.0         
+ [82] yaml_2.2.1             bit64_4.0.5            fs_1.5.0              
+ [85] zip_2.1.1              nlme_3.1-152           xml2_1.3.2            
+ [88] compiler_4.0.4         rstudioapi_0.13        plotly_4.9.3          
+ [91] png_0.1-7              reprex_1.0.0           statmod_1.4.35        
+ [94] geneplotter_1.68.0     bslib_0.2.4            stringi_1.7.3         
+ [97] HardyWeinberg_1.7.1    highr_0.9              gdtools_0.2.3         
+[100] lattice_0.20-41        nloptr_1.2.2.2         vctrs_0.3.6           
+[103] pillar_1.5.1           lifecycle_1.0.0        jquerylib_0.1.3       
+[106] data.table_1.14.0      bitops_1.0-6           flextable_0.6.4       
+[109] httpuv_1.5.5           R6_2.5.0               latticeExtra_0.6-29   
+[112] promises_1.2.0.1       gridExtra_2.3          writexl_1.3.1         
+[115] codetools_0.2-18       boot_1.3-27            MASS_7.3-53.1         
+[118] assertthat_0.2.1       xlsxjars_0.6.1         chron_2.3-56          
+[121] rprojroot_2.0.2        withr_2.4.1            GenomeInfoDbData_1.2.4
+[124] hms_1.0.0              rpart_4.1-15           grid_4.0.4            
+[127] minqa_1.2.4            rmarkdown_2.9.7        git2r_0.28.0          
+[130] lubridate_1.7.10       base64enc_0.1-3       </code></pre>
 </div>
 </div>
 </div>
