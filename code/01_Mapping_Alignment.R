@@ -36,7 +36,7 @@ if(! file.exists("hg38.reads")){
 
 setwd(output)
 ##Read in the fastq files
-fastq.files<-list.files(path=fastqcfiles, pattern=".fq.gz$",full.names=TRUE)
+fastq.files<-list.files(path=fastqcfiles, pattern="qc.fq.gz$",full.names=TRUE)
 
 if (mode=="test")
     fastq.files=fastq.files[1:5]
