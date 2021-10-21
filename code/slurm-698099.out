@@ -1,0 +1,35 @@
+merge Brussel files
+Brussels file merged exits nothing done
+index Frankfurt files
+[E::main_vcfindex] the index file exists. Please use '-f' to overwrite ./DEUPUM_RAISE-GENIC_210526.vcf.gz.csi
+done
+index Kuopio files
+[E::main_vcfindex] the index file exists. Please use '-f' to overwrite ./AnVIL_CCDG_Broad_NP_Epilepsy_FINKPH_EPIL_CO_MORBIDI_MDS_WES_y2-only-raisegenic.vcf.gz.csi
+done
+convert SNPfiles to plinkables and perform quality control 
+Frankfurt/Epi25_DEUPUM_GSA-MD_Year1_Year2_v1.vcf.gz passing through quality control
+Warning: Nonmissing nonmale Y chromosome genotype(s) present; many commands
+treat these as missing.
+Frankfurt/Epi25_DEUPUM_GSA-MD_Year1_Year2_v1.vcf.gz check gender
+Frankfurt/Epi25_DEUPUM_GSA-MD_Year1_Year2_v1.vcf.gz update missing gender
+.....gender updated
+.....no gender discrepancies detected
+Frankfurt/Epi25_DEUPUM_GSA-MD_Year1_Year2_v1.vcf.gz check inbreeding and contamination
+Frankfurt/Epi25_DEUPUM_GSA-MD_Year1_Year2_v1.vcf.gz exclude contaminated samples 
+.....no samples needed to be removed due to contamination
+Frankfurt/Epi25_DEUPUM_GSA-MD_Year1_Year2_v1.vcf.gz remove inbreeding individuals
+Frankfurt/Epi25_DEUPUM_GSA-MD_Year1_Year2_v1.vcf.gz no samples needed to be removed due to inbreeding
+/var/spool/slurm/d/job698099/slurm_script: line 171: echoFrankfurt/Epi25_DEUPUM_GSA-MD_Year1_Year2_v1.vcf.gz cyclic pedigirees are not tested as no family data: No such file or directory
+Frankfurt/Epi25_DEUPUM_GSA-MD_Year1_Year2_v1.vcf.gz relatedness check
+no duplicated samples detected
+Frankfurt/Epi25_DEUPUM_GSA-MD_Year1_Year2_v1.vcf.gz checked for cross relatedness nothing done at the moment but written out
+merge WES data
+calculate stats
+Failed to read from standard input: unknown file type
+todo liftover to hg38
+merging all
+[W::bgzf_read_block] EOF marker is absent. The input is probably truncated
+[E::vcf_parse_format] Number of columns at chr16:89192339 does not match the number of samples (560 vs 939)
+Error: VCF parse error
+merged
+done

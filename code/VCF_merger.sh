@@ -218,15 +218,14 @@ bcftools stats --threads 20 $Kuopio > $Kuopio.vchk
 echo "todo liftover to hg38"
 
 
-
-
 echo "merging all"
 # todo add Brussels
-bcftools merge  $Frankfurt $Kuopio --threads 20 -0 -Oz -o RAISE_Genic_WES_Frankfurt_Kuopio_merged.vcf.gz
+bcftools merge $Frankfurt $Kuopio --threads 20 -0 -r 1 -Oz -o RAISE_Genic_WES_Frankfurt_Kuopio_merged.vcf.gz
+
 bcftools index --threads 20 RAISE_Genic_WES_Frankfurt_Kuopio_merged.vcf.gz
 bcftools stats --threads 20 RAISE_Genic_WES_Frankfurt_Kuopio_merged.vcf.gz > RAISE_Genic_WES_Frankfurt_Kuopio_merged.vcf.gz.vchk
 
-bcftools view --threads 20 -i  'MIN(FMT/DP>10) && MIN(FMT/GQ>15)' RAISE_Genic_WES_Frankfurt_Kuopio_merged.vcf.gz -Oz -o RAISE_Genic_WES_Frankfurt_Kuopio_merged_filtered.vcf.gz
+
 
 wait 
 echo "merged"

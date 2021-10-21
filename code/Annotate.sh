@@ -5,12 +5,11 @@
 #SBATCH --ntasks=20
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=1200   
-#SBATCH --time=12:00:00
+#SBATCH --time=8:00:00
 #SBATCH --no-requeue
 #SBATCH --mail-type=ALL
 
-modus="notest"
-
+modus="test"
 reffasta="/scratch/fuchs/agmisc/chiocchetti/ReferenceGenomes/hg38.fa"
 refdb="/scratch/fuchs/agmisc/chiocchetti/annovar/humandb/"
 
@@ -18,14 +17,14 @@ filename=$1
 
 echo "the length of filename is ${#filename}"
 
-if [[ ${#filename} == 0  ]] | [[ ! -f $1 ]];
+if [[ ${#filename} == 0  ]] | [[ ! -f $filename ]];
 then
     echo "file does not exist or is not specified";
     exit;
 else
-    echo "$1 is used"
-    filename=$(basename $1)
-    filedir=$(dirname $1)
+    echo "$filename is used"
+    filedir=$(dirname $filename)
+    filename=$(basename $filename)
 fi
 
 homedir=$(pwd)
@@ -36,37 +35,54 @@ then
     echo "modus is test: subset is used"
     if [ -f testset.vcf.gz ]
     then
-	echo "using existing testset file; if you want to use an otherone delete or rename testset.vcf.gz in $filedir"
+	echo "using existing testset file; 
+if you want to use anotherone delete or rename testset.vcf.gz in $filedir"
 	filename="testset.vcf.gz"
     else
-	bcftools query -l $filename | grep 5 > samples.tmp
+	echo "testset is created"
+	bcftools query -l $filename | grep 21 > samples.tmp #selects all files with a 21 in it is kind of arbitrary
 	bcftools view $filename -S samples.tmp -Oz -o testset.vcf.gz
 	filename="testset.vcf.gz"
+	rm samples.tmp
     fi
 fi
 
+bcftools index -f $filename
+bcftools view --regions chr1 $filename --threads 20 -o tmp.vcf
+
+
 echo "run normalization step1"
-bcftools norm -m-both --threads 20 -Oz -o 01_merged.vcf.gz $filename
+bcftools norm -m-both --threads 20 -o 01_merged.vcf.gz tmp.vcf
 
 echo "run normalization step2"
-bcftools norm -f $reffasta --threads 20 -Oz -o 02_merged.vcf.gz 01_merged.vcf.gz
-
+bcftools norm tmp_01_merged.vcf -f $reffasta --threads 20  -Oz -o  tmp_02_merged.vcf.gz
+bcftools index tmp_02_merged.vcf.gz
 ## todo hg 38
 echo "run annotation"
 ## annotate_variation.pl -vcfinput -out Annotated -build hg19 02_merged.vcf.gz humandb/
 
-table_annovar.pl 02_merged.vcf.gz  $refdb \
+table_annovar.pl tmp_02_merged.vcf.gz  $refdb \
 		 -buildver hg38 \
 		 -out Annotated \
 		 -remove \
-		 -protocol refGene,cytoBand,exac03,avsnp147,dbnsfp30a\
-		 -operation gx,r,f,f,f\
+		 -protocol refGene,avsnp147,dbnsfp30a\
+		 -operation g,f,f\
 		 -nastring . \
 		 -vcfinput \
 		 -polish\
 		 -thread 20\
 		 -maxgenethread 20
 
+
+
+htsfile -h  Annotated.hg38_multianno.vcf > tmp_LGD.vcf
+grep -E "stop|start|frameshift|splicing" Annotated.hg38_multianno.vcf >> tmp_LGD.vcf
+
+bgzip -c -@ 20 tmp_LGD.vcf > LGD_$filename.gz
+bcftools index LGD_$filename.gz
+
+rm tmp*
+rm Annotated*
 
 ## aim list all frameshift stopgains splice site 
 ## bcftools query -f '%ExonicFunc.refGene ' Annotated.hg38_multianno.vcf  | sort | uniq
@@ -101,17 +117,6 @@ table_annovar.pl 02_merged.vcf.gz  $refdb \
 # UTR3
 # UTR5
 # UTR5\x3bUTR3
-
-
-bcftools query -e 'GT ="."' \
-	 -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%Gene.refGene\t%GeneDetail.refGene\t%Func.refGene\t%ExonicFunc.refGene\t%AAChange.refGene\n' \
-	 Annotated.hg38_multianno.vcf -threads 20 | \
-    grep -E "stop|start|frameshift|splicing" > Annotated.hg38_LDG.txt
-
-echo -e "CHROM\tPOS" > filter_tmp.txt
-awk "{print $1\t$2}" < Annotated.hg38_LDG.txt >> filter_tmp.txt
-
-bcftools filter Annotated.hg38_multianno.vcf -R filter_tmp.txt -Oz -o Annotated.hg38_LGD_multianno.vcf
 
 
 echo "done"
