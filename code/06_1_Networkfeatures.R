@@ -1,0 +1,236 @@
+
+home=getwd()
+
+
+require(M3C)
+library(igraph)
+library(DESeq2)
+library(RCurl)
+library(GenomicRanges)
+library(doParallel)
+library(tidyverse)
+
+
+output= paste0(home, "/output/")
+secret="C:/Users/andreas_chiocchetti/OneDrive/personal/fuchs_credentials.R"
+
+hg38refgenes="S:/KJP_Biolabor/RawData/99_Datasets/RefSeqGeneshg38TxStartStop.txt"
+
+urltoLGDs="/scratch/fuchs/agmisc/chiocchetti/RAISEGenicData/VCF_Files/Merged_LGD_RAISE_Genic_WES_F_K_B_merged.vcf.gz.raw"
+
+source(paste0(home,"/code/custom_functions.R"))
+
+load(paste0(output,"/WGCNA_adj_TOM.RData"))
+load(paste0(output,"/dds_matrix.RData"))
+
+
+get_network_params=function(modulename="", clusters, cormatrix) {
+  res=c()
+  module=modulename
+  index=which(clusters==module)
+  modMatrixorig=cormatrix[index,index]
+  modMatrixorigdist=1-cormatrix[index,index]
+
+  diag(modMatrixorig) = NA
+  diag(modMatrixorigdist)=NA
+  modMatrix=modMatrixorig
+  graph=graph_from_adjacency_matrix(modMatrix, weighted = T)
+  graphdist=graph_from_adjacency_matrix(modMatrixorigdist, weighted = T)
+
+  #calculate the parameters
+
+  #print("... wConSum")
+  res[["wConSum"]]=sum(modMatrixorig[lower.tri(modMatrixorig, diag = F)])
+  #print("... wConMean")
+  res[["wConMean"]]=mean(modMatrixorig[lower.tri(modMatrixorig, diag = F)])
+  #print("... wAvgPath")
+  res[["wAvgPath"]] = mean(shortest.paths(graphdist, mode = "all", algorithm = "dijkstra"))
+  #print("... wDistance")
+  res[["wDistance"]]=farthest.nodes(graph)$distance
+  #print("... wTransitivity")
+  #make binary
+  #print("... cutoff binarization")
+  cutoff=1
+  sum_of_noconn=ncol(modMatrixorig)
+
+  plottab=data.frame(cutoff=cutoff, unconnected=sum_of_noconn)
+  counter=0
+  while(sum_of_noconn>0.05*ncol(modMatrixorig) & counter<1e5){
+    cutoff=cutoff/1.1
+    modMatrix = modMatrixorig
+    modMatrix[modMatrix<cutoff]=NA
+    diag(modMatrix)=NA
+    modMatrix[! is.na(modMatrix)] = 1
+    sum_of_noconn=sum(colSums(modMatrix, na.rm=T)==0)
+    plottab=rbind(plottab,c(cutoff, sum_of_noconn))
+    counter=counter+1
+  }
+
+  res[["uwBinCutoff"]]=cutoff
+
+  graph=graph_from_adjacency_matrix(modMatrix)
+  #print("... uwMaxcon")
+  res[["uwMaxcon"]]=max(colSums(modMatrix, na.rm=T))
+  #print("... uwConSum")
+  res[["uwConSum"]]=sum(modMatrix[lower.tri(modMatrix, diag = F)], na.rm=T)
+  #print("... uwDensity")
+  res[["uwDensity"]]=graph.density(graph)
+  #print("... uwDistance")
+  res[["uwDistance"]]=farthest.nodes(graph)$distance
+  #print("... uwMeanBetweeness")
+  res[["uwMeanBetweeness"]]=mean(edge.betweenness(graph))
+  #print("... uwTransitivity")
+  res[["uwTransitivity"]]=transitivity(graph, type="global")
+  #print("... uwEgoSize")
+  res[["uwEgoSize"]]=mean(ego_size(graph))
+  return(res)
+}
+
+
+testermod=names(which.min(mcols(ddsMat)$cluster %>%  table))
+
+resgreen=get_network_params(modulename = testermod,
+                            clusters = mcols(ddsMat)$cluster,
+                            cormatrix = adj)
+
+modules = mcols(ddsMat)$cluster %>% unique
+
+modfeatures=data.frame(green=unlist(resgreen))
+rownames(modfeatures)=names(resgreen)
+
+for (m in modules){
+  print(m)
+  tmp=get_network_params(modulename = m, clusters =mcols(ddsMat)$cluster, cormatrix = adj)
+  modfeatures[m]=unlist(tmp)
+}
+
+write.table(modfeatures, file=paste0(output,"/featureNetworks.txt"), row.names=F, sep="/t")
+modfeatures=read.table(file=paste0(output,"/featureNetworks.txtFALSE"), sep="\t")
+
+PCA=prcomp(t(scale(t(modfeatures))))
+res_umap=M3C::umap(modfeatures, colvec = rownames(PCA$rotation))
+
+png(paste0(output,"WGCNA_module_properties.png"))
+par(mfrow=c(1,2))
+plot(PCA$rotation[,"PC1"], PCA$rotation[,"PC2"],
+     main="PCA of WGCNA modules",
+     xlab="PC1", ylab="PC2",
+     col=rownames(PCA$rotation), pch=16)
+plot(res_umap$data$X1,res_umap$data$X2,
+     main="UMAP of WGCNA modules",
+     xlab="UMAP 1", ylab="UMAP 2",
+     col=rownames(PCA$rotation),pch=16)
+
+dev.off()
+
+
+target.model = testermod
+x=data.frame(row.names = names(resgreen))
+
+for (i in 1:100){
+  cat("Step ", i, "/n")
+  modeledcluster = mcols(ddsMat)$cluster
+  modeledcluster[sample(1:length(modeledcluster), 100)]="NA"
+  res = get_network_params(modulename = target.model, clusters = modeledcluster, cormatrix = adj)
+  x = cbind(x, unlist(res))
+}
+
+resframeModelling=data.frame(scale(t(x)))
+
+library(psych)
+png(paste0(output,"WGCNA_saddle_brown_module_properties_pair.png"), 750,750)
+pairs.panels(resframeModelling)
+dev.off()
+
+png(paste0(output,"WGCNA_saddle_brown_module_properties.png"))
+corrplot::corrplot(cor(resframeModelling),order = "hclust")
+dev.off()
+
+
+if (file.exists(secret)){
+  source(secret)
+} else {
+  UID    = rstudioapi::askForPassword("fuchs user")
+  PWD    = rstudioapi::askForPassword("fuchs password")
+}
+
+filetarget = paste0(home,"/data/LGDSData.raw")
+filetarget.bim = paste0(home,"/data/LGDSData.bim")
+if(!file.exists(filetarget)){
+  url=paste0("sftp://fuchs.hhlr-gu.de/", urltoLGDs)
+  urlgeno=gsub(".raw", ".bim", url)
+  bin = getBinaryURL(url, userpw=paste0(UID,":",PWD))
+  writeBin(bin, filetarget)
+  LGDs=read.table(filetarget, header=T)
+  bin = getBinaryURL(urlgeno, userpw=paste0(UID,":",PWD))
+  writeBin(bin, filetarget.bim)
+  LGDs.bim=read.table(filetarget.bim, header=T)
+  colnames(LGDs.bim) = c("CHR", "rs", "cm", "pos", "alt","ref")
+
+} else {
+  LGDs=read.table(filetarget, header=T)
+  LGDs.bim=read.table(filetarget.bim, header=F)
+  colnames(LGDs.bim) = c("CHR", "rs", "cm", "pos", "alt","ref")
+}
+
+rownames(LGDs)=LGDs$IID
+LGDS.gen = LGDs[,-(1:6)]
+
+png(paste0(output,"variants_per_person.png"))
+hist(rowSums(LGDS.gen!=0, na.rm=T))
+dev.off()
+
+
+
+genes=read.table(hg38refgenes)
+colnames(genes)=c("unknonw", "id", "CHR", "strand", "start", "stop", "hgnc", "id2")
+
+genesGR=with(genes, GRanges(CHR, IRanges(start, stop),  ))
+mcols(genesGR) = genes[,c("id", "hgnc")]
+
+LGDs.bim.GR=with(LGDs.bim, GRanges(paste0("chr",CHR), IRanges(pos, pos)))
+mcols(LGDs.bim.GR) = LGDs.bim[,c("rs", "alt", "ref")]
+
+hits=findOverlaps(LGDs.bim.GR, genesGR)
+
+hits=as.data.frame(hits)
+hits$hgnc=mcols(genesGR)$hgnc[hits$subjectHits]
+
+
+hitgenes=tapply(hits$hgnc, hits$queryHits, function(x){paste0(unique(x),collapse=";")})
+LGDs.bim$gene[as.numeric(names(hitgenes))] = hitgenes
+
+
+gethitgenes=function(patID="FINKPH_EPI-BIO_AA0268A", genofile=LGDS.gen, bimfile=LGDs.bim){
+  hgnchit = paste0(bimfile[,"gene"][which(genofile[patID,]>0)], collapse = ";") %>% gsub(";;", ";", .)
+  hgnchit = unique(unlist(strsplit(hgnchit, ";")))
+  return(hgnchit)
+}
+
+reslist=list()
+clustergene=mcols(ddsMat)$cluster
+allgenes=mcols(ddsMat)$hgnc
+
+
+get_pat_parameters <- function(pat){
+
+  hitcluster=clustergene
+  hitcluster[allgenes %in% gethitgenes(pat)]=NA
+
+  for (m in modules){
+    print(m)
+    tmp=get_network_params(modulename = m,
+                           clusters =hitcluster ,
+                           cormatrix = adj)
+    modfeatures[m]=unlist(tmp)
+  }
+  return(modfeatures)
+}
+
+reslist=sapply(rownames(LGDs)[1:2], get_pat_parameters)
+save(reslist, file=paste0(output, "/ReslistWGCNA_pat.RData"))
+
+reslist=sapply(rownames(LGDs)[sample(1:nrow(LGDs), 100)], get_pat_parameters)
+save(reslist, file=paste0(output, "/ReslistWGCNA_pat.RData"))
+
+```
