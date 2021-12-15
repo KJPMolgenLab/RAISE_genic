@@ -1,0 +1,105 @@
+#!/bin/bash
+#SBATCH --job-name=merger
+#SBATCH --partition=fuchs
+#SBATCH --nodes=2
+#SBATCH --ntasks=20
+#SBATCH --cpus-per-task=1
+#SBATCH --mem-per-cpu=1200   
+#SBATCH --time=01:55:00
+#SBATCH --no-requeue
+#SBATCH --mail-type=ALL
+
+
+## estimated run time ~1.5h
+
+
+vcffolder="/scratch/fuchs/agmisc/chiocchetti/RAISEGenicData/VCF_Files/"
+refdb="/scratch/fuchs/agmic/chiocchetti/annovar/humandb/"
+homedir=$(pwd)
+
+cd $vcffolder
+
+echo "merge Brussel files"
+
+if [ ! -f "Brussels/Brussels_merged.vcf.gz" ]
+then    
+    cd "$vcffolder/Brussels"
+    echo "compress files in Brussels"
+    compressfiles=$(find . -type f | grep .vcf$)
+    for file in $compressfiles
+    do
+	echo $file
+	bgzip -c $file > $file.gz &
+    done
+    wait
+    
+    echo "index files in Brussels"
+    for file in $compressfiles
+    do
+	echo "indexing $file.gz"
+	bcftools index $file.gz &
+    done
+    wait
+    
+    echo "merge files in Brussels"
+    files=$(find . -type f | grep .vcf.gz$)
+    bcftools merge  $files --threads 20 -0 -Oz -o Brussels_merged.vcf.gz
+    wait
+    
+    echo "done"
+else
+    echo "Brussels file merged exits nothing done"
+fi
+
+if [ ! -f "DEUPUM_RAISE-GENIC_210526.vcf.gz.csi" ]
+then    
+    echo "index Frankfurt files"
+    cd "$vcffolder/Frankfurt"
+    files=$(find . -type f | grep .vcf.gz$)
+    bcftools index $files --threads 20
+    echo "done"
+else
+    echo "Frankfurt index files exist,  skipped"
+fi
+
+
+if [ ! -f "AnVIL_CCDG_Broad_NP_Epilepsy_FINKPH_EPIL_CO_MORBIDI_MDS_WES_y2-only-raisegenic.vcf.gz.csi" ]
+then    
+    echo "index Kuopio files"
+    cd "$vcffolder/Kuopio"
+    files=$(find . -type f | grep .vcf.gz$)
+    bcftools index $files threads 20
+    echo "done"
+else
+    echo "Kuopio index files exist, skipped"
+fi
+    
+cd $vcffolder
+
+
+echo "convert SNPfiles to plinkables"
+
+Brussel=Brussels/Brussels_merged.vcf.gz
+
+plink --vcf $Brussel --make-bed --out Brussels/RAISE_Genic_Brussels_SNP
+
+# todo annotation of Brussels
+
+plink --vcf Frankfurt/Epi25_DEUPUM_GSA-MD_Year1_Year2_v1.vcf.gz --make-bed --out Frankfurt/RAISE_Genic_Frankfurt_SNP
+
+echo "merge WES data"
+
+Frankfurt=Frankfurt/DEUPUM_RAISE-GENIC_210526.vcf.gz
+Kuopio=Kuopio/AnVIL_CCDG_Broad_NP_Epilepsy_FINKPH_EPIL_CO_MORBIDI_MDS_WES_y2-only-raisegenic.vcf.gz
+
+echo "merging all"
+bcftools merge  $Frankfurt $Kuopio --threads 20 -0 -Oz -o RAISE_Genic_WES_Frankfurt_Kuopio_merged.vcf.gz
+bcftools index RAISE_Genic_WES_Frankfurt_Kuopio_merged.vcf.gz --threads 20
+wait 
+echo "merged"
+
+cd $homedir
+
+echo "done"
+
+# todo convert name to macht annotation script
