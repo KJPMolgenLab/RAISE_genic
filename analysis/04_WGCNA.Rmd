@@ -164,7 +164,6 @@ mcols(ddsMat) = cbind(mcols(ddsMat), data.frame(cluster=colors_new))
 
 clusterdataframe=data.frame(entrezgene=mcols(ddsMat)$entrez_gene,hgnc=mcols(ddsMat)$hgnc,  cluster=colors_new)
 
-
 save(ddsMat, file=paste0(output,"/dds_matrix.RData"))
 write.csv(clusterdataframe, file=paste0(output,"/clusterdataframe.csv"))
 
@@ -173,7 +172,6 @@ write.csv(clusterdataframe, file=paste0(output,"/clusterdataframe.csv"))
 ## Heatmaps MEs
 ```{r heatmap,  fig.height=20, fig.width=15}
 #colors for plotting heatmap
-
 
 colors <- rev(colorRampPalette(brewer.pal(9, "Spectral"))(255))
 
