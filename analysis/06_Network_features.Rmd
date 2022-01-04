@@ -66,7 +66,8 @@ get_network_params=function(modulename="", clusters, cormatrix) {
   #print("... wConMean")
   res[["wConMean"]]=mean(modMatrixorig[lower.tri(modMatrixorig, diag = F)])
   #print("... wAvgPath")
-  res[["wAvgPath"]] = mean(shortest.paths(graphdist, mode = "all", algorithm = "dijkstra"))
+  res[["wAvgPath"]] = average.path.length(graphdist, mode = "all", algorithm = "dijkstra")
+  
   #print("... wDistance")
   res[["wDistance"]]=farthest.nodes(graph)$distance
   #print("... wTransitivity")
@@ -264,12 +265,15 @@ get_pat_parameters <- function(pat){
   return(modfeatures)
 }
 
-
 reslist=sapply(rownames(LGDs)[1:2], get_pat_parameters)
 save(reslist, file=paste0(output, "/ReslistWGCNA_pat.RData"))
 
 reslist=sapply(rownames(LGDs)[sample(1:nrow(LGDs), 100)], get_pat_parameters)
 save(reslist, file=paste0(output, "/ReslistWGCNA_pat.RData"))
 
+```
+```{r}
+NetwFeatures=sapply(dimnames(reslist)[[2]], function(x){unlist(reslist[,x])})
 
 ```
+

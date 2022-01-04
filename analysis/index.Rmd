@@ -10,12 +10,15 @@ editor_options:
 
 
 
-## Preliminary Output page for RAISE genic RNA-SEQ Analysis 
+# RAISE genic data Analysis 
 
+## RNA Sequencing: 
 
-Individual Processing steps: 
 
 *  Preprocessing and QC [view](02_Preprocessing_counts.html)
 *  Gene inspection  [view](03_Gene_Inspection.html)
 *  WGCNA  [view](04_WGCNA.html)
 *  Group comparisons  [view](05_Statistical_analysis.html)
+
+## Phenoptypic data: quality control and label definition 
+*  Group comparisons  [view](07_Visualize_phenodata.html)

@@ -1,0 +1,2142 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="AGC" />
+
+
+<title>06_Feature_Network</title>
+
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">RAISE_GENIC</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/KJPMolgenLab/RAISE_genic">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">06_Feature_Network</h1>
+<h4 class="author">AGC</h4>
+<h4 class="date">9 11 2021</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2021-12-13
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>RAISE_GENIC/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20210706code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20210706)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20210706code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20210706)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictreeece44146bf5e1f0fb986a58e2e6e7025ae0b45bdtargetblankece4414a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/ece44146bf5e1f0fb986a58e2e6e7025ae0b45bd" target="_blank">ece4414</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictreeece44146bf5e1f0fb986a58e2e6e7025ae0b45bdtargetblankece4414a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/ece44146bf5e1f0fb986a58e2e6e7025ae0b45bd" target="_blank">ece4414</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rproj.user/
+    Ignored:    data/CountmatrixA.RData
+    Ignored:    data/CountmatrixB.RData
+    Ignored:    data/Data_Dict/
+    Ignored:    data/Drugdata/
+    Ignored:    data/Epi25EE-DEUPUM_DATA_2021-01-21_0748.csv
+    Ignored:    data/Epi25EE-DEUPUM_R_2021-01-21_0748.r
+    Ignored:    data/Epi25EE_DataDictionary_2020-06-25.csv
+    Ignored:    data/Epi25Focal-DEUPUM_DATA_2021-01-21_0746.csv
+    Ignored:    data/Epi25Focal-DEUPUM_R_2021-01-21_0746.r
+    Ignored:    data/Epi25Focal_DataDictionary_2020-06-25.csv
+    Ignored:    data/Epi25GGEOrMixedGener-DEUPUM_DATA_2021-01-21_0744.csv
+    Ignored:    data/Epi25GGEOrMixedGener-DEUPUM_R_2021-01-21_0744.r
+    Ignored:    data/Epi25GGEOrMixedGeneralisedAndF_DataDictionary_2020-06-25.csv
+    Ignored:    data/LGDSData.bim
+    Ignored:    data/LGDSData.raw
+    Ignored:    data/RAISEGENIC_DATA_2021-01-23_1705.csv
+    Ignored:    data/RAISEGENIC_R_2021-01-23_1705.r
+    Ignored:    data/VCF_Files/
+
+Untracked files:
+    Untracked:  analysis/06_Network_features.Rmd
+    Untracked:  output/Carbamazepine_uncorr_sig.csv
+    Untracked:  output/GOresWGCNA.xlsx
+    Untracked:  output/GOres_Carbamazepine.xlsx
+    Untracked:  output/GOres_Lacosamide.xlsx
+    Untracked:  output/GOres_Levetiracetam.xlsx
+    Untracked:  output/GOres_Valproate.xlsx
+    Untracked:  output/Lacosamide_uncorr_sig.csv
+    Untracked:  output/Levetiracetam_uncorr_sig.csv
+    Untracked:  output/ResTabs_KO.RData
+    Untracked:  output/Valproate_adjp.csv
+    Untracked:  output/WGCNA_adj_TOM.RData
+    Untracked:  output/WGCNA_lmer_Carbamazepine.csv
+    Untracked:  output/WGCNA_lmer_Carbamazepine.xlsx
+    Untracked:  output/WGCNA_lmer_Lacosamide.csv
+    Untracked:  output/WGCNA_lmer_Lacosamide.xlsx
+    Untracked:  output/WGCNA_lmer_Levetiracetam.csv
+    Untracked:  output/WGCNA_lmer_Levetiracetam.xlsx
+    Untracked:  output/WGCNA_lmer_Valproate.csv
+    Untracked:  output/WGCNA_lmer_Valproate.xlsx
+    Untracked:  output/WGCNA_lmer_res.RData
+    Untracked:  output/WGCNA_module_properties.png
+    Untracked:  output/WGCNA_saddle_brown_module_properties.png
+    Untracked:  output/WGCNA_saddle_brown_module_properties_pair.png
+    Untracked:  output/clusterdataframe.csv
+    Untracked:  output/dds_matrix.RData
+    Untracked:  output/featureNetworks.txtFALSE
+    Untracked:  output/variants_per_person.png
+    Untracked:  protocols_Pandolfo/
+
+Unstaged changes:
+    Modified:   analysis/04_WGCNA.Rmd
+    Modified:   setup_start.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with <code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<pre class="r"><code>home=getwd()</code></pre>
+<pre><code>Lade nötiges Paket: M3C</code></pre>
+<pre><code>
+Attache Paket: &#39;igraph&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:stats&#39;:
+
+    decompose, spectrum</code></pre>
+<pre><code>The following object is masked from &#39;package:base&#39;:
+
+    union</code></pre>
+<pre><code>Lade nötiges Paket: S4Vectors</code></pre>
+<pre><code>Lade nötiges Paket: stats4</code></pre>
+<pre><code>Lade nötiges Paket: BiocGenerics</code></pre>
+<pre><code>Lade nötiges Paket: parallel</code></pre>
+<pre><code>
+Attache Paket: &#39;BiocGenerics&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:parallel&#39;:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB</code></pre>
+<pre><code>The following objects are masked from &#39;package:igraph&#39;:
+
+    normalize, path, union</code></pre>
+<pre><code>The following objects are masked from &#39;package:stats&#39;:
+
+    IQR, mad, sd, var, xtabs</code></pre>
+<pre><code>The following objects are masked from &#39;package:base&#39;:
+
+    anyDuplicated, append, as.data.frame, basename, cbind, colnames,
+    dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
+    grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
+    union, unique, unsplit, which.max, which.min</code></pre>
+<pre><code>
+Attache Paket: &#39;S4Vectors&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:base&#39;:
+
+    expand.grid</code></pre>
+<pre><code>Lade nötiges Paket: IRanges</code></pre>
+<pre><code>
+Attache Paket: &#39;IRanges&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:grDevices&#39;:
+
+    windows</code></pre>
+<pre><code>Lade nötiges Paket: GenomicRanges</code></pre>
+<pre><code>Lade nötiges Paket: GenomeInfoDb</code></pre>
+<pre><code>Lade nötiges Paket: SummarizedExperiment</code></pre>
+<pre><code>Lade nötiges Paket: MatrixGenerics</code></pre>
+<pre><code>Lade nötiges Paket: matrixStats</code></pre>
+<pre><code>
+Attache Paket: &#39;MatrixGenerics&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:matrixStats&#39;:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars</code></pre>
+<pre><code>Lade nötiges Paket: Biobase</code></pre>
+<pre><code>Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    &#39;browseVignettes()&#39;. To cite Bioconductor, see
+    &#39;citation(&quot;Biobase&quot;)&#39;, and for packages &#39;citation(&quot;pkgname&quot;)&#39;.</code></pre>
+<pre><code>
+Attache Paket: &#39;Biobase&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:MatrixGenerics&#39;:
+
+    rowMedians</code></pre>
+<pre><code>The following objects are masked from &#39;package:matrixStats&#39;:
+
+    anyMissing, rowMedians</code></pre>
+<pre><code>Lade nötiges Paket: kableExtra</code></pre>
+<pre><code>Lade nötiges Paket: tidyverse</code></pre>
+<pre><code>-- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+<pre><code>v ggplot2 3.3.5     v purrr   0.3.4
+v tibble  3.1.5     v dplyr   1.0.7
+v tidyr   1.1.4     v stringr 1.4.0
+v readr   2.0.2     v forcats 0.5.1</code></pre>
+<pre><code>-- Conflicts ------------------------------------------ tidyverse_conflicts() --
+x dplyr::as_data_frame() masks tibble::as_data_frame(), igraph::as_data_frame()
+x dplyr::collapse()      masks IRanges::collapse()
+x dplyr::combine()       masks Biobase::combine(), BiocGenerics::combine()
+x tidyr::complete()      masks RCurl::complete()
+x purrr::compose()       masks igraph::compose()
+x dplyr::count()         masks matrixStats::count()
+x tidyr::crossing()      masks igraph::crossing()
+x dplyr::desc()          masks IRanges::desc()
+x tidyr::expand()        masks S4Vectors::expand()
+x dplyr::filter()        masks stats::filter()
+x dplyr::first()         masks S4Vectors::first()
+x dplyr::group_rows()    masks kableExtra::group_rows()
+x dplyr::groups()        masks igraph::groups()
+x dplyr::lag()           masks stats::lag()
+x ggplot2::Position()    masks BiocGenerics::Position(), base::Position()
+x purrr::reduce()        masks GenomicRanges::reduce(), IRanges::reduce()
+x dplyr::rename()        masks S4Vectors::rename()
+x purrr::simplify()      masks igraph::simplify()
+x dplyr::slice()         masks IRanges::slice()</code></pre>
+<pre><code>Lade nötiges Paket: compareGroups</code></pre>
+<pre><code>Lade nötiges Paket: RColorBrewer</code></pre>
+<pre><code>Lade nötiges Paket: pheatmap</code></pre>
+<pre class="r"><code>get_network_params=function(modulename=&quot;&quot;, clusters, cormatrix) {
+  res=c()
+  module=modulename
+  index=which(clusters==module)
+  modMatrixorig=cormatrix[index,index]
+  modMatrixorigdist=1-cormatrix[index,index]
+  
+  diag(modMatrixorig) = NA
+  diag(modMatrixorigdist)=NA
+  modMatrix=modMatrixorig
+  graph=graph_from_adjacency_matrix(modMatrix, weighted = T)
+  graphdist=graph_from_adjacency_matrix(modMatrixorigdist, weighted = T)
+  
+  #calculate the parameters
+  
+  print(&quot;... wConSum&quot;)
+  res[[&quot;wConSum&quot;]]=sum(modMatrixorig[lower.tri(modMatrixorig, diag = F)])
+  print(&quot;... wConMean&quot;)
+  res[[&quot;wConMean&quot;]]=mean(modMatrixorig[lower.tri(modMatrixorig, diag = F)])
+  print(&quot;... wAvgPath&quot;)
+  res[[&quot;wAvgPath&quot;]] = mean(shortest.paths(graphdist, mode = &quot;all&quot;, algorithm = &quot;dijkstra&quot;))
+  print(&quot;... wDistance&quot;)
+  res[[&quot;wDistance&quot;]]=farthest.nodes(graph)$distance
+  print(&quot;... wTransitivity&quot;)
+  #make binary
+  print(&quot;... cutoff binarization&quot;)
+  cutoff=1
+  sum_of_noconn=ncol(modMatrixorig)
+  
+  plottab=data.frame(cutoff=cutoff, unconnected=sum_of_noconn)
+  counter=0
+  while(sum_of_noconn&gt;0.05*ncol(modMatrixorig) &amp; counter&lt;10e5){
+    cutoff=cutoff/1.1
+    modMatrix = modMatrixorig
+    modMatrix[modMatrix&lt;cutoff]=NA
+    diag(modMatrix)=NA
+    modMatrix[! is.na(modMatrix)] = 1
+    sum_of_noconn=sum(colSums(modMatrix, na.rm=T)==0)
+    plottab=rbind(plottab,c(cutoff, sum_of_noconn))
+    counter=counter+1
+  }
+
+  res[[&quot;uwBinCutoff&quot;]]=cutoff
+  
+  graph=graph_from_adjacency_matrix(modMatrix)
+  print(&quot;... uwMaxcon&quot;)
+  res[[&quot;uwMaxcon&quot;]]=max(colSums(modMatrix, na.rm=T))
+  print(&quot;... uwConSum&quot;)
+  res[[&quot;uwConSum&quot;]]=sum(modMatrix[lower.tri(modMatrix, diag = F)], na.rm=T)
+  print(&quot;... uwDensity&quot;)
+  res[[&quot;uwDensity&quot;]]=graph.density(graph)
+  print(&quot;... uwDistance&quot;)
+  res[[&quot;uwDistance&quot;]]=farthest.nodes(graph)$distance
+  print(&quot;... uwMeanBetweeness&quot;)
+  res[[&quot;uwMeanBetweeness&quot;]]=mean(edge.betweenness(graph))
+  print(&quot;... uwTransitivity&quot;)
+  res[[&quot;uwTransitivity&quot;]]=transitivity(graph, type=&quot;global&quot;)
+  print(&quot;... uwEgoSize&quot;)
+  res[[&quot;uwEgoSize&quot;]]=mean(ego_size(graph))
+  return(res)
+}</code></pre>
+<pre class="r"><code>testermod=names(which.min(mcols(ddsMat)$cluster %&gt;%  table))
+
+resgreen=get_network_params(modulename = testermod, 
+                            clusters = mcols(ddsMat)$cluster, 
+                            cormatrix = adj)</code></pre>
+<pre><code>[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;</code></pre>
+<pre class="r"><code>modules = mcols(ddsMat)$cluster %&gt;% unique
+
+modfeatures=data.frame(green=unlist(resgreen))
+rownames(modfeatures)=names(resgreen)
+
+for (m in modules){
+  print(m)
+  tmp=get_network_params(modulename = m, clusters =mcols(ddsMat)$cluster, cormatrix = adj)
+  modfeatures[m]=unlist(tmp)
+}</code></pre>
+<pre><code>[1] &quot;lightcyan&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;lightyellow&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;blue&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;turquoise&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;brown&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;black&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;saddlebrown&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;red&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;darkgreen&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;grey60&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;greenyellow&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;purple&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;pink&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;darkorange&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;green&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;darkturquoise&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;grey&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;midnightblue&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;magenta&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;cyan&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;darkgrey&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;orange&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;darkred&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;royalblue&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;skyblue&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;white&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;</code></pre>
+<pre class="r"><code>write.table(modfeatures, file=paste0(output,&quot;/featureNetworks.txt&quot;), row.names=F, sep=&quot;/t&quot;)
+modfeatures=read.table(file=paste0(output,&quot;/featureNetworks.txtFALSE&quot;), sep=&quot;\t&quot;)
+
+PCA=prcomp(t(scale(t(modfeatures))))
+res_umap=M3C::umap(modfeatures, colvec = rownames(PCA$rotation))</code></pre>
+<pre><code>***UMAP wrapper function***</code></pre>
+<pre><code>running...</code></pre>
+<pre><code>done.</code></pre>
+<pre class="r"><code>png(paste0(output,&quot;WGCNA_module_properties.png&quot;))
+par(mfrow=c(1,2))
+plot(PCA$rotation[,&quot;PC1&quot;], PCA$rotation[,&quot;PC2&quot;], 
+     main=&quot;PCA of WGCNA modules&quot;,
+     xlab=&quot;PC1&quot;, ylab=&quot;PC2&quot;,
+     col=rownames(PCA$rotation), pch=16)
+plot(res_umap$data$X1,res_umap$data$X2, 
+     main=&quot;UMAP of WGCNA modules&quot;,
+     xlab=&quot;UMAP 1&quot;, ylab=&quot;UMAP 2&quot;,
+     col=rownames(PCA$rotation),pch=16)
+
+dev.off()</code></pre>
+<pre><code>png 
+  2 </code></pre>
+<pre class="r"><code>if (file.exists(secret)){
+    source(secret)
+  } else {
+    UID    = rstudioapi::askForPassword(&quot;fuchs user&quot;)
+    PWD    = rstudioapi::askForPassword(&quot;fuchs password&quot;)
+  }
+
+filetarget = paste0(home,&quot;/data/LGDSData.raw&quot;)
+filetarget.bim = paste0(home,&quot;/data/LGDSData.bim&quot;)
+if(!file.exists(filetarget)){
+  url=paste0(&quot;sftp://fuchs.hhlr-gu.de/&quot;, urltoLGDs)
+  urlgeno=gsub(&quot;.raw&quot;, &quot;.bim&quot;, url)
+  bin = getBinaryURL(url, userpw=paste0(UID,&quot;:&quot;,PWD))
+  writeBin(bin, filetarget)
+  LGDs=read.table(filetarget, header=T)
+  bin = getBinaryURL(urlgeno, userpw=paste0(UID,&quot;:&quot;,PWD))
+  writeBin(bin, filetarget.bim)
+  LGDs.bim=read.table(filetarget.bim, header=T)
+  colnames(LGDs.bim) = c(&quot;CHR&quot;, &quot;rs&quot;, &quot;cm&quot;, &quot;pos&quot;, &quot;alt&quot;,&quot;ref&quot;)
+  
+} else {
+  LGDs=read.table(filetarget, header=T)
+  LGDs.bim=read.table(filetarget.bim, header=F)
+  colnames(LGDs.bim) = c(&quot;CHR&quot;, &quot;rs&quot;, &quot;cm&quot;, &quot;pos&quot;, &quot;alt&quot;,&quot;ref&quot;)
+}
+
+rownames(LGDs)=LGDs$IID
+LGDS.gen = LGDs[,-(1:6)]
+
+png(paste0(output,&quot;variants_per_person.png&quot;))
+hist(rowSums(LGDS.gen!=0, na.rm=T))
+dev.off()</code></pre>
+<pre><code>png 
+  2 </code></pre>
+<pre class="r"><code>genes=read.table(hg38refgenes)
+colnames(genes)=c(&quot;unknonw&quot;, &quot;id&quot;, &quot;CHR&quot;, &quot;strand&quot;, &quot;start&quot;, &quot;stop&quot;, &quot;hgnc&quot;, &quot;id2&quot;)
+
+paste0(genes$hgnc[c(1,80,1000)], collapse=&quot;; &quot;)</code></pre>
+<pre><code>[1] &quot;C1orf141; MPZL1; PLD5&quot;</code></pre>
+<pre class="r"><code>genesGR=with(genes, GRanges(CHR, IRanges(start, stop),  ))
+mcols(genesGR) = genes[,c(&quot;id&quot;, &quot;hgnc&quot;)]
+
+LGDs.bim.GR=with(LGDs.bim, GRanges(paste0(&quot;chr&quot;,CHR), IRanges(pos, pos)))
+mcols(LGDs.bim.GR) = LGDs.bim[,c(&quot;rs&quot;, &quot;alt&quot;, &quot;ref&quot;)]
+
+hits=findOverlaps(LGDs.bim.GR, genesGR)
+
+hits=as.data.frame(hits)
+hits$hgnc=mcols(genesGR)$hgnc[hits$subjectHits]
+
+
+hitgenes=tapply(hits$hgnc, hits$queryHits, function(x){paste0(unique(x),collapse=&quot;;&quot;)})
+LGDs.bim$gene[as.numeric(names(hitgenes))] = hitgenes
+
+
+gethitgenes=function(patID=&quot;FINKPH_EPI-BIO_AA0268A&quot;, genofile=LGDS.gen, bimfile=LGDs.bim){
+  hgnchit = paste0(bimfile[,&quot;gene&quot;][which(genofile[patID,]&gt;0)], collapse = &quot;;&quot;) %&gt;% gsub(&quot;;;&quot;, &quot;;&quot;, .)
+  hgnchit = unique(unlist(strsplit(hgnchit, &quot;;&quot;)))
+  return(hgnchit)
+  }
+
+reslist=list()
+clustergene=mcols(ddsMat)$cluster
+allgenes=mcols(ddsMat)$hgnc
+
+
+for(pat in rownames(LGDS.gen)[1:2]){
+  
+  hitcluster=clustergene
+  hitcluster[allgenes %in% gethitgenes(pat)]=NA
+  
+  for (m in modules){
+    print(m)
+    tmp=get_network_params(modulename = m, 
+                           clusters =hitcluster , 
+                           cormatrix = adj)
+    modfeatures[m]=unlist(tmp)
+  }
+  reslist[pat] = modfeatures
+}</code></pre>
+<pre><code>[1] &quot;lightcyan&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;lightyellow&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;blue&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;turquoise&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;brown&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;black&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;saddlebrown&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;red&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;darkgreen&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;grey60&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;greenyellow&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;purple&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;pink&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;darkorange&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;green&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;darkturquoise&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;grey&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;midnightblue&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;magenta&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;cyan&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;darkgrey&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;orange&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;darkred&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;royalblue&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;skyblue&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;white&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;</code></pre>
+<pre><code>Warning in reslist[pat] &lt;- modfeatures: Anzahl der zu ersetzenden Elemente ist
+kein Vielfaches der Ersetzungslänge</code></pre>
+<pre><code>[1] &quot;lightcyan&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;lightyellow&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;blue&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;turquoise&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;brown&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;black&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;saddlebrown&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;red&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;darkgreen&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;grey60&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;greenyellow&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;purple&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;pink&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;darkorange&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;green&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;darkturquoise&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;grey&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;midnightblue&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;magenta&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;cyan&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;darkgrey&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;orange&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;darkred&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;royalblue&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;skyblue&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;
+[1] &quot;white&quot;
+[1] &quot;... wConSum&quot;
+[1] &quot;... wConMean&quot;
+[1] &quot;... wAvgPath&quot;
+[1] &quot;... wDistance&quot;
+[1] &quot;... wTransitivity&quot;
+[1] &quot;... cutoff binarization&quot;
+[1] &quot;... uwMaxcon&quot;
+[1] &quot;... uwConSum&quot;
+[1] &quot;... uwDensity&quot;
+[1] &quot;... uwDistance&quot;
+[1] &quot;... uwMeanBetweeness&quot;
+[1] &quot;... uwTransitivity&quot;
+[1] &quot;... uwEgoSize&quot;</code></pre>
+<pre><code>Warning in reslist[pat] &lt;- modfeatures: Anzahl der zu ersetzenden Elemente ist
+kein Vielfaches der Ersetzungslänge</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.1.2 (2021-11-01)
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+Running under: Windows 10 x64 (build 18363)
+
+Matrix products: default
+
+locale:
+[1] LC_COLLATE=German_Germany.1252  LC_CTYPE=German_Germany.1252   
+[3] LC_MONETARY=German_Germany.1252 LC_NUMERIC=C                   
+[5] LC_TIME=German_Germany.1252    
+
+attached base packages:
+[1] parallel  stats4    stats     graphics  grDevices utils     datasets 
+[8] methods   base     
+
+other attached packages:
+ [1] psych_2.1.9                 pheatmap_1.0.12            
+ [3] RColorBrewer_1.1-2          compareGroups_4.5.1        
+ [5] forcats_0.5.1               stringr_1.4.0              
+ [7] dplyr_1.0.7                 purrr_0.3.4                
+ [9] readr_2.0.2                 tidyr_1.1.4                
+[11] tibble_3.1.5                ggplot2_3.3.5              
+[13] tidyverse_1.3.1             kableExtra_1.3.4           
+[15] RCurl_1.98-1.5              DESeq2_1.30.1              
+[17] SummarizedExperiment_1.20.0 Biobase_2.50.0             
+[19] MatrixGenerics_1.2.1        matrixStats_0.61.0         
+[21] GenomicRanges_1.42.0        GenomeInfoDb_1.26.4        
+[23] IRanges_2.24.1              S4Vectors_0.28.1           
+[25] BiocGenerics_0.36.0         igraph_1.2.7               
+[27] M3C_1.12.0                 
+
+loaded via a namespace (and not attached):
+  [1] uuid_1.0-2             readxl_1.3.1           snow_0.4-4            
+  [4] backports_1.3.0        corrplot_0.91          workflowr_1.6.2       
+  [7] systemfonts_1.0.3      splines_4.1.2          BiocParallel_1.24.1   
+ [10] digest_0.6.28          foreach_1.5.1          htmltools_0.5.2       
+ [13] matrixcalc_1.0-5       fansi_0.5.0            magrittr_2.0.1        
+ [16] Rsolnp_1.16            memoise_2.0.0          cluster_2.1.2         
+ [19] doParallel_1.0.16      tzdb_0.2.0             annotate_1.68.0       
+ [22] modelr_0.1.8           officer_0.4.1          svglite_2.0.0         
+ [25] askpass_1.1            colorspace_2.0-2       blob_1.2.2            
+ [28] rvest_1.0.2            haven_2.4.3            xfun_0.27             
+ [31] crayon_1.4.2           jsonlite_1.7.2         genefilter_1.72.1     
+ [34] survival_3.2-13        iterators_1.0.13       glue_1.4.2            
+ [37] gtable_0.3.0           zlibbioc_1.36.0        XVector_0.30.0        
+ [40] webshot_0.5.2          DelayedArray_0.16.2    scales_1.1.1          
+ [43] DBI_1.1.1              Rcpp_1.0.7             viridisLite_0.4.0     
+ [46] xtable_1.8-4           tmvnsim_1.0-2          reticulate_1.22       
+ [49] bit_4.0.4              umap_0.2.7.0           truncnorm_1.0-8       
+ [52] httr_1.4.2             ellipsis_0.3.2         mice_3.13.0           
+ [55] pkgconfig_2.0.3        XML_3.99-0.8           sass_0.4.0            
+ [58] dbplyr_2.1.1           locfit_1.5-9.4         utf8_1.2.2            
+ [61] tidyselect_1.1.1       rlang_0.4.12           later_1.3.0           
+ [64] AnnotationDbi_1.52.0   munsell_0.5.0          cellranger_1.1.0      
+ [67] tools_4.1.2            cachem_1.0.6           cli_3.1.0             
+ [70] generics_0.1.1         RSQLite_2.2.8          broom_0.7.10          
+ [73] evaluate_0.14          fastmap_1.1.0          yaml_2.2.1            
+ [76] knitr_1.36             bit64_4.0.5            fs_1.5.0              
+ [79] zip_2.2.0              nlme_3.1-153           xml2_1.3.2            
+ [82] compiler_4.1.2         rstudioapi_0.13        png_0.1-7             
+ [85] reprex_2.0.1           geneplotter_1.68.0     bslib_0.3.1           
+ [88] stringi_1.7.5          HardyWeinberg_1.7.2    RSpectra_0.16-0       
+ [91] gdtools_0.2.3          lattice_0.20-45        Matrix_1.3-4          
+ [94] vctrs_0.3.8            pillar_1.6.4           lifecycle_1.0.1       
+ [97] jquerylib_0.1.4        data.table_1.14.2      flextable_0.6.10      
+[100] bitops_1.0-7           corpcor_1.6.10         httpuv_1.6.3          
+[103] R6_2.5.1               promises_1.2.0.1       writexl_1.4.0         
+[106] codetools_0.2-18       assertthat_0.2.1       chron_2.3-56          
+[109] openssl_1.4.5          rprojroot_2.0.2        withr_2.4.2           
+[112] mnormt_2.0.2           GenomeInfoDbData_1.2.4 doSNOW_1.0.19         
+[115] hms_1.1.1              grid_4.1.2             rmarkdown_2.11        
+[118] Rtsne_0.15             git2r_0.28.0           base64enc_0.1-3       
+[121] lubridate_1.8.0       </code></pre>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+---
+title: "RaiseGenic PhenotypicData Vis"
+author: "SP"
+date: "03 01 2022"
+output: html_document
+---
+
+```{r libraries}
+library("tidyverse")
+library("magrittr")
+library("psych")
+library("labelled")
+#source("helper_funs.R")
+```
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+home=getwd()
+datafolder="/data/PhenotypicData/"
+output= paste0(home, "/output/")
+```
+
+
+
+```{r load data}
+
+epi25 <- read_csv(paste0(home,datafolder,"Epi25_data_merged.csv"), guess_max = 2000, show_col_types = TRUE)
+epi25_codebook <- read_csv(paste0(home,datafolder,"Epi25_merged_labels.csv"))
+epi25o <- read_csv(paste0(home,datafolder,"Epi25_data_merged_outcomes.csv"), guess_max = 2000, show_col_types = TRUE)
+
+# add labels
+epi25_labels <- setNames(as.list(epi25_codebook$var_label), epi25_codebook$var_name)
+epi25 <- set_variable_labels(epi25, .labels =  epi25_labels, .strict = FALSE)
+rm(epi25_labels)
+```
+
+
+# epi25 data
+
+## variables
+```{r}
+glimpse(epi25)
+```
+
+## distribution of numeric values
+- select variables
+```{r describe}
+# epi25 %>% select(where(is.numeric)) %>% describe()
+epi25 %>% select(sex, yob, deceased, syndrome_GGE, syndrome_focal, genetic_testing) %>% describe()
+```
+TODO: recode 998 etc
+
+## ethnicity
+```{r}
+epi25 %>% 
+  summarise(across(starts_with("ethnicity__"), sum, na.rm = TRUE)) %>% 
+  t() %>% 
+  as_tibble(rownames = "var_name") %>% rename(total = V1) %>% 
+  mutate("share_%" = str_c(round(total/sum(total, na.rm = TRUE)*100, 1))) %>% 
+  left_join(epi25_codebook)
+```
+TODO: include hispanic_status in ethnicity__8
+
+## syndrome type ee_syndrome_, syndrome
+```{r}
+epi25_codebook %>% filter(str_detect(var_name, "syndrome"))
+
+epi25 %>% 
+  summarise(across(starts_with("ee_syndrome__"), sum, na.rm = TRUE)) %>% 
+  t() %>% 
+  as_tibble(rownames = "var_name") %>% rename(total = V1) %>% 
+  mutate("share_%" = str_c(round(total/sum(total, na.rm = TRUE)*100, 1))) %>% 
+  left_join(epi25_codebook)
+
+epi25 %>% select(syndrome_focal, syndrome_GGE, syndrome_notes)
+```
+TODO: recode NAs to 0s for correct counts
+```{r}
+
+```
+
+## distribution of seizure types _seizures
+## age of onset by seizure type _age_onset
+## age_last
+## comorbidities autism, intellectual_disability + _degree, psychosis, developmental_delay + _type, 
+## family history fam_consanguinity	family_history fam_first_deg
+## dna available maternal_dna paternal_dna cnv_analysis genetic_testing

@@ -10,6 +10,8 @@ wflow_use_github(organization = "KJPMolgenLab",
 source("code/00_Installer.R")
 
 wflow_build("analysis/index.Rmd")
+wflow_build("analysis/07_Visualize_phenodata.Rmd")
+
 
 system.time(wflow_publish(c("analysis/*","docs/*","code/*")))
 system("git push -u origin master")

@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="SP" />
+
+
+<title>RaiseGenic PhenotypicData Vis</title>
+
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">RAISE_GENIC</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/KJPMolgenLab/RAISE_genic">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">RaiseGenic PhenotypicData Vis</h1>
+<h4 class="author">SP</h4>
+<h4 class="date">03 01 2022</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2022-01-04
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>RAISE_GENIC/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20210706code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20210706)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20210706code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20210706)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictreef552ccca3f1223f32aa5c7618b39f6b930511192targetblankf552ccca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/f552ccca3f1223f32aa5c7618b39f6b930511192" target="_blank">f552ccc</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomKJPMolgenLabRAISEgenictreef552ccca3f1223f32aa5c7618b39f6b930511192targetblankf552ccca" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/KJPMolgenLab/RAISE_genic/tree/f552ccca3f1223f32aa5c7618b39f6b930511192" target="_blank">f552ccc</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rproj.user/
+    Ignored:    data/CountmatrixA.RData
+    Ignored:    data/CountmatrixB.RData
+    Ignored:    data/Data_Dict/
+    Ignored:    data/Drugdata/
+    Ignored:    data/Epi25EE-DEUPUM_DATA_2021-01-21_0748.csv
+    Ignored:    data/Epi25EE-DEUPUM_R_2021-01-21_0748.r
+    Ignored:    data/Epi25EE_DataDictionary_2020-06-25.csv
+    Ignored:    data/Epi25Focal-DEUPUM_DATA_2021-01-21_0746.csv
+    Ignored:    data/Epi25Focal-DEUPUM_R_2021-01-21_0746.r
+    Ignored:    data/Epi25Focal_DataDictionary_2020-06-25.csv
+    Ignored:    data/Epi25GGEOrMixedGener-DEUPUM_DATA_2021-01-21_0744.csv
+    Ignored:    data/Epi25GGEOrMixedGener-DEUPUM_R_2021-01-21_0744.r
+    Ignored:    data/Epi25GGEOrMixedGeneralisedAndF_DataDictionary_2020-06-25.csv
+    Ignored:    data/LGDSData.bim
+    Ignored:    data/LGDSData.raw
+    Ignored:    data/PhenotypicData/
+    Ignored:    data/RAISEGENIC_DATA_2021-01-23_1705.csv
+    Ignored:    data/RAISEGENIC_R_2021-01-23_1705.r
+    Ignored:    data/VCF_Files/
+
+Untracked files:
+    Untracked:  analysis/07_Visualize_phenodata.Rmd
+    Untracked:  output/Carbamazepine_uncorr_sig.csv
+    Untracked:  output/GOresWGCNA.xlsx
+    Untracked:  output/GOres_Carbamazepine.xlsx
+    Untracked:  output/GOres_Lacosamide.xlsx
+    Untracked:  output/GOres_Levetiracetam.xlsx
+    Untracked:  output/GOres_Valproate.xlsx
+    Untracked:  output/Lacosamide_uncorr_sig.csv
+    Untracked:  output/Levetiracetam_uncorr_sig.csv
+    Untracked:  output/ResTabs_KO.RData
+    Untracked:  output/ReslistWGCNA_pat.RData
+    Untracked:  output/Thumbs.db
+    Untracked:  output/Valproate_adjp.csv
+    Untracked:  output/WGCNA_adj_TOM.RData
+    Untracked:  output/WGCNA_lmer_Carbamazepine.csv
+    Untracked:  output/WGCNA_lmer_Carbamazepine.xlsx
+    Untracked:  output/WGCNA_lmer_Lacosamide.csv
+    Untracked:  output/WGCNA_lmer_Lacosamide.xlsx
+    Untracked:  output/WGCNA_lmer_Levetiracetam.csv
+    Untracked:  output/WGCNA_lmer_Levetiracetam.xlsx
+    Untracked:  output/WGCNA_lmer_Valproate.csv
+    Untracked:  output/WGCNA_lmer_Valproate.xlsx
+    Untracked:  output/WGCNA_lmer_res.RData
+    Untracked:  output/WGCNA_module_properties.png
+    Untracked:  output/WGCNA_saddle_brown_module_properties.png
+    Untracked:  output/WGCNA_saddle_brown_module_properties_pair.png
+    Untracked:  output/clusterdataframe.csv
+    Untracked:  output/dds_matrix.RData
+    Untracked:  output/featureNetworks.txt
+    Untracked:  output/featureNetworks.txtFALSE
+    Untracked:  output/variants_per_person.png
+    Untracked:  protocols_Pandolfo/
+
+Unstaged changes:
+    Modified:   analysis/06_Network_features.Rmd
+    Modified:   analysis/index.Rmd
+    Modified:   setup_start.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with <code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<pre class="r"><code>library(&quot;tidyverse&quot;)</code></pre>
+<pre><code>-- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+<pre><code>v ggplot2 3.3.5     v purrr   0.3.4
+v tibble  3.1.5     v dplyr   1.0.7
+v tidyr   1.1.4     v stringr 1.4.0
+v readr   2.0.2     v forcats 0.5.1</code></pre>
+<pre><code>-- Conflicts ------------------------------------------ tidyverse_conflicts() --
+x dplyr::filter() masks stats::filter()
+x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(&quot;magrittr&quot;)</code></pre>
+<pre><code>
+Attache Paket: &#39;magrittr&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:purrr&#39;:
+
+    set_names</code></pre>
+<pre><code>The following object is masked from &#39;package:tidyr&#39;:
+
+    extract</code></pre>
+<pre class="r"><code>library(&quot;psych&quot;)</code></pre>
+<pre><code>
+Attache Paket: &#39;psych&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:ggplot2&#39;:
+
+    %+%, alpha</code></pre>
+<pre class="r"><code>library(&quot;labelled&quot;)
+#source(&quot;helper_funs.R&quot;)</code></pre>
+<pre class="r"><code>home=getwd()
+datafolder=&quot;/data/PhenotypicData/&quot;
+output= paste0(home, &quot;/output/&quot;)</code></pre>
+<pre class="r"><code>epi25 &lt;- read_csv(paste0(home,datafolder,&quot;Epi25_data_merged.csv&quot;), guess_max = 2000, show_col_types = TRUE)</code></pre>
+<pre><code>Rows: 1385 Columns: 203</code></pre>
+<pre><code>-- Column specification --------------------------------------------------------
+Delimiter: &quot;,&quot;
+chr   (24): record_id, local_identifier, broad_id, clinician_dataentry, clin...
+dbl  (165): mixed_case, loc_evidence, sex, hispanic_status, ethnicity___1, e...
+lgl   (13): febcomplex_seizures, eeg_findings_1_epicom, eeg_findings_2_epico...
+date   (1): date_last_collection</code></pre>
+<pre><code>
+i Use `spec()` to retrieve the full column specification for this data.
+i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>epi25_codebook &lt;- read_csv(paste0(home,datafolder,&quot;Epi25_merged_labels.csv&quot;))</code></pre>
+<pre><code>Rows: 203 Columns: 3</code></pre>
+<pre><code>-- Column specification --------------------------------------------------------
+Delimiter: &quot;,&quot;
+chr (3): var_name, var_label, var_values</code></pre>
+<pre><code>
+i Use `spec()` to retrieve the full column specification for this data.
+i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>epi25o &lt;- read_csv(paste0(home,datafolder,&quot;Epi25_data_merged_outcomes.csv&quot;), guess_max = 2000, show_col_types = TRUE)</code></pre>
+<pre><code>Rows: 1492 Columns: 314</code></pre>
+<pre><code>-- Column specification --------------------------------------------------------
+Delimiter: &quot;,&quot;
+chr   (39): record_id, local_identifier, broad_id, clinician_dataentry, clin...
+dbl  (221): mixed_case, loc_evidence, sex, hispanic_status, ethnicity___1, e...
+lgl   (47): febcomplex_seizures, eeg_findings_1_epicom, eeg_findings_2_epico...
+date   (7): date_last_collection, crf_date, last_visit_date, adr_start_date,...</code></pre>
+<pre><code>
+i Use `spec()` to retrieve the full column specification for this data.
+i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code># add labels
+epi25_labels &lt;- setNames(as.list(epi25_codebook$var_label), epi25_codebook$var_name)
+epi25 &lt;- set_variable_labels(epi25, .labels =  epi25_labels, .strict = FALSE)
+rm(epi25_labels)</code></pre>
+<div id="epi25-data" class="section level1">
+<h1>epi25 data</h1>
+<div id="variables" class="section level2">
+<h2>variables</h2>
+<pre class="r"><code>glimpse(epi25)</code></pre>
+<pre><code>Rows: 1,385
+Columns: 203
+$ record_id                            &lt;chr&gt; &quot;BELULBBEP93&quot;, &quot;BELULBBEP156&quot;, &quot;B~
+$ local_identifier                     &lt;chr&gt; &quot;BELULBBEP93&quot;, &quot;BELULBBEP156&quot;, &quot;B~
+$ broad_id                             &lt;chr&gt; &quot;SM-B5U26&quot;, &quot;SM-B5TZB&quot;, &quot;SM-B5TZC~
+$ mixed_case                           &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ loc_evidence                         &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ date_last_collection                 &lt;date&gt; NA, NA, NA, NA, NA, NA, NA, NA, ~
+$ sex                                  &lt;dbl&gt; 2, 1, 2, 2, 2, 1, 1, 1, 2, 2, 1, ~
+$ clinician_dataentry                  &lt;chr&gt; &quot;Chantal Depondt&quot;, &quot;Chantal Depon~
+$ clinician_responsible                &lt;chr&gt; &quot;Not reported&quot;, &quot;Not reported&quot;, &quot;~
+$ hispanic_status                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ethnicity___1                        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ ethnicity___2                        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ ethnicity___3                        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ ethnicity___4                        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ ethnicity___5                        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ ethnicity___6                        &lt;dbl&gt; 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, ~
+$ ethnicity___7                        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ ethnicity___9                        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ ethnicity___10                       &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ ethnicity___11                       &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ ethnicity___12                       &lt;dbl&gt; 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, ~
+$ ethnicity___13                       &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ ethnicity___998                      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ ethnicity_comments                   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ yob                                  &lt;dbl&gt; 1974, 1988, 1979, 1979, 1977, 198~
+$ deceased                             &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ febrile_seizures                     &lt;dbl&gt; 2, NA, 2, 2, NA, 2, 2, NA, 1, NA,~
+$ generalized_seizures                 &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, ~
+$ myoclonic_seizures                   &lt;dbl&gt; 2, 2, 2, 1, 2, 1, 2, 2, 2, 1, 1, ~
+$ absence_seizures                     &lt;dbl&gt; 2, 2, 2, 1, 1, 1, 2, 1, 1, 2, 2, ~
+$ atypical_absence_seizures            &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ tonic_seizures                       &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, ~
+$ atonic_seizures                      &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, ~
+$ other_seizures                       &lt;dbl&gt; 2, 2, 2, 1, 1, 2, 1, 2, 2, 1, 1, ~
+$ aura_seizures                        &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, ~
+$ dyscognitive_seizures                &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, ~
+$ bilateral_seizures                   &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, ~
+$ other_focal_seizures                 &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, ~
+$ other_seizures_specify               &lt;chr&gt; NA, NA, NA, &quot;Uncertain&quot;, &quot;Uncerta~
+$ febclassic_seizures                  &lt;dbl&gt; 2, NA, 2, 2, NA, 2, 2, NA, 1, NA,~
+$ febclassic_age_onset                 &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, 3~
+$ febclassic_age_last                  &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, 4~
+$ febcomplex_seizures                  &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ febprov_seizures                     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ febprov_age_onset                    &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ febprov_age_last                     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ generalized_age_onset                &lt;dbl&gt; 15, 16, 13, 13, 13, 14, 16, 3, NA~
+$ myoclonic_age_onset                  &lt;dbl&gt; NA, NA, NA, NA, NA, 13, NA, NA, N~
+$ absence_age_onset                    &lt;dbl&gt; NA, NA, NA, NA, 13, 13, NA, 3, 5,~
+$ atypical_absence_age_onset           &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ tonic_age_onset                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ atonic_age_onset                     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ aura_age_onset                       &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ dyscognitive_age_onset               &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ bilateral_age_onset                  &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ other_age_onset                      &lt;dbl&gt; NA, NA, NA, 26, NA, NA, 17, NA, N~
+$ age_first_seizure_comp               &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ age_first_seizure                    &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ generalized_age_last                 &lt;dbl&gt; 25, 17, 19, 26, 13, 24, 17, 24, N~
+$ myoclonic_age_last                   &lt;dbl&gt; NA, NA, NA, NA, NA, 21, NA, NA, N~
+$ absence_age_last                     &lt;dbl&gt; NA, NA, NA, NA, 27, 22, NA, 24, 6~
+$ atypical_absence_age_last            &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ tonic_age_last                       &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ aura_age_last                        &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ dyscognitive_age_last                &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ bilateral_age_last                   &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ atonic_age_last                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ other_age_last                       &lt;dbl&gt; NA, NA, NA, 26, NA, NA, 17, NA, N~
+$ neurological_examination             &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ~
+$ neurological_specify                 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ eeg_findings_1                       &lt;dbl&gt; 5, 5, 5, 2, 5, 5, 1, 5, 5, 2, NA,~
+$ eeg_findings_1_gsw                   &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ eeg_findings_1_epicom                &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ eeg_findings_1_focal___2             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_1_focal___3             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_1_focal___4             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_1_focal___5             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_1_focal___6             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_1_focal___997           &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_1_focal___998           &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_ppr_1                   &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ eeg_findings_2                       &lt;dbl&gt; NA, NA, NA, NA, NA, NA, 5, NA, NA~
+$ eeg_findings_2_gsw                   &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ eeg_findings_2_epicom                &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ eeg_findings_2_focal___2             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_2_focal___3             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_2_focal___4             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_2_focal___5             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_2_focal___6             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_2_focal___997           &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_2_focal___998           &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_ppr_2                   &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ eeg_findings_3                       &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ eeg_findings_3_gsw                   &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ eeg_findings_3_focal___2             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_3_focal___3             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_3_focal___4             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_3_focal___5             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_3_focal___6             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_3_focal___997           &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_3_focal___998           &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ eeg_findings_3_epicom                &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ eeg_findings_ppr_3                   &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ neuroimaging_performed               &lt;dbl&gt; 1, 3, 1, 2, 2, 2, 2, 2, 2, 1, 2, ~
+$ neuroimaging_findings_1              &lt;chr&gt; &quot;Normal&quot;, &quot;Normal&quot;, &quot;Normal&quot;, &quot;No~
+$ neuroimaging_specify                 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ intellectual_disability              &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, ~
+$ autism                               &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ psychosis                            &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, ~
+$ pharmacoresistant                    &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ intellectual_disability_degree       &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ fam_consanguinity                    &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ family_history                       &lt;dbl&gt; 1, NA, 2, 2, 1, 1, 2, 1, 1, NA, 2~
+$ fam_first_deg                        &lt;dbl&gt; 998, NA, NA, NA, 998, 1, NA, 998,~
+$ fam_notes                            &lt;chr&gt; NA, NA, NA, NA, NA, &quot;unclassified~
+$ syndrome_GGE                         &lt;dbl&gt; 110, 105, 105, 104, 103, 104, 110~
+$ syndrome_focal                       &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ syndrome_notes                       &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ questionnaire                        &lt;chr&gt; &quot;GGE&quot;, &quot;GGE&quot;, &quot;GGE&quot;, &quot;GGE&quot;, &quot;GGE&quot;~
+$ ethnicity___8                        &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ maternal_dna                         &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ paternal_dna                         &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ gestational_age_known                &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ gestational_age                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ head_circumference_known             &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ head_circumference                   &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ birth_weight_known                   &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ birth_weight                         &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ head_trauma                          &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ cns_infection                        &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ neonatal_seizures                    &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ normal_neonatal_period               &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ neonatal_comments                    &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ head_size                            &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ tone                                 &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ dysmorphic                           &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ dysmorphic_comment                   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ movement_disorder                    &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ movement_disorder_comment            &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ other_abnormalities                  &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ other_abnormalities_comment          &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ conventional_karyotype               &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ conventional_karyotype_comment       &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ cnv_analysis                         &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ cnv_analysis_comment                 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ panel_performed                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ panel_details                        &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ panel_results                        &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ panel_results_details                &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ genetic_testing                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ genetic_testing_comment              &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ metabolic_testing                    &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ metabolic_testing_comment            &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ spasms_seizures                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ hemiclonic_seizures                  &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ bilateral_clonic_seizures            &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ focal_seizures                       &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ unclassified_seizures                &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ se_con_seizures                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ se_non_seizures                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ bilateral_clonic_age_onset           &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ focal_age_onset                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ hemiclonic_age_onset                 &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ spasms_age_onset                     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ se_con_age_onset                     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ se_non_age_onset                     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ unclassified_age_onset               &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ bilateral_clonic_age_last            &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ focal_age_last                       &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ hemiclonic_age_last                  &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ spasms_age_last                      &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ se_con_age_last                      &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ se_non_age_last                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ unclassified_age_last                &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ developmental_delay                  &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ regression                           &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ developmental_delay_type             &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ regression_age                       &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome___1                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome___3                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome___4                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome___5                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome___6                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome___7                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome___8                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome___9                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome___10                     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome___11                     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome___12                     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome___13                     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome___14                     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome___2                      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome___15                     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome___16                     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome___17                     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ multiple_syndromes                   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ ee_syndrome_notes                    &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ generalized_epileptiform_discharges  &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, NA,~
+$ focal_epileptiform_discharges        &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, NA,~
+$ photoparoxysmal_reaction             &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, NA,~
+$ photoparoxysmal_type                 &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ epileptiform_unspecified             &lt;dbl&gt; 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, NA,~
+$ additional_epileptiform_eeg_findings &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, ~</code></pre>
+</div>
+<div id="distribution-of-numeric-values" class="section level2">
+<h2>distribution of numeric values</h2>
+<ul>
+<li>select variables</li>
+</ul>
+<pre class="r"><code># epi25 %&gt;% select(where(is.numeric)) %&gt;% describe()
+epi25 %&gt;% select(sex, yob, deceased, syndrome_GGE, syndrome_focal, genetic_testing) %&gt;% describe()</code></pre>
+<pre><code>                vars    n    mean     sd median trimmed   mad  min  max range
+sex                1 1385    1.58   0.49      2    1.60  0.00    1    2     1
+yob                2 1384 1970.35  17.54   1972 1970.90 20.76 1917 2016    99
+deceased           3 1062  323.74 465.92      2  279.78  0.00    2  998   996
+syndrome_GGE       4  182  138.91 171.31    104  104.74  1.48  101  993   892
+syndrome_focal     5 1177  227.16  13.32    222  223.43  0.00  209  291    82
+genetic_testing    6   20  103.15 306.04      5    4.06  0.74    1  998   997
+                 skew kurtosis    se
+sex             -0.33    -1.90  0.01
+yob             -0.25    -0.62  0.47
+deceased         0.76    -1.43 14.30
+syndrome_GGE     4.76    20.77 12.70
+syndrome_focal   3.06     8.70  0.39
+genetic_testing  2.47     4.32 68.43</code></pre>
+<p>TODO: recode 998 etc</p>
+</div>
+<div id="ethnicity" class="section level2">
+<h2>ethnicity</h2>
+<pre class="r"><code>epi25 %&gt;% 
+  summarise(across(starts_with(&quot;ethnicity__&quot;), sum, na.rm = TRUE)) %&gt;% 
+  t() %&gt;% 
+  as_tibble(rownames = &quot;var_name&quot;) %&gt;% rename(total = V1) %&gt;% 
+  mutate(&quot;share_%&quot; = str_c(round(total/sum(total, na.rm = TRUE)*100, 1))) %&gt;% 
+  left_join(epi25_codebook)</code></pre>
+<pre><code>Warning: The `x` argument of `as_tibble.matrix()` must have unique column names if `.name_repair` is omitted as of tibble 2.0.0.
+Using compatibility `.name_repair`.
+This warning is displayed once every 8 hours.
+Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.</code></pre>
+<pre><code>Joining, by = &quot;var_name&quot;</code></pre>
+<pre><code># A tibble: 14 x 5
+   var_name        total `share_%` var_label                          var_values
+   &lt;chr&gt;           &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;                              &lt;chr&gt;     
+ 1 ethnicity___1       0 0         Native Hawaiian/other Pacific Isl~ &lt;NA&gt;      
+ 2 ethnicity___2       0 0         Chinese                            &lt;NA&gt;      
+ 3 ethnicity___3       0 0         Japanese                           &lt;NA&gt;      
+ 4 ethnicity___4       5 0.4       Asian Other                        &lt;NA&gt;      
+ 5 ethnicity___5      19 1.4       Black or African American          &lt;NA&gt;      
+ 6 ethnicity___6     514 38.4      Western European                   &lt;NA&gt;      
+ 7 ethnicity___7       6 0.4       Eastern European                   &lt;NA&gt;      
+ 8 ethnicity___9       0 0         French Canadian                    &lt;NA&gt;      
+ 9 ethnicity___10      0 0         Ashkenazi Jewish                   &lt;NA&gt;      
+10 ethnicity___11      0 0         Sephardic Jewish                   &lt;NA&gt;      
+11 ethnicity___12     24 1.8       Caucasian other, please specify    &lt;NA&gt;      
+12 ethnicity___13    698 52.1      Other/mixed ethnicities, please s~ &lt;NA&gt;      
+13 ethnicity___998    74 5.5       Unknown                            &lt;NA&gt;      
+14 ethnicity___8       0 0         Hispanic                           &lt;NA&gt;      </code></pre>
+<p>TODO: include hispanic_status in ethnicity__8</p>
+</div>
+<div id="syndrome-type-ee_syndrome_-syndrome" class="section level2">
+<h2>syndrome type ee_syndrome_, syndrome</h2>
+<pre class="r"><code>epi25_codebook %&gt;% filter(str_detect(var_name, &quot;syndrome&quot;))</code></pre>
+<pre><code># A tibble: 22 x 3
+   var_name         var_label                                         var_values
+   &lt;chr&gt;            &lt;chr&gt;                                             &lt;chr&gt;     
+ 1 ee_syndrome___1  Neonatal onset: Ohtahara syndrome                 &lt;NA&gt;      
+ 2 ee_syndrome___10 Epilepsy with myoclonic atonic seizures           &lt;NA&gt;      
+ 3 ee_syndrome___11 Dravet syndrome                                   &lt;NA&gt;      
+ 4 ee_syndrome___12 Landau-Kleffner syndrome (LKS)                    &lt;NA&gt;      
+ 5 ee_syndrome___13 Epileptic encephalopathy with continuous spike-a~ &lt;NA&gt;      
+ 6 ee_syndrome___14 Febrile Infection Related Epilepsy Syndrome (FIR~ &lt;NA&gt;      
+ 7 ee_syndrome___15 &lt;NA&gt;                                              &lt;NA&gt;      
+ 8 ee_syndrome___16 &lt;NA&gt;                                              &lt;NA&gt;      
+ 9 ee_syndrome___17 &lt;NA&gt;                                              &lt;NA&gt;      
+10 ee_syndrome___2  Hemiconvulsion-Hemiplegia-Epilepsy                &lt;NA&gt;      
+# ... with 12 more rows</code></pre>
+<pre class="r"><code>epi25 %&gt;% 
+  summarise(across(starts_with(&quot;ee_syndrome__&quot;), sum, na.rm = TRUE)) %&gt;% 
+  t() %&gt;% 
+  as_tibble(rownames = &quot;var_name&quot;) %&gt;% rename(total = V1) %&gt;% 
+  mutate(&quot;share_%&quot; = str_c(round(total/sum(total, na.rm = TRUE)*100, 1))) %&gt;% 
+  left_join(epi25_codebook)</code></pre>
+<pre><code>Joining, by = &quot;var_name&quot;</code></pre>
+<pre><code># A tibble: 17 x 5
+   var_name         total `share_%` var_label                         var_values
+   &lt;chr&gt;            &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;                             &lt;chr&gt;     
+ 1 ee_syndrome___1      0 0         Neonatal onset: Ohtahara syndrome &lt;NA&gt;      
+ 2 ee_syndrome___3      0 0         Neonatal onset: Early myoclonic ~ &lt;NA&gt;      
+ 3 ee_syndrome___4      0 0         Early onset epileptic encephalop~ &lt;NA&gt;      
+ 4 ee_syndrome___5      5 23.8      Infantile onset epileptic enceph~ &lt;NA&gt;      
+ 5 ee_syndrome___6      0 0         Epilepsy of infancy with migrati~ &lt;NA&gt;      
+ 6 ee_syndrome___7      0 0         West syndrome/infantile spasms    &lt;NA&gt;      
+ 7 ee_syndrome___8      0 0         Late-onset epileptic spasms       &lt;NA&gt;      
+ 8 ee_syndrome___9      5 23.8      Lennox-Gastaut syndrome           &lt;NA&gt;      
+ 9 ee_syndrome___10     2 9.5       Epilepsy with myoclonic atonic s~ &lt;NA&gt;      
+10 ee_syndrome___11     0 0         Dravet syndrome                   &lt;NA&gt;      
+11 ee_syndrome___12     0 0         Landau-Kleffner syndrome (LKS)    &lt;NA&gt;      
+12 ee_syndrome___13     2 9.5       Epileptic encephalopathy with co~ &lt;NA&gt;      
+13 ee_syndrome___14     0 0         Febrile Infection Related Epilep~ &lt;NA&gt;      
+14 ee_syndrome___2      0 0         Hemiconvulsion-Hemiplegia-Epilep~ &lt;NA&gt;      
+15 ee_syndrome___15     6 28.6      &lt;NA&gt;                              &lt;NA&gt;      
+16 ee_syndrome___16     1 4.8       &lt;NA&gt;                              &lt;NA&gt;      
+17 ee_syndrome___17     0 0         &lt;NA&gt;                              &lt;NA&gt;      </code></pre>
+<pre class="r"><code>epi25 %&gt;% select(syndrome_focal, syndrome_GGE, syndrome_notes)</code></pre>
+<pre><code># A tibble: 1,385 x 3
+   syndrome_focal syndrome_GGE syndrome_notes
+            &lt;dbl&gt;        &lt;dbl&gt; &lt;chr&gt;         
+ 1             NA          110 &lt;NA&gt;          
+ 2             NA          105 &lt;NA&gt;          
+ 3             NA          105 &lt;NA&gt;          
+ 4             NA          104 &lt;NA&gt;          
+ 5             NA          103 &lt;NA&gt;          
+ 6             NA          104 &lt;NA&gt;          
+ 7             NA          110 &lt;NA&gt;          
+ 8             NA          110 &lt;NA&gt;          
+ 9             NA          101 &lt;NA&gt;          
+10             NA          104 &lt;NA&gt;          
+# ... with 1,375 more rows</code></pre>
+<p>TODO: recode NAs to 0s for correct counts</p>
+</div>
+<div id="distribution-of-seizure-types-_seizures" class="section level2">
+<h2>distribution of seizure types _seizures</h2>
+</div>
+<div id="age-of-onset-by-seizure-type-_age_onset" class="section level2">
+<h2>age of onset by seizure type _age_onset</h2>
+</div>
+<div id="age_last" class="section level2">
+<h2>age_last</h2>
+</div>
+<div id="comorbidities-autism-intellectual_disability-_degree-psychosis-developmental_delay-_type" class="section level2">
+<h2>comorbidities autism, intellectual_disability + _degree, psychosis, developmental_delay + _type,</h2>
+</div>
+<div id="family-history-fam_consanguinity-family_history-fam_first_deg" class="section level2">
+<h2>family history fam_consanguinity family_history fam_first_deg</h2>
+</div>
+<div id="dna-available-maternal_dna-paternal_dna-cnv_analysis-genetic_testing" class="section level2">
+<h2>dna available maternal_dna paternal_dna cnv_analysis genetic_testing</h2>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.1.2 (2021-11-01)
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+Running under: Windows 10 x64 (build 18363)
+
+Matrix products: default
+
+locale:
+[1] LC_COLLATE=German_Germany.1252  LC_CTYPE=German_Germany.1252   
+[3] LC_MONETARY=German_Germany.1252 LC_NUMERIC=C                   
+[5] LC_TIME=German_Germany.1252    
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] labelled_2.9.0  psych_2.1.9     magrittr_2.0.1  forcats_0.5.1  
+ [5] stringr_1.4.0   dplyr_1.0.7     purrr_0.3.4     readr_2.0.2    
+ [9] tidyr_1.1.4     tibble_3.1.5    ggplot2_3.3.5   tidyverse_1.3.1
+[13] workflowr_1.6.2
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.7       lattice_0.20-45  lubridate_1.8.0  assertthat_0.2.1
+ [5] rprojroot_2.0.2  digest_0.6.28    utf8_1.2.2       R6_2.5.1        
+ [9] cellranger_1.1.0 backports_1.3.0  reprex_2.0.1     evaluate_0.14   
+[13] httr_1.4.2       pillar_1.6.4     rlang_0.4.12     readxl_1.3.1    
+[17] rstudioapi_0.13  jquerylib_0.1.4  rmarkdown_2.11   bit_4.0.4       
+[21] munsell_0.5.0    broom_0.7.10     compiler_4.1.2   httpuv_1.6.3    
+[25] modelr_0.1.8     xfun_0.27        pkgconfig_2.0.3  mnormt_2.0.2    
+[29] tmvnsim_1.0-2    htmltools_0.5.2  tidyselect_1.1.1 fansi_0.5.0     
+[33] crayon_1.4.2     tzdb_0.2.0       dbplyr_2.1.1     withr_2.4.2     
+[37] later_1.3.0      grid_4.1.2       nlme_3.1-153     jsonlite_1.7.2  
+[41] gtable_0.3.0     lifecycle_1.0.1  DBI_1.1.1        git2r_0.28.0    
+[45] scales_1.1.1     vroom_1.5.5      cli_3.1.0        stringi_1.7.5   
+[49] fs_1.5.0         promises_1.2.0.1 xml2_1.3.2       bslib_0.3.1     
+[53] ellipsis_0.3.2   generics_0.1.1   vctrs_0.3.8      tools_4.1.2     
+[57] bit64_4.0.5      glue_1.4.2       hms_1.1.1        parallel_4.1.2  
+[61] fastmap_1.1.0    yaml_2.2.1       colorspace_2.0-2 rvest_1.0.2     
+[65] knitr_1.36       haven_2.4.3      sass_0.4.0      </code></pre>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
