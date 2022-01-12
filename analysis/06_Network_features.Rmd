@@ -15,7 +15,6 @@ home=getwd()
 
 ```
 
-
 ```{r, echo=F}
 require(M3C)
 library(igraph)
@@ -24,9 +23,9 @@ library(RCurl)
 library(GenomicRanges)
 library(doParallel)
 library(tidyverse)
+library(moments)
 
-
-
+registerDoParallel(cores=detectCores())
 
 output= paste0(home, "/output/")
 secret="C:/Users/andreas_chiocchetti/OneDrive/personal/fuchs_credentials.R"
@@ -45,7 +44,6 @@ load(paste0(output,"/dds_matrix.RData"))
 
 ```{r modellingdatasets}
 
-
 get_network_params=function(modulename="", clusters, cormatrix) {
   res=c()
   module=modulename
@@ -58,7 +56,6 @@ get_network_params=function(modulename="", clusters, cormatrix) {
   modMatrix=modMatrixorig
   graph=graph_from_adjacency_matrix(modMatrix, weighted = T)
   graphdist=graph_from_adjacency_matrix(modMatrixorigdist, weighted = T)
-  
   #calculate the parameters
   
   #print("... wConSum")
@@ -66,10 +63,20 @@ get_network_params=function(modulename="", clusters, cormatrix) {
   #print("... wConMean")
   res[["wConMean"]]=mean(modMatrixorig[lower.tri(modMatrixorig, diag = F)])
   #print("... wAvgPath")
-  res[["wAvgPath"]] = average.path.length(graphdist, mode = "all", algorithm = "dijkstra")
-  
+  if(length(V(graphdist))>200){
+    size=ceiling(length(V(graphdist))/getDoParWorkers())
+    sets=split(V(graphdist), rep(1:ceiling(length(V(graphdist))/size), each=size)[1:length(V(graphdist))])
+     dist <-  foreach(s=sets, .combine = 'c') %dopar% 
+       igraph::distances(graphdist, v=s, mode = "all", algorithm = "dijkstra")
+  } else {
+    dist = igraph::distances(graphdist, mode = "all", algorithm = "dijkstra")
+  }
+  res[["wAwgPath"]] = mean(c(dist))
+  res[["wKurtPath"]] = kurtosis(c(dist))
+  res[["wSkewPath"]] = skewness(c(dist))
   #print("... wDistance")
   res[["wDistance"]]=farthest.nodes(graph)$distance
+  
   #print("... wTransitivity")
   #make binary
   #print("... cutoff binarization")
@@ -109,7 +116,6 @@ get_network_params=function(modulename="", clusters, cormatrix) {
   return(res)
 }
 
-
 ```
 
 ```{r}
@@ -136,7 +142,7 @@ modfeatures=read.table(file=paste0(output,"/featureNetworks.txtFALSE"), sep="\t"
 PCA=prcomp(t(scale(t(modfeatures))))
 res_umap=M3C::umap(modfeatures, colvec = rownames(PCA$rotation))
 
-png(paste0(output,"WGCNA_module_properties.png"))
+pdf(paste0(output,"WGCNA_module_properties.pdf"))
 par(mfrow=c(1,2))
 plot(PCA$rotation[,"PC1"], PCA$rotation[,"PC2"], 
      main="PCA of WGCNA modules",
@@ -168,11 +174,11 @@ for (i in 1:100){
 resframeModelling=data.frame(scale(t(x)))
 
 library(psych)
-png(paste0(output,"WGCNA_saddle_brown_module_properties_pair.png"), 750,750)
+pdf(paste0(output,"WGCNA_saddle_brown_module_properties_pair.pdf"), 750,750)
 pairs.panels(resframeModelling)
 dev.off()
 
-png(paste0(output,"WGCNA_saddle_brown_module_properties.png"))
+pdf(paste0(output,"WGCNA_saddle_brown_module_properties.pdf"))
 corrplot::corrplot(cor(resframeModelling),order = "hclust")
 dev.off()
 
@@ -209,7 +215,7 @@ if(!file.exists(filetarget)){
 rownames(LGDs)=LGDs$IID
 LGDS.gen = LGDs[,-(1:6)]
 
-png(paste0(output,"variants_per_person.png"))
+pdf(paste0(output,"variants_per_person.pdf"))
 hist(rowSums(LGDS.gen!=0, na.rm=T))
 dev.off()
 
@@ -250,30 +256,56 @@ clustergene=mcols(ddsMat)$cluster
 allgenes=mcols(ddsMat)$hgnc
 
 
-get_pat_parameters <- function(pat){
-  
+get_pat_parameters <- function(pat, verbose = F){
+  modfeatures=list()
   hitcluster=clustergene
   hitcluster[allgenes %in% gethitgenes(pat)]=NA
   
   for (m in modules){
-    print(m)
+    if(verbose){print(m)}
     tmp=get_network_params(modulename = m, 
                            clusters =hitcluster , 
                            cormatrix = adj)
-    modfeatures[m]=unlist(tmp)
+    modfeatures[[m]]=unlist(tmp)
   }
   return(modfeatures)
 }
 
-reslist=sapply(rownames(LGDs)[1:2], get_pat_parameters)
+#system.time(get_pat_parameters(rownames(LGDs)[1]))
+# takes about 17 minutes per sample 
+
+reslist=sapply(rownames(LGDs)[1:100], get_pat_parameters)
 save(reslist, file=paste0(output, "/ReslistWGCNA_pat.RData"))
 
-reslist=sapply(rownames(LGDs)[sample(1:nrow(LGDs), 100)], get_pat_parameters)
+reslist=sapply(rownames(LGDs)[], get_pat_parameters)
 save(reslist, file=paste0(output, "/ReslistWGCNA_pat.RData"))
 
 ```
+
+
 ```{r}
 NetwFeatures=sapply(dimnames(reslist)[[2]], function(x){unlist(reslist[,x])})
+
+noiseridx=apply(NetwFeatures, 1, sd)==0
+
+NetwFeatures[noiseridx,] = matrix(data=rnorm(length(unlist(NetwFeatures[noiseridx,])), 0,0.1), 
+                                  nrow=dim(NetwFeatures[noiseridx,])[1], ncol=dim(NetwFeatures[noiseridx,])[2])
+
+PCA=prcomp(t(scale(t(NetwFeatures))))
+res_umap=M3C::umap(NetwFeatures, colvec = rownames(PCA$rotation))
+
+pdf(paste0(output,"Patient_module_properties.pdf"))
+par(mfrow=c(1,2))
+plot(PCA$rotation[,"PC1"], PCA$rotation[,"PC2"], 
+     main="PCA of WGCNA modules",
+     xlab="PC1", ylab="PC2",
+     col="black", pch=16)
+plot(res_umap$data$X1,res_umap$data$X2, 
+     main="UMAP of WGCNA modules",
+     xlab="UMAP 1", ylab="UMAP 2",
+     col="black",pch=16)
+dev.off()
+
 
 ```
 
