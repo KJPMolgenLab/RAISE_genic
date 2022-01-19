@@ -31,7 +31,6 @@ loss = ['mean_squared_error']
 batches = [20]
 epochs = [50]
 
-
 def create_model(activation,
                  dropout_rate,
                  layers,

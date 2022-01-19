@@ -274,8 +274,8 @@ get_pat_parameters <- function(pat, verbose = F){
 #system.time(get_pat_parameters(rownames(LGDs)[1]))
 # takes about 17 minutes per sample 
 
-reslist=sapply(rownames(LGDs)[1:100], get_pat_parameters)
-save(reslist, file=paste0(output, "/ReslistWGCNA_pat.RData"))
+# reslist=sapply(rownames(LGDs)[1:100], get_pat_parameters)
+# save(reslist, file=paste0(output, "/ReslistWGCNA_pat.RData"))
 
 reslist=sapply(rownames(LGDs)[], get_pat_parameters)
 save(reslist, file=paste0(output, "/ReslistWGCNA_pat.RData"))
@@ -305,7 +305,5 @@ plot(res_umap$data$X1,res_umap$data$X2,
      xlab="UMAP 1", ylab="UMAP 2",
      col="black",pch=16)
 dev.off()
-
-
 ```
 
