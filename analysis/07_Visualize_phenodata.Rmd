@@ -1,58 +1,275 @@
 ---
 title: "RaiseGenic PhenotypicData Vis"
 author: "SP"
-date: "03 01 2022"
-output: html_document
+date: "14 01 2022"
+output: 
+  html_document: 
+    fig_width: 11
+    fig_height: 8
+    fig_caption: yes
 ---
-
-```{r libraries}
-library("tidyverse")
-library("magrittr")
-library("psych")
-library("labelled")
-#source("helper_funs.R")
-```
-
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r paths, include=FALSE}
 home=getwd()
-datafolder="/data/PhenotypicData/"
-output= paste0(home, "/output/")
+datafolder=file.path(home, "data", "PhenotypicData")
+codebookfolder=file.path(home, "data", "Data_Dict")
+genofolder=file.path(home, "data", "VCF_Files")
+outputfolder= file.path(home, "output")
 ```
 
-
+```{r libraries, include=FALSE}
+source(file.path(home, "code", "helper_functions.R"))
+load_inst_pkgs("tidyverse", "magrittr", "psych", "labelled")
+```
 
 ```{r load data}
-
-epi25 <- read_csv(paste0(home,datafolder,"Epi25_data_merged.csv"), guess_max = 2000, show_col_types = TRUE)
-epi25_codebook <- read_csv(paste0(home,datafolder,"Epi25_merged_labels.csv"))
-epi25o <- read_csv(paste0(home,datafolder,"Epi25_data_merged_outcomes.csv"), guess_max = 2000, show_col_types = TRUE)
-
-# add labels
-epi25_labels <- setNames(as.list(epi25_codebook$var_label), epi25_codebook$var_name)
-epi25 <- set_variable_labels(epi25, .labels =  epi25_labels, .strict = FALSE)
-rm(epi25_labels)
+epi25 <- read_csv(file.path(datafolder, "Epi25_data_merged.csv"), 
+                  guess_max = 2000, show_col_types = TRUE)
+epi25_codebook <- read_csv(file.path(codebookfolder, "Epi25_merged_labels.csv"))
+epi25o <- read_csv(file.path(datafolder, "Epi25_data_merged_outcomes.csv"), 
+                   guess_max = 2000, show_col_types = TRUE)
+geno_IDs <- read_csv(file.path(genofolder, "samples.txt"),col_names = FALSE) %>% 
+  use_series(X1) %>% unique()
 ```
 
+```{r variable & value labels}
+# add variable labels
+epi25_labels <- 
+  setNames(as.list(epi25_codebook$var_label), epi25_codebook$var_name)
+epi25 <- set_variable_labels(epi25, .labels =  epi25_labels, .strict = FALSE)
+epi25o <- set_variable_labels(epi25o, .labels =  epi25_labels, .strict = FALSE)
+rm(epi25_labels)
 
-# epi25 data
+# add value labels
+# drug labels
+var_labels <- list()
+var_labels[["drug_labels"]] <- 
+  c("Carbamazepine_3", "Lacosamide_11", "Levetiracetam_13", "Valproate_28")
+names(var_labels[["drug_labels"]]) <- c("3", "11", "13", "28")
+# outcomes
+var_labels[["outcome_labels"]] <- 
+  c("1_Response", "2_Failure", "3_Unclassified", "4_Unknown")
+names(var_labels[["outcome_labels"]]) <- c("1", "2", "3", "4")
+# stop reasons
+var_labels[["stop_reason_labels"]] <- 
+  c("inadequate seizure control", 
+    "unacceptable adverse effects", 
+    "both inadequate seizure control and unacceptable adverse effects", 
+    "remission", 
+    "other", 
+    "unknown", 
+    "NA")
+names(var_labels[["stop_reason_labels"]]) <- 
+  c("1", "2", "3", "4", "5", "6", "7")
+```
+
+TODO: consolidate variables\
+- event_name & redcap_event_name
+
+# epi25o outcome data
+
+## enrich data frames
+```{r}
+# create vars
+epi25o %<>% 
+  group_by(record_id) %>% 
+  mutate(n_events = n(), n_drugs = length(unique(aed_generic_name))) %>% 
+  ungroup()
+
+# create subset _ss
+epi25o_ss <- epi25o %>% 
+  select(record_id, local_identifier, broad_id, aed_generic_name, aed_outcome, 
+         stop_reason, sex, yob, start_date, stop_date, still_on_aed, 
+         aed_adherent, initiated_as, max_dose, max_dose_serum, appro_aed_trial, 
+         adr_on_aed, adr_type, attributed_aed, n_events, n_drugs, 
+         starts_with("ethnicity__"), hispanic_status, 
+         family_history, fam_first_deg, questionnaire
+         # event_name, redcap_event_name
+         )
+
+# df for patients with multiple events
+epi25o_ss_multiev <- epi25o_ss %>% filter(n_events > 1)
+# patients who received the same drug multiple times, but not in different doses
+epi25o_ss_samedose <- 
+  epi25o_ss %>% 
+  group_by(record_id, aed_generic_name) %>% 
+  filter(n() > 1, length(unique(max_dose)) == 1)
+# exclude those patients for now
+excl_pats <- unique(epi25o_ss_samedose$record_id)
+```
+
 
 ## variables
 ```{r}
-glimpse(epi25)
+glimpse(epi25o)
 ```
 
+TODO - recode 998 etc
+
 ## distribution of numeric values
-- select variables
 ```{r describe}
 # epi25 %>% select(where(is.numeric)) %>% describe()
-epi25 %>% select(sex, yob, deceased, syndrome_GGE, syndrome_focal, genetic_testing) %>% describe()
+epi25o_ss %>% describe()
 ```
-TODO: recode 998 etc
+
+## available samples
+```{r}
+epi25o_ss %>% 
+  select(record_id, local_identifier, broad_id) %>% 
+  summarise(across(.fns = ~length(unique(.))))
+n_subj_o <- length(unique(epi25o_ss$record_id))
+n_subj_o_g <- length(intersect(unique(epi25o_ss$record_id), geno_IDs))
+n_subj_g_no_o <- length(setdiff(geno_IDs, unique(epi25o_ss$record_id)))
+```
+There are `r n_subj_o` patients with outcome data available.\
+`r n_subj_o_g` patients have outcome and Exome data.\
+`r n_subj_g_no_o` patients with Exome data have no outcome data.
+
+### drugs per patient
+```{r}
+epi25o_ss %>% group_by(record_id) %>% slice_head(n = 1) %>% 
+  qplot(data = ., x = n_drugs)
+```
+
+### number of events & drugs per patient
+```{r}
+epi25o_ss %>% 
+  group_by(record_id) %>% 
+  slice_head(n = 1) %>% 
+  ungroup() %>% 
+  group_by(n_events, n_drugs) %>% 
+  summarise(count = n()) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = n_events, y = n_drugs)) +
+  geom_point(aes(size = count, colour = count)) +
+  scale_size(range = c(5, 30)) +
+  geom_text(aes(label = count), colour = "white")
+```
+
+### inspect patients with multiple events
+```{r}
+epi25o_ss_multiev %>% 
+  filter(n_events == 4) %>% 
+  slice_head(n = 4) %>% 
+  select(aed_generic_name, aed_outcome, stop_reason, aed_adherent, max_dose, 
+         adr_on_aed)
+```
+
+### treatment success after drug switch
+```{r}
+epi25o_ss %>% 
+  select(record_id, aed_generic_name, aed_outcome, stop_reason, aed_adherent, 
+         max_dose, adr_on_aed, n_drugs, n_events) %>% 
+  group_by(record_id) %>% 
+  filter(n_drugs > 1) %>% 
+  filter(min(aed_outcome) == 1) %>% 
+  ungroup() %>% 
+  slice_head(n = 4)
+```
+
+### patients who received the same drug in different doses
+```{r}
+epi25o_ss %>% 
+  group_by(record_id, aed_generic_name) %>% 
+  filter(!c(n() > 1 & NA %in% max_dose)) %>% 
+  filter(length(unique(max_dose)) > 1) %>% 
+  select(!c(local_identifier, broad_id, sex, yob, still_on_aed, max_dose_serum, 
+            adr_type, attributed_aed, starts_with("ethnicity"), hispanic_status, 
+            family_history, fam_first_deg)) %>% 
+  arrange(record_id, aed_generic_name, start_date)
+```
+
+### patients who received the same drug multiple times, but not in different doses
+```{r}
+epi25o_ss_samedose %>% 
+  select(!c(local_identifier, broad_id, sex, yob, still_on_aed, max_dose_serum, 
+            adr_type, attributed_aed, starts_with("ethnicity"), hispanic_status, 
+            family_history, fam_first_deg))
+```
+`r length(unique(epi25o_ss_samedose$record_id))` patients received the same drug multiple times with unclear dose relations. Those events are excluded for now.
+
+## ADRs
+TODO
+
+# generate outcome dataframe
+```{r drug response, warning=FALSE}
+# pivot to wide format: 1 row per patient
+epi25o_ss_wide <- epi25o_ss %>% 
+  filter(!(record_id %in% excl_pats)) %>% 
+  pivot_wider(names_from = c(aed_generic_name, max_dose), 
+              values_from = c(aed_outcome, stop_reason, start_date, stop_date, 
+                              aed_adherent, appro_aed_trial, adr_on_aed, 
+                              max_dose_serum, adr_type, initiated_as, 
+                              still_on_aed, attributed_aed))
+
+# create 4 main drug outcome columns
+epi25o_ss_wide %<>% 
+  rowwise(record_id) %>% 
+  mutate(aedo_3 = min(c_across(starts_with("aed_outcome_3_")), na.rm = TRUE), 
+         aedo_11 = min(c_across(starts_with("aed_outcome_11_")), na.rm = TRUE),
+         aedo_13 = min(c_across(starts_with("aed_outcome_13_")), na.rm = TRUE),
+         aedo_28 = min(c_across(starts_with("aed_outcome_28_")), na.rm = TRUE)
+         ) %>% 
+  ungroup() %>% 
+  mutate(across(starts_with("aedo_"), ~na_if(., Inf)))
+
+# create smaller drug outcome dataframe
+epi25o_ss_dr <- epi25o_ss_wide %>% 
+  select(record_id, starts_with("aedo_")) %>% 
+  rename("Carbamazepine_3" = aedo_3, "Lacosamide_11" = aedo_11, 
+         "Levetiracetam_13" = aedo_13, "Valproate_28" = aedo_28)
+
+write_csv(epi25o_ss_dr, file.path(outputfolder, "aed_responses.csv"))
+
+# check for additional values_from columns (contain multiple values per patient)
+# drug_resp %>% group_by(record_id) %>% filter(n() > 1) %>% 
+#   summarise(across(.fns = ~length(unique(.)))) %>% ungroup() %>% 
+#   summarise(across(.fns = max))
+```
+TODO: include infos from sanity check cols\
+\
+- only if appro_aed_trial?
+- are there successes (outcome==1) for cases where aed_adherent==0?
+- only if stop_reason is 4/remission or 7/NA?
+- only if no (adr_on_aed & attributed_on_aed)?
+
+
+## no patients who didn't receive any drug
+```{r all outcomes na}
+epi25o_ss_dr %>% 
+  filter(is.na(Carbamazepine_3), is.na(Lacosamide_11), is.na(Levetiracetam_13), 
+         is.na(Valproate_28))
+```
+
+## outcomes for every event
+```{r}
+table(epi25o_ss$aed_outcome) %>% addmargins()
+table(epi25o_ss$aed_outcome) %>% prop.table()*100
+```
+
+## outcomes by drug (best outcome per patient)
+```{r}
+epi25o_ss_dr %>% 
+  pivot_longer(cols = !(record_id), 
+               names_to = "drug", 
+               values_to = "outcome") %>% 
+  filter(!is.na(outcome)) %>% 
+  mutate(outcome = recode(outcome, !!!var_labels[["outcome_labels"]])) %>% 
+  group_by(drug, outcome) %>% 
+  summarise(count = n()) %T>% 
+  print() %>% 
+  ggplot(aes(x = drug, y = outcome)) + 
+  geom_point(aes(size = count, colour = count)) + 
+  scale_size(range = c(5, 30)) + 
+  geom_text(aes(label = count), colour = "white")
+```
+
+
+# epi25 phenotypic data
 
 ## ethnicity
 ```{r}
@@ -63,9 +280,10 @@ epi25 %>%
   mutate("share_%" = str_c(round(total/sum(total, na.rm = TRUE)*100, 1))) %>% 
   left_join(epi25_codebook)
 ```
-TODO: include hispanic_status in ethnicity__8
 
-## syndrome type ee_syndrome_, syndrome
+TODO: include hispanic_status in ethnicity\_\_8
+
+## syndrome type ee_syndrome\_, syndrome
 ```{r}
 epi25_codebook %>% filter(str_detect(var_name, "syndrome"))
 
@@ -78,14 +296,21 @@ epi25 %>%
 
 epi25 %>% select(syndrome_focal, syndrome_GGE, syndrome_notes)
 ```
+
 TODO: recode NAs to 0s for correct counts
+
 ```{r}
 
 ```
 
-## distribution of seizure types _seizures
-## age of onset by seizure type _age_onset
+## distribution of seizure types \_seizures
+
+## age of onset by seizure type \_age_onset
+
 ## age_last
-## comorbidities autism, intellectual_disability + _degree, psychosis, developmental_delay + _type, 
-## family history fam_consanguinity	family_history fam_first_deg
+
+## comorbidities autism, intellectual_disability + \_degree, psychosis, developmental_delay + \_type,
+
+## family history fam_consanguinity family_history fam_first_deg
+
 ## dna available maternal_dna paternal_dna cnv_analysis genetic_testing
