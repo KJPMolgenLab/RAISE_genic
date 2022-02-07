@@ -2,7 +2,7 @@
 home=getwd()
 args = commandArgs(trailingOnly=TRUE)
 
-##args=c("/scratch/fuchs/agchiocchetti/chiocchetti/RAISEGenicData/VCF_Files/Merged_LGD_RAISE_Genic_WES_F_K_B_merged.vcf.gz.raw.part_aa", "/scratch/fuchs/agchiocchetti/chiocchetti/RAISEGenicData/VCF_Files/Merged_LGD_RAISE_Genic_WES_F_K_B_merged.vcf.gz.bim", "part_aa")
+##args=c("/scratch/fuchs/agchiocchetti/chiocchetti/RAISEGenicData/VCF_Files/Merged_LGD_RAISE_Genic_WES_F_K_B_merged.vcf.gz.raw.part_ab", "/scratch/fuchs/agchiocchetti/chiocchetti/RAISEGenicData/VCF_Files/Merged_LGD_RAISE_Genic_WES_F_K_B_merged.vcf.gz.bim", "part_ab")
 
 print(args)
 
@@ -13,10 +13,16 @@ outputname=args[3]
 output= "/scratch/fuchs/agchiocchetti/chiocchetti/RAISEGenicData/output"
 hg38refgenes="/scratch/fuchs/agchiocchetti/chiocchetti/ReferenceGenomes/RefSeqGeneshg38TxStartStop.txt"
 
-source(paste0(home,"/code/custom_functions.R"))
+print("loading data")
 load(paste0(output,"/WGCNA_adj_TOM.RData"))
 load(paste0(output,"/dds_matrix.RData"))
 
+rm(TOM)
+gc()
+gc()
+gc()
+
+print("loading pacakges")
 require(M3C)
 library(igraph)
 library(DESeq2)
@@ -27,12 +33,14 @@ library(doParallel)
 library(tidyverse)
 library(data.table)
 library(moments)
+source(paste0(home,"/code/custom_functions.R"))
+
 
 cat("number of cores detected", detectCores(), "\n")
-registerDoParallel(cores=detectCores())
+registerDoParallel(detectCores())
+
 
 print(paste0("running on ", getDoParWorkers(), " cores"))
-
 
 print("define functions")
 get_network_params=function(modulename="", clusters, cormatrix, split=F, cores=NA, splitsize=500) {
@@ -108,6 +116,7 @@ get_network_params=function(modulename="", clusters, cormatrix, split=F, cores=N
     res[["uwTransitivity"]]=transitivity(graph, type="global")
                                         #print("... uwEgoSize")
     res[["uwEgoSize"]]=mean(ego_size(graph))
+    gc()
     return(res)
 }
 
@@ -157,6 +166,8 @@ allgenes=mcols(ddsMat)$hgnc
 ## sort soit starts with the biggest 
 modules=sort(table(clustergene), decreasing=T) %>% names
 
+modules=modules[19:25]
+
 get_pat_parameters <- function(pat, verbose = T){
     cat(pat, "\n")
     modfeatures=list()
@@ -174,37 +185,41 @@ get_pat_parameters <- function(pat, verbose = T){
     return(modfeatures)
 }
 
-
-
 print("calculate features")
 
 reslist=foreach(p=rownames(LGDs)[]) %dopar% get_pat_parameters(p)
+names(reslist)=rownames(LGDs)[]
+
+print("DONE calculate features")
+
 save(reslist, file=paste0(output, "/ReslistWGCNA_pat", outputname, ".RData"))
+## load(paste0(output, "/ReslistWGCNA_pat", outputname, ".RData"))
+## NetwFeatures=lapply(reslist, function(x){unlist(x)})
+## NetwFeatures=do.call(rbind, NetwFeatures)
 
-NetwFeatures=sapply(dimnames(reslist)[[2]], function(x){unlist(reslist[,x])})
-write.table(NetwFeatures, file=paste0(output, "/ReslistWGCNA_pat",outputname,".txt"))
+print("DONE write features")
 
-
-if(FALSE){
-    noiseridx=apply(NetwFeatures, 1, sd)==0
-
-    NetwFeatures[noiseridx,] = matrix(data=rnorm(length(unlist(NetwFeatures[noiseridx,])), 0,0.1), 
-                                      nrow=dim(NetwFeatures[noiseridx,])[1], ncol=dim(NetwFeatures[noiseridx,])[2])
-
-    PCA=prcomp(t(scale(t(NetwFeatures))))
-    res_umap=M3C::umap(NetwFeatures, colvec = rownames(PCA$rotation))
-
-    pdf(paste0(output,"Patient_module_properties.pdf"))
-    par(mfrow=c(1,2))
-    plot(PCA$rotation[,"PC1"], PCA$rotation[,"PC2"], 
-         main="PCA of WGCNA modules",
-         xlab="PC1", ylab="PC2",
-         col="black", pch=16)
-    plot(res_umap$data$X1,res_umap$data$X2, 
-         main="UMAP of WGCNA modules",
-         xlab="UMAP 1", ylab="UMAP 2",
-         col="black",pch=16)
-    dev.off()
-}
+##write.table(NetwFeatures, file=paste0(output, "/ReslistWGCNA_pat",outputname,".txt"))
 
 
+## if(FALSE){
+##     noiseridx=apply(NetwFeatures, 1, sd)==0
+
+##     NetwFeatures[noiseridx,] = matrix(data=rnorm(length(unlist(NetwFeatures[noiseridx,])), 0,0.1), 
+##                                       nrow=dim(NetwFeatures[noiseridx,])[1], ncol=dim(NetwFeatures[noiseridx,])[2])
+
+##     PCA=prcomp(t(scale(t(NetwFeatures))))
+##     res_umap=M3C::umap(NetwFeatures, colvec = rownames(PCA$rotation))
+
+##     pdf(paste0(output,"Patient_module_properties.pdf"))
+##     par(mfrow=c(1,2))
+##     plot(PCA$rotation[,"PC1"], PCA$rotation[,"PC2"], 
+##          main="PCA of WGCNA modules",
+##          xlab="PC1", ylab="PC2",
+##          col="black", pch=16)
+##     plot(res_umap$data$X1,res_umap$data$X2, 
+##          main="UMAP of WGCNA modules",
+##          xlab="UMAP 1", ylab="UMAP 2",
+##          col="black",pch=16)
+##     dev.off()
+## }

@@ -1,0 +1,41 @@
+#!/bin/bash -x
+#SBATCH --job-name=FeatNet
+#SBATCH --partition=fuchs
+#SBATCH --nodes=10
+#SBATCH --ntasks=10
+#SBATCH --mem-per-cpu=6000
+#SBATCH --cpus-per-task=20
+#SBATCH --time=3-0:00:00
+#SBATCH --mail-type=ALL 
+
+
+cd /home/fuchs/agchiocchetti/chiocchetti/Projects/RAISE_genic/
+inputfile="/scratch/fuchs/agchiocchetti/chiocchetti/RAISEGenicData/VCF_Files/Merged_LGD_RAISE_Genic_WES_F_K_B_merged.vcf.gz.raw" 
+inputbim="/scratch/fuchs/agchiocchetti/chiocchetti/RAISEGenicData/VCF_Files/Merged_LGD_RAISE_Genic_WES_F_K_B_merged.vcf.gz.bim"
+
+
+linestot=$(< $inputfile wc -l)
+linespart=$(expr $linestot / 10)
+
+tail -n +2 $inputfile | split -l $linespart - $inputfile.part_
+
+    
+for file in $inputfile.part_*
+do
+    filename=$(basename -- "$file")
+    extension="${filename##*.}" 
+    echo $extension 
+    head -n 1 $inputfile > "$file.tmp_file"
+    cat $file >> $file.tmp_file 
+    mv -f $file.tmp_file "$file"
+    Rscript --slave --no-save --no-restore code/06_1_Networkfeatures.R $file $inputbim $extension &&
+    sleep 30 &
+done
+
+wait
+
+rm $inputfile.part_*
+
+wait
+
+
