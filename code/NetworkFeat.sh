@@ -5,7 +5,7 @@
 #SBATCH --ntasks=10
 #SBATCH --mem-per-cpu=6000
 #SBATCH --cpus-per-task=20
-#SBATCH --time=3-0:00:00
+#SBATCH --time=10:00:00
 #SBATCH --mail-type=ALL 
 
 
@@ -22,19 +22,16 @@ tail -n +2 $inputfile | split -l $linespart - $inputfile.part_
     
 for file in $inputfile.part_*
 do
-    filename=$(basename -- "$file")
-    extension="${filename##*.}" 
-    echo $extension 
-    head -n 1 $inputfile > "$file.tmp_file"
-    cat $file >> $file.tmp_file 
-    mv -f $file.tmp_file "$file"
+    filename=$(basename -- "$file") &&
+    extension="${filename##*.}" &&
+    echo $extension &&
+    head -n 1 $inputfile > "$file.tmp_file" &&
+    cat $file >> $file.tmp_file &&
+    mv -f $file.tmp_file "$file" &&
     Rscript --slave --no-save --no-restore code/06_1_Networkfeatures.R $file $inputbim $extension &&
     sleep 30 &
 done
 
-wait
-
-rm $inputfile.part_*
 
 wait
 
