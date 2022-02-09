@@ -36,7 +36,8 @@ library(moments)
 source(paste0(home,"/code/custom_functions.R"))
 
 
-cat("number of cores detected", detectCores(), "\n")
+cat("number of cores detected", detectCores() , "\n")
+
 registerDoParallel(detectCores())
 
 
@@ -99,14 +100,12 @@ get_network_params=function(modulename="", clusters, cormatrix, split=F, cores=N
         counter=counter+1
     }
 
-    res[["uwBinCutoff"]]=cutoff
-    
     graph=graph_from_adjacency_matrix(modMatrix)
                                         #print("... uwMaxcon")
     res[["uwMaxcon"]]=max(colSums(modMatrix, na.rm=T))
                                         #print("... uwConSum")
     res[["uwConSum"]]=sum(modMatrix[lower.tri(modMatrix, diag = F)], na.rm=T)
-                                        #print("... uwDensity")
+                                      #print("... uwDensity")
     res[["uwDensity"]]=graph.density(graph)
                                         #print("... uwDistance")
     res[["uwDistance"]]=farthest.nodes(graph)$distance
@@ -119,7 +118,6 @@ get_network_params=function(modulename="", clusters, cormatrix, split=F, cores=N
     gc()
     return(res)
 }
-
 
 
 print("loads LGD files")
@@ -135,7 +133,7 @@ LGDS.gen[is.na(LGDS.gen)] <- 0
 
 
 print("set colnames")
-
+get
 genes=read.table(hg38refgenes)
 colnames(genes)=c("bin", "id", "CHR", "strand", "start", "stop", "hgnc", "id2")
 genesGR=with(genes, GRanges(CHR, IRanges(start, stop),  ))
@@ -163,10 +161,13 @@ reslist=list()
 clustergene=mcols(ddsMat)$cluster
 allgenes=mcols(ddsMat)$hgnc
 
-## sort soit starts with the biggest 
-modules=sort(table(clustergene), decreasing=T) %>% names
+## sort soit starts with the biggest
 
-modules=modules[19:25]
+
+modules=sort(table(clustergene), decreasing=F) %>% names
+modules=modules[1:22]
+modules=c("black", "midnightblue", "grey60")
+
 
 get_pat_parameters <- function(pat, verbose = T){
     cat(pat, "\n")
@@ -187,26 +188,29 @@ get_pat_parameters <- function(pat, verbose = T){
 
 print("calculate features")
 
-reslist=foreach(p=rownames(LGDs)[]) %dopar% get_pat_parameters(p)
+reslist=mclapply(rownames(LGDs)[], get_pat_parameters,mc.cores=20)
 names(reslist)=rownames(LGDs)[]
 
 print("DONE calculate features")
 
 save(reslist, file=paste0(output, "/ReslistWGCNA_pat", outputname, ".RData"))
 ## load(paste0(output, "/ReslistWGCNA_pat", outputname, ".RData"))
-## NetwFeatures=lapply(reslist, function(x){unlist(x)})
-## NetwFeatures=do.call(rbind, NetwFeatures)
+NetwFeatures=lapply(reslist, function(x){unlist(x)})
+NetwFeatures=do.call(rbind, NetwFeatures)
+write.table(NetwFeatures, file=paste0(output, "/ReslistWGCNA_pat",outputname,".txt"))
 
 print("DONE write features")
+rm(list = ls())
+gc()
+print("cluster stopped")
 
-##write.table(NetwFeatures, file=paste0(output, "/ReslistWGCNA_pat",outputname,".txt"))
 
 
 ## if(FALSE){
 ##     noiseridx=apply(NetwFeatures, 1, sd)==0
 
 ##     NetwFeatures[noiseridx,] = matrix(data=rnorm(length(unlist(NetwFeatures[noiseridx,])), 0,0.1), 
-##                                       nrow=dim(NetwFeatures[noiseridx,])[1], ncol=dim(NetwFeatures[noiseridx,])[2])
+##                                       nrow=dim(NetwFeatures[noiseridx,])[1], ncol=dim(NetwFeatures[noiseridx,2])
 
 ##     PCA=prcomp(t(scale(t(NetwFeatures))))
 ##     res_umap=M3C::umap(NetwFeatures, colvec = rownames(PCA$rotation))
@@ -223,3 +227,5 @@ print("DONE write features")
 ##          col="black",pch=16)
 ##     dev.off()
 ## }
+
+registerDoSeq()
