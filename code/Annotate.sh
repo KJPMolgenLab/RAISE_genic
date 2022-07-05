@@ -4,14 +4,18 @@
 #SBATCH --nodes=2
 #SBATCH --ntasks=20
 #SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=1200   
-#SBATCH --time=8:00:00
+#SBATCH --mem-per-cpu=2400   
+#SBATCH --time=3-8:00:00
 #SBATCH --no-requeue
 #SBATCH --mail-type=ALL
 
-modus="test"
-reffasta="/scratch/fuchs/agmisc/chiocchetti/ReferenceGenomes/hg38.fa"
-refdb="/scratch/fuchs/agmisc/chiocchetti/annovar/humandb/"
+
+#filename="/scratch/fuchs/agchiocchetti/public/data/ASC_Data_2022/ccdg_asc_ndd_daly_talkowski_goethe_asd_exome/ccdg_asc_ndd_daly_talkowski_goethe_asd_exome.vcf.gz"
+
+
+modus="run"
+reffasta="/scratch/fuchs/agchiocchetti/public/refdata/hg38.fa"
+refdb="/scratch/fuchs/agchiocchetti/chiocchetti/annovar/humandb/"
 
 filename=$1
 
@@ -40,22 +44,30 @@ if you want to use anotherone delete or rename testset.vcf.gz in $filedir"
 	filename="testset.vcf.gz"
     else
 	echo "testset is created"
-	bcftools query -l $filename | grep 21 > samples.tmp #selects all files with a 21 in it is kind of arbitrary
+	bcftools query -l $filename | grep 21 > samples.tmp #selects all samples with a 21 in it is kind of arbitrary
 	bcftools view $filename -S samples.tmp -Oz -o testset.vcf.gz
 	filename="testset.vcf.gz"
 	rm samples.tmp
+	echo "testset succesfully created"
     fi
 fi
 
+
 bcftools index -f $filename
-bcftools view --regions chr1 $filename --threads 20 -o tmp.vcf
 
+if [ "$modus" == "test" ]
+then
+    bcftools view --regions chr1 $filename --threads 20 -o tmp.vcf
+else
+    bcftools view $filename --threads 20 -o tmp.vcf
+fi
 
+    
 echo "run normalization step1"
-bcftools norm -m-both --threads 20 -o 01_merged.vcf.gz tmp.vcf
+bcftools norm -m-both --threads 20 -o 01_merged.vcf tmp.vcf
 
 echo "run normalization step2"
-bcftools norm tmp_01_merged.vcf -f $reffasta --threads 20  -Oz -o  tmp_02_merged.vcf.gz
+bcftools norm 01_merged.vcf -f $reffasta --threads 20  -Oz -o  tmp_02_merged.vcf.gz
 bcftools index tmp_02_merged.vcf.gz
 ## todo hg 38
 echo "run annotation"
@@ -76,10 +88,16 @@ table_annovar.pl tmp_02_merged.vcf.gz  $refdb \
 
 
 htsfile -h  Annotated.hg38_multianno.vcf > tmp_LGD.vcf
-grep -E "stop|start|frameshift|splicing" Annotated.hg38_multianno.vcf >> tmp_LGD.vcf
+sed '/^#/d' Annotated.hg38_multianno.vcf > tmp.vcf
+grep -E "stop|start|frameshift|splicing" tmp.vcf >> tmp_LGD.vcf
 
-bgzip -c -@ 20 tmp_LGD.vcf > LGD_$filename.gz
-bcftools index LGD_$filename.gz
+## to do integrate GADD filtering
+
+bgzip -c -@ 20 tmp_LGD.vcf > LGD_$filename
+bcftools index LGD_$filename
+
+plink --vcf  LGD_$filename --double-id --make-bed --out LGD_$filename
+plink --bfile LGD_$filename --recode "A" --out LGD_$filename
 
 rm tmp*
 rm Annotated*
@@ -99,7 +117,6 @@ rm Annotated*
 # stoploss
 # synonymous_SNV
 # unknown
-
 ## Func.refGene
 # downstream
 # exonic
